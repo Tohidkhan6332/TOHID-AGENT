@@ -1,0 +1,3 @@
+run = "npm start"
+entrypoint = "index.js"
+modules = ["nodejs-20"]
