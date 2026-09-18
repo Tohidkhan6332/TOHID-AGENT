@@ -1,12 +1,12 @@
 {
   "name":"tohid-agent-whatsapp",
-  "version":"1.2.0",
+  "version":"2.0.0",
   "private":true,
-  "description":"TOHID AGENT ChatGPT-style WhatsApp AI bot",
+  "description":"TOHID AGENT V2 ChatGPT-style WhatsApp AI Agent",
   "main":"index.js",
   "type":"commonjs",
   "engines":{"node":">=20"},
-  "scripts":{"start":"node index.js","heroku-postbuild":"echo TOHID-AGENT ready"},
+  "scripts":{"start":"node index.js","heroku-postbuild":"echo TOHID-AGENT V2 ready"},
   "dependencies":{
     "@whiskeysockets/baileys":"7.0.0-rc.14",
     "axios":"^1.12.2",
