@@ -1,11 +1,11 @@
-# 🤖 TOHID-AGENT V3 — WhatsApp AI Agent
+# 🤖 TOHID-AGENT V4 — WhatsApp AI Agent
 
-**TOHID-AGENT V3** is a ChatGPT-style WhatsApp AI agent engineered and branded by **Tohid** (`Tohidkhan6332`). It combines multilingual AI, memory, voice, vision, image generation, web search, protected GitHub automation, group controls and deployment-ready infrastructure.
+**TOHID-AGENT V4** is a ChatGPT-style WhatsApp AI agent engineered and branded by **Tohid** (`Tohidkhan6332`). It combines multilingual AI, memory, voice, vision, image generation, web search, protected GitHub automation, group controls and deployment-ready infrastructure.
 
 > 👨‍💻 **Developer: Tohid**  
-> 🚀 **Project: TOHID-AGENT V3**
+> 🚀 **Project: TOHID-AGENT V4**
 
-## ✨ V3 Highlights
+## ✨ V4 Highlights
 
 - 🌍 Multilingual AI + Hindi/Hinglish
 - 🧠 MongoDB persistent per-user conversation memory
@@ -39,6 +39,26 @@ Talk naturally instead of memorizing commands:
 `Open a pull request from feature/vision`
 
 For protected GitHub writes, the agent prepares the action first and asks for **CONFIRM**. The configured owner number is the only account allowed to execute writes.
+
+
+## 🚀 V4 Improvements
+
+- 🧩 Explicit reply-category routing so each response path can use the correct image
+- 🎙️ Per-user voice reply setting: `.voice on/off`
+- 🧠 Per-user memory setting: `.memory on/off`
+- ⚙️ Per-user settings panel: `.settings`
+- 🔐 Pending GitHub confirmations are persisted in MongoDB, so a restart does not silently lose a protected action
+- 🛡️ Errors now explicitly use the error reply image
+- 📊 GitHub write usage is included in owner statistics
+- 🖼️ Voice, image and video flows now use category-specific reply visuals
+
+### V4 Settings
+
+`.settings` — show your current settings  
+`.voice on/off` — enable or disable voice replies for your account  
+`.memory on/off` — enable or disable persistent AI memory for your account  
+
+Per-user settings require MongoDB. Without MongoDB, the bot continues to work with the global environment settings.
 
 ## 👁️ Vision
 
@@ -196,10 +216,10 @@ TOHID-AGENT/
 
 This project is intentionally branded throughout the runtime, configuration, README and GitHub integration as:
 
-**TOHID-AGENT V3**  
+**TOHID-AGENT V4**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
 ---
 
-**TOHID-AGENT V3 • Built by Tohid • AI + WhatsApp + GitHub**
+**TOHID-AGENT V4 • Built by Tohid • AI + WhatsApp + GitHub**
