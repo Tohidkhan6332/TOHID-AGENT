@@ -31,5 +31,11 @@ services:
         value: "true"
       - key: AI_WEB_SEARCH
         value: "true"
+      - key: GROUP_AI_MODE
+        value: mention
+      - key: AI_RATE_LIMIT_PER_MINUTE
+        value: "20"
+      - key: AI_MAX_MESSAGE_CHARS
+        value: "12000"
       - key: PREFIX
         value: "."
