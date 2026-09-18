@@ -1,25 +1,23 @@
 # TOHID AGENT — WhatsApp AI Bot
 
-A ChatGPT-style WhatsApp AI agent by Tohid. It supports multilingual chat, voice input/output, image generation, web search, image understanding, and GitHub operations.
+ChatGPT-style WhatsApp AI agent by Tohid with multilingual chat, voice input/output, image generation, web search, image understanding, and owner-only GitHub operations.
 
-## Features
-- Natural multilingual conversation
-- WhatsApp text and voice messages
-- AI voice replies
-- Image generation with GPT-Image-2
-- Image understanding through the AI model
-- Optional live web search
-- GitHub: list repos, read files, create/update files, branches, issues and pull requests
-- Owner-only GitHub write actions
-- Conversation memory per WhatsApp user
-- Baileys pairing-code login
+## Login
+The bot supports **QR** and **pairing-code** login. Use one method per WhatsApp session:
+- QR: `LOGIN_METHOD=qr`
+- Pairing: `LOGIN_METHOD=pairing` and set `PAIRING_NUMBER=91XXXXXXXXXX`
 
-## Setup
-1. Node.js 20+
-2. Copy `.env.example` to `.env`
-3. Fill `OPENAI_API_KEY`, `GITHUB_TOKEN`, and `OWNER_NUMBER`.
-4. Run `npm install`
-5. Run `npm start`
-6. Pair the WhatsApp account.
+If `MONGO_URI` is configured, Baileys credentials and Signal keys are stored in MongoDB so Heroku dyno restarts do not normally require a new pairing.
+
+## Heroku
+1. Create a Heroku app.
+2. Connect GitHub repo `Tohidkhan6332/TOHID-AGENT`, branch `main`.
+3. Add the Config Vars from `.env.example`.
+4. For persistent WhatsApp auth, set `MONGO_URI` to a MongoDB Atlas connection string.
+5. Set `LOGIN_METHOD=qr` for QR or `LOGIN_METHOD=pairing` + `PAIRING_NUMBER` for pairing.
+6. Deploy the `main` branch.
+7. Open **More → View logs** and complete the selected login method.
+
+The repository includes a Heroku `Procfile` using `worker: node index.js`.
 
 Never commit API keys, WhatsApp auth state, or generated secrets.
