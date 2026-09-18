@@ -1,0 +1,47 @@
+{
+  "name": "TOHID-AGENT",
+  "description": "TOHID AI WhatsApp agent",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "env": {
+    "OPENAI_API_KEY": {
+      "required": true
+    },
+    "GITHUB_TOKEN": {
+      "required": true
+    },
+    "GITHUB_OWNER": {
+      "value": "Tohidkhan6332"
+    },
+    "OWNER_NUMBER": {
+      "required": true
+    },
+    "LOGIN_METHOD": {
+      "value": "qr"
+    },
+    "PAIRING_NUMBER": {
+      "value": ""
+    },
+    "AI_AGENT_ENABLED": {
+      "value": "true"
+    },
+    "AI_VOICE_REPLY": {
+      "value": "true"
+    },
+    "AI_WEB_SEARCH": {
+      "value": "true"
+    },
+    "PREFIX": {
+      "value": "."
+    }
+  }
+}
