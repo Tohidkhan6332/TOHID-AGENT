@@ -51,7 +51,7 @@ PREFIX=.
 
 For persistent WhatsApp authentication, **MONGO_URI is strongly recommended**, especially on platforms with ephemeral filesystems.
 
-## 🎬 AI Video Generation\n\nUse:\n\n` .video <your prompt>`\n\nExample: ` .video A cinematic sunset over mountains, realistic camera movement`\n\nThe bot submits a text prompt to the configured video provider and sends the generated MP4 back to WhatsApp. Video generation is asynchronous and can take several minutes.\n\n**Current API note:** OpenAI's current Sora Videos API documentation marks the Videos API as deprecated and says it is scheduled to shut down on **September 24, 2026**. Configure another video provider before that date if uninterrupted video generation is required. citeturn2search0turn2search1\n\n## 🔐 Login
+## 🎬 AI Video Generation\n\nUse:\n\n` .video <your prompt>`\n\nExample: ` .video A cinematic sunset over mountains, realistic camera movement`\n\nThe bot submits a text prompt to the configured video provider and sends the generated MP4 back to WhatsApp. Video generation is asynchronous and can take several minutes.\n\n**Current API note:** OpenAI's current Sora Videos API documentation marks the Videos API as deprecated and says it is scheduled to shut down on **September 24, 2026**. Configure another video provider before that date if uninterrupted video generation is required.\n\n## 🔐 Login
 
 The bot supports **QR** and **pairing-code** login. Use one method per WhatsApp session:
 
