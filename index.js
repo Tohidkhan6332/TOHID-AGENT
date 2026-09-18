@@ -25,7 +25,7 @@ async function send(sock,jid,text,ctx={}){
  const category=replyImages.getCategory({category:ctx.category,mode:ctx.mode,text:ctx.sourceText||text,imageData:!!ctx.imageData});
  const image=replyImages.getImage(category);
  if(image){
-  const caption="🤖 TOHID-AGENT V3 • "+category.toUpperCase()+" • By Tohid";
+  const caption="🤖 TOHID-AGENT V4 • "+category.toUpperCase()+" • By Tohid";
   await sock.sendMessage(jid,{image:{url:image},caption});
  }
  return sock.sendMessage(jid,{text});
@@ -42,7 +42,7 @@ async function mongoAuth(){
 }
 
 function help(){
-return "🤖 *TOHID-AGENT V3*\n\n"+
+return "🤖 *TOHID-AGENT V4*\n\n"+
 "👨‍💻 Developer: Tohid\n\n"+
 "💬 Chat — send text\n🖼️ Vision — send an image + caption\n🎤 Voice — send a voice note\n"+
 "🎨 .imagine <prompt>\n🎬 .video <prompt>\n🧠 .newchat / .reset\n"+
@@ -59,13 +59,13 @@ async function main(){
  else{auth=await useMultiFileAuthState(AUTH);console.log("⚠️ Local auth enabled; set MONGO_URI for persistent auth.");}
  const{state,saveCreds}=auth;
  const{version}=await fetchLatestBaileysVersion();
- const sock=makeWASocket({version,auth:state,logger:pino({level:"silent"}),printQRInTerminal:false,browser:["TOHID-AGENT","Chrome","3.0.0"]});
+ const sock=makeWASocket({version,auth:state,logger:pino({level:"silent"}),printQRInTerminal:false,browser:["TOHID-AGENT","Chrome","4.0.0"]});
  sock.ev.on("creds.update",saveCreds);
  let pairingRequested=false;
  sock.ev.on("connection.update",async({connection,lastDisconnect,qr})=>{
   if(qr&&cfg.loginMethod!=="pairing"){console.log("\n📱 Scan QR with WhatsApp → Linked Devices:\n");qrcode.generate(qr,{small:true});}
   if(!state.creds.registered&&cfg.loginMethod==="pairing"&&cfg.pairingNumber&&!pairingRequested){pairingRequested=true;try{await new Promise(r=>setTimeout(r,1200));console.log("\n🔐 Pairing code: "+await sock.requestPairingCode(cfg.pairingNumber));}catch(e){console.error("Pairing error:",e.message);}}
-  if(connection==="open")console.log("✅ TOHID-AGENT V3 connected. Developer: Tohid");
+  if(connection==="open")console.log("✅ TOHID-AGENT V4 connected. Developer: Tohid");
   if(connection==="close"){const code=lastDisconnect?.error?.output?.statusCode;await closeAuth();if(code!==DisconnectReason.loggedOut)setTimeout(()=>main().catch(console.error),3000);else console.log("Logged out. Clear auth state and pair again.");}
  });
 
@@ -77,7 +77,7 @@ async function main(){
     const jid=m.key.remoteJid;if(!jid||jid==="status@broadcast")continue;
     const sender=m.key.participant||jid;
     if(await db.isBlocked(sender)&&!isOwner(sender))continue;
-    if(!allowed(sender)){await send(sock,jid,"⏳ TOHID-AGENT rate limit reached. Please try again in a minute.");continue;}
+    if(!allowed(sender)){await send(sock,jid,"⏳ TOHID-AGENT rate limit reached. Please try again in a minute.",{category:"security"});continue;}
     const msg=m.message;
     let text=msg.conversation||msg.extendedTextMessage?.text||msg.imageMessage?.caption||"";
     const group=jid.endsWith("@g.us");
@@ -104,25 +104,25 @@ async function main(){
     const mode=router.route(text,cfg.prefix);
 
     if(mode==="maintenance_on"||mode==="maintenance_off"){
-      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.");continue;}
-      maintenance=mode==="maintenance_on";await send(sock,jid,maintenance?"🛡️ Maintenance mode enabled.":"✅ Maintenance mode disabled.");continue;
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"admin"});continue;}
+      maintenance=mode==="maintenance_on";await send(sock,jid,maintenance?"🛡️ Maintenance mode enabled.":"✅ Maintenance mode disabled.",{category:"admin"});continue;
     }
-    if(maintenance&&!isOwner(sender)){await send(sock,jid,"🛡️ TOHID-AGENT is currently in maintenance mode.");continue;}
+    if(maintenance&&!isOwner(sender)){await send(sock,jid,"🛡️ TOHID-AGENT is currently in maintenance mode.",{category:"admin"});continue;}
     if(mode==="block"||mode==="unblock"){
       if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.");continue;}
       const target=text.split(/\s+/)[1]?.replace(/\D/g,"");
-      if(!target){await send(sock,jid,"Usage: "+cfg.prefix+mode+" <number>");continue;}
-      await db.setBlocked(target+"@s.whatsapp.net",mode==="block");await send(sock,jid,(mode==="block"?"🚫 Blocked ":"✅ Unblocked ")+target);continue;
+      if(!target){await send(sock,jid,"Usage: "+cfg.prefix+mode+" <number>",{category:"admin"});continue;}
+      await db.setBlocked(target+"@s.whatsapp.net",mode==="block");await send(sock,jid,(mode==="block"?"🚫 Blocked ":"✅ Unblocked ")+target,{category:"security"});continue;
     }
     if(mode==="help"){await send(sock,jid,help(),{category:"ai"});continue;}
-    if(mode==="ping"){await send(sock,jid,"🏓 TOHID-AGENT V3: online\n👨‍💻 Developer: Tohid");continue;}
-    if(mode==="status"){const s=await db.stats();await send(sock,jid,"⚡ *TOHID-AGENT V3*\nStatus: Online\nDeveloper: Tohid\nMemory DB: "+(s.database?"Connected":"Not configured")+"\nGitHub: "+(cfg.githubToken?"Configured":"Not configured")+"\nAI: "+(cfg.openaiKey?"Configured":"Not configured")+"\nBlocked users: "+(s.blocked??0));continue;}
-    if(mode==="stats"){if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.");continue;}const s=await db.stats();await send(sock,jid,"📊 *TOHID-AGENT V3 STATS*\nUsers: "+(s.users??"N/A")+"\nBlocked: "+(s.blocked??0)+"\nChat: "+(s.usage?.chat??0)+"\nVoice: "+(s.usage?.voice??0)+"\nImages: "+(s.usage?.image??0)+"\nVideos: "+(s.usage?.video??0));continue;}
+    if(mode==="ping"){await send(sock,jid,"🏓 TOHID-AGENT V4: online\n👨‍💻 Developer: Tohid");continue;}
+    if(mode==="status"){const s=await db.stats();await send(sock,jid,"⚡ *TOHID-AGENT V4*\nStatus: Online\nDeveloper: Tohid\nMemory DB: "+(s.database?"Connected":"Not configured")+"\nGitHub: "+(cfg.githubToken?"Configured":"Not configured")+"\nAI: "+(cfg.openaiKey?"Configured":"Not configured")+"\nBlocked users: "+(s.blocked??0));continue;}
+    if(mode==="stats"){if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.");continue;}const s=await db.stats();await send(sock,jid,"📊 *TOHID-AGENT V4 STATS*\nUsers: "+(s.users??"N/A")+"\nBlocked: "+(s.blocked??0)+"\nChat: "+(s.usage?.chat??0)+"\nVoice: "+(s.usage?.voice??0)+"\nImages: "+(s.usage?.image??0)+"\nVideos: "+(s.usage?.video??0));continue;}
     if(mode==="memory"){const h=await db.getMemory(sender);await send(sock,jid,"🧠 Stored conversation messages: "+h.length+"\nUse "+cfg.prefix+"newchat to clear your AI memory.");continue;}
     if(mode==="reset"){await ai.clearMemory(sender);await send(sock,jid,"🧹 Your TOHID-AGENT conversation memory has been cleared.",{category:"memory"});continue;}
     if(mode==="settings"){const parts=text.trim().split(/\\s+/);const key=parts[0].replace(cfg.prefix,"").toLowerCase();const value=parts[1]?.toLowerCase();if(!value){const s=await db.getSettings(sender);await send(sock,jid,"⚙️ *TOHID-AGENT V4 SETTINGS*\\nVoice reply: "+(s.voice===true?"ON":cfg.voiceReply?"ON (global)":"OFF")+"\\nMemory: "+(s.memory===false?"OFF":"ON")+"\\n\\nCommands:\\n"+cfg.prefix+"voice on/off\\n"+cfg.prefix+"memory on/off");continue;}if(key==="voice"&&["on","off"].includes(value)){await db.setSettings(sender,{voice:value==="on"});await send(sock,jid,"🎙️ Voice reply "+(value==="on"?"enabled":"disabled")+".",{category:"voice"});continue;}if(key==="memory"&&["on","off"].includes(value)){await db.setSettings(sender,{memory:value==="on"});if(value==="off")await db.clearMemory(sender);await send(sock,jid,"🧠 Memory "+(value==="on"?"enabled":"disabled")+".",{category:"memory"});continue;}await send(sock,jid,"Usage: "+cfg.prefix+"voice on/off or "+cfg.prefix+"memory on/off",{category:"admin"});continue;}
-    if(mode==="video"){const prompt=text.slice((cfg.prefix+"video ").length).trim();if(!prompt){await send(sock,jid,"Usage: .video <prompt>");continue;}await send(sock,jid,"🎬 Generating video...",{category:"video"});const vid=await ai.video(prompt);await db.track(sender,"video");await sock.sendMessage(jid,{video:{url:vid},caption:"🎬 TOHID-AGENT V3 • Tohid"});if(fs.existsSync(vid))fs.unlinkSync(vid);continue;}
-    if(mode==="image"){const prompt=text.slice((cfg.prefix+"imagine ").length).trim();if(!prompt){await send(sock,jid,"Usage: .imagine <prompt>");continue;}await send(sock,jid,"🎨 Generating image...",{category:"image"});const img=await ai.image(prompt);await db.track(sender,"image");await sock.sendMessage(jid,{image:{url:img},caption:"🎨 TOHID-AGENT V3 • Created by Tohid"});if(fs.existsSync(img))fs.unlinkSync(img);continue;}
+    if(mode==="video"){const prompt=text.slice((cfg.prefix+"video ").length).trim();if(!prompt){await send(sock,jid,"Usage: .video <prompt>");continue;}await send(sock,jid,"🎬 Generating video...",{category:"video"});const vid=await ai.video(prompt);await db.track(sender,"video");await sock.sendMessage(jid,{video:{url:vid},caption:"🎬 TOHID-AGENT V4 • Tohid"});if(fs.existsSync(vid))fs.unlinkSync(vid);continue;}
+    if(mode==="image"){const prompt=text.slice((cfg.prefix+"imagine ").length).trim();if(!prompt){await send(sock,jid,"Usage: .imagine <prompt>");continue;}await send(sock,jid,"🎨 Generating image...",{category:"image"});const img=await ai.image(prompt);await db.track(sender,"image");await sock.sendMessage(jid,{image:{url:img},caption:"🎨 TOHID-AGENT V4 • Created by Tohid"});if(fs.existsSync(img))fs.unlinkSync(img);continue;}
 
     await sock.sendPresenceUpdate("composing",jid);
     const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData});
@@ -133,5 +133,5 @@ async function main(){
   }
  });
 }
-if(process.env.PORT)http.createServer((req,res)=>{res.writeHead(200,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",version:"3.0.0",developer:"Tohid",status:"online"}));}).listen(process.env.PORT,"0.0.0.0",()=>console.log("🌐 TOHID-AGENT V3 health server on "+process.env.PORT));
+if(process.env.PORT)http.createServer((req,res)=>{res.writeHead(200,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",version:"4.0.0",developer:"Tohid",status:"online"}));}).listen(process.env.PORT,"0.0.0.0",()=>console.log("🌐 TOHID-AGENT V4 health server on "+process.env.PORT));
 main().catch(console.error);
