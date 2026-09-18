@@ -9,6 +9,7 @@ const cfg=require("./config");
 const ai=require("./lib/openai");
 const db=require("./lib/database");
 const router=require("./lib/router");
+const replyImages=require("./lib/replyImages");
 
 const AUTH=path.join(process.cwd(),"auth_info_baileys");
 const TMP=path.join(process.cwd(),"tmp");
@@ -20,7 +21,7 @@ function isOwner(jid){return !!cfg.ownerNumber&&jid.split("@")[0].replace(/\D/g,
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
 function normalizeJid(jid){return String(jid||"").split(":")[0];}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
-async function send(sock,jid,text){return sock.sendMessage(jid,{text});}
+async function send(sock,jid,text,ctx={}){\n const category=replyImages.getCategory({mode:ctx.mode,text:ctx.sourceText||text,imageData:!!ctx.imageData});\n const image=replyImages.getImage(category);\n if(image){\n  const caption="🤖 TOHID-AGENT V3 • "+category.toUpperCase()+" • By Tohid";\n  await sock.sendMessage(jid,{image:{url:image},caption});\n }\n return sock.sendMessage(jid,{text});\n}
 
 async function mongoAuth(){
  const client=new MongoClient(cfg.mongoUri);await client.connect();
@@ -117,7 +118,7 @@ async function main(){
     await sock.sendPresenceUpdate("composing",jid);
     const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData});
     if((cfg.voiceReply||inputWasVoice)&&answer){const out=path.join(TMP,"reply-"+Date.now()+".mp3");await ai.tts(answer,out);await sock.sendMessage(jid,{audio:{url:out},mimetype:"audio/mpeg",ptt:true});if(fs.existsSync(out))fs.unlinkSync(out);}
-    else await send(sock,jid,answer);
+    else await send(sock,jid,answer,{mode:"ai",sourceText:text,imageData});
     if(audioPath&&fs.existsSync(audioPath))fs.unlinkSync(audioPath);
    }catch(e){console.error(e);try{await send(sock,m.key.remoteJid,"❌ TOHID-AGENT: "+(e.response?.data?.error?.message||e.message));}catch{}}
   }
