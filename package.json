@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "heroku-postbuild": "echo TOHID-AGENT V3 ready"
+    "heroku-postbuild": "echo TOHID-AGENT V4 ready"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "7.0.0-rc.14",
