@@ -1,0 +1,35 @@
+services:
+  - type: worker
+    name: tohid-agent
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_OWNER
+        value: Tohidkhan6332
+      - key: OWNER_NUMBER
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB
+        value: tohid-agent
+      - key: LOGIN_METHOD
+        value: qr
+      - key: PAIRING_NUMBER
+        sync: false
+      - key: AI_AGENT_ENABLED
+        value: "true"
+      - key: AI_VOICE_REPLY
+        value: "true"
+      - key: AI_WEB_SEARCH
+        value: "true"
+      - key: PREFIX
+        value: "."
