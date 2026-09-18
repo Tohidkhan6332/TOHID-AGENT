@@ -25,6 +25,12 @@
     "OWNER_NUMBER": {
       "required": true
     },
+    "MONGO_URI": {
+      "required": true
+    },
+    "MONGO_DB": {
+      "value": "tohid-agent"
+    },
     "LOGIN_METHOD": {
       "value": "qr"
     },
