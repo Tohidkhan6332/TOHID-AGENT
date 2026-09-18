@@ -1,0 +1,17 @@
+require("dotenv").config();
+
+module.exports={
+  openaiKey:process.env.OPENAI_API_KEY,
+  model:process.env.OPENAI_MODEL||"gpt-5.6-luna",
+  imageModel:process.env.OPENAI_IMAGE_MODEL||"gpt-image-2",
+  transcribeModel:process.env.OPENAI_TRANSCRIBE_MODEL||"gpt-4o-transcribe",
+  ttsModel:process.env.OPENAI_TTS_MODEL||"gpt-4o-mini-tts",
+  ttsVoice:process.env.OPENAI_TTS_VOICE||"cedar",
+  githubToken:process.env.GITHUB_TOKEN,
+  githubOwner:process.env.GITHUB_OWNER||"Tohidkhan6332",
+  ownerNumber:String(process.env.OWNER_NUMBER||"").replace(/\\D/g,""),
+  enabled:process.env.AI_AGENT_ENABLED!=="false",
+  voiceReply:process.env.AI_VOICE_REPLY==="true",
+  webSearch:process.env.AI_WEB_SEARCH!=="false",
+  prefix:process.env.PREFIX||"."
+};
