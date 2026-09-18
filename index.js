@@ -163,7 +163,7 @@ async function main(){
   }
  });
 }
-if(process.env.PORT)http.createServer(async(req,res)=>{
+if(process.env.PORT)http.createServer(async(req,res)=>{if(req.url==="/admin-ui"){res.writeHead(200,{"content-type":"text/html; charset=utf-8"});return res.end(fs.readFileSync(path.join(process.cwd(),"public/admin.html"),"utf8"));}
   if(req.url==="/admin"&&cfg.adminPanelEnabled){
     const token=req.headers["x-admin-token"]||"";
     if(!cfg.adminPanelToken||token!==cfg.adminPanelToken){res.writeHead(401,{"content-type":"application/json"});return res.end(JSON.stringify({error:"Unauthorized"}));}
