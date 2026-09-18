@@ -1,53 +1,23 @@
 {
-  "name": "TOHID-AGENT",
-  "description": "TOHID AI WhatsApp agent",
-  "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    }
-  ],
-  "formation": {
-    "worker": {
-      "quantity": 1,
-      "size": "eco"
-    }
-  },
-  "env": {
-    "OPENAI_API_KEY": {
-      "required": true
-    },
-    "GITHUB_TOKEN": {
-      "required": true
-    },
-    "GITHUB_OWNER": {
-      "value": "Tohidkhan6332"
-    },
-    "OWNER_NUMBER": {
-      "required": true
-    },
-    "MONGO_URI": {
-      "required": true
-    },
-    "MONGO_DB": {
-      "value": "tohid-agent"
-    },
-    "LOGIN_METHOD": {
-      "value": "qr"
-    },
-    "PAIRING_NUMBER": {
-      "value": ""
-    },
-    "AI_AGENT_ENABLED": {
-      "value": "true"
-    },
-    "AI_VOICE_REPLY": {
-      "value": "true"
-    },
-    "AI_WEB_SEARCH": {
-      "value": "true"
-    },
-    "PREFIX": {
-      "value": "."
-    }
+  "name":"TOHID-AGENT",
+  "description":"TOHID-AGENT V3 — WhatsApp AI Agent by Tohid",
+  "buildpacks":[{"url":"heroku/nodejs"}],
+  "formation":{"worker":{"quantity":1,"size":"eco"}},
+  "env":{
+    "OPENAI_API_KEY":{"required":true},
+    "GITHUB_TOKEN":{"required":true},
+    "GITHUB_OWNER":{"value":"Tohidkhan6332"},
+    "OWNER_NUMBER":{"required":true},
+    "MONGO_URI":{"required":true},
+    "MONGO_DB":{"value":"tohid-agent"},
+    "LOGIN_METHOD":{"value":"qr"},
+    "PAIRING_NUMBER":{"value":""},
+    "AI_AGENT_ENABLED":{"value":"true"},
+    "AI_VOICE_REPLY":{"value":"true"},
+    "AI_WEB_SEARCH":{"value":"true"},
+    "GROUP_AI_MODE":{"value":"mention"},
+    "AI_RATE_LIMIT_PER_MINUTE":{"value":"20"},
+    "AI_MAX_MESSAGE_CHARS":{"value":"12000"},
+    "PREFIX":{"value":"."}
   }
 }
