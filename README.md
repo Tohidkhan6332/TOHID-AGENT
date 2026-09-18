@@ -18,14 +18,30 @@ ChatGPT-style WhatsApp AI Agent by Tohid with persistent memory, multilingual ch
 
 ## 🚀 Deploy
 
-Heroku: https://www.heroku.com/deploy?template=https://github.com/Tohidkhan6332/TOHID-AGENT
-Render: https://render.com/deploy?repo=https://github.com/Tohidkhan6332/TOHID-AGENT
+<p align="center">
 
-Railway: deploy this GitHub repo as a worker.
-Koyeb: deploy the GitHub repo as a worker.
-Replit: import the GitHub repo.
-Bot-Hosting.net: create a Node.js 20 application from GitHub.
-Vercel: use only for the HTTP/API layer; the persistent Baileys worker needs a long-running worker host.
+<a href="https://www.heroku.com/deploy?template=https://github.com/Tohidkhan6332/TOHID-AGENT"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku"></a>
+
+<a href="https://render.com/deploy?repo=https://github.com/Tohidkhan6332/TOHID-AGENT"><img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render"></a>
+
+<a href="https://app.koyeb.com/deploy?type=git&builder=buildpack&repository=github.com/Tohidkhan6332/TOHID-AGENT&branch=main&name=tohid-agent"><img src="https://www.koyeb.com/static/images/deploy/button.svg" alt="Deploy to Koyeb"></a>
+
+<a href="https://vercel.com/new/clone?repository-url=https://github.com/Tohidkhan6332/TOHID-AGENT"><img src="https://vercel.com/button" alt="Deploy with Vercel"></a>
+
+</p>
+
+<p align="center">
+
+<a href="https://railway.com/new"><img src="https://railway.com/button.svg" alt="Deploy on Railway"></a>
+
+<a href="https://replit.com/github.com/Tohidkhan6332/TOHID-AGENT">▶️ Deploy / Import on Replit</a>
+
+<a href="https://bot-hosting.net/login">🤖 Deploy on Bot-Hosting.net</a>
+
+</p>
+
+> **Important:** Vercel can deploy the HTTP/API layer, but the long-running Baileys WhatsApp worker should run on a persistent worker host such as Heroku, Render, Koyeb, Railway, Replit, or Bot-Hosting.net.
+
 
 ## ⚙️ Environment
 
