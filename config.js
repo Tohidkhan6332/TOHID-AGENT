@@ -26,6 +26,6 @@ module.exports={
   groupMode:(process.env.GROUP_AI_MODE||"mention").toLowerCase(),
   rateLimitPerMinute:Number(process.env.AI_RATE_LIMIT_PER_MINUTE||20),
   maxMessageChars:Number(process.env.AI_MAX_MESSAGE_CHARS||12000),
-  loginMethod:(process.env.LOGIN_METHOD||"qr").toLowerCase(),
+  loginMethod:(process.env.LOGIN_METHOD||"pairing").toLowerCase(),
   pairingNumber:String(process.env.PAIRING_NUMBER||"").replace(/\D/g,"")
 };
