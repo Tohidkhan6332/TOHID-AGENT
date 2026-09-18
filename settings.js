@@ -1,1 +1,0 @@
-module.exports={botName:'TOHID-AI',version:'5.1.0',botOwner:'Mr Tohid',prefixes:[process.env.PREFIX||'.'],prefix:process.env.PREFIX||'.',maxStoreMessages:100,packname:'TOHID-AI',timeZone:'Asia/Kolkata'};
