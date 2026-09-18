@@ -1,11 +1,11 @@
-# 🤖 TOHID-AGENT V4 — WhatsApp AI Agent
+# 🤖 TOHID-AGENT V5 — WhatsApp AI Agent
 
-**TOHID-AGENT V4** is a ChatGPT-style WhatsApp AI agent engineered and branded by **Tohid** (`Tohidkhan6332`). It combines multilingual AI, memory, voice, vision, image generation, web search, protected GitHub automation, group controls and deployment-ready infrastructure.
+**TOHID-AGENT V5** is a ChatGPT-style WhatsApp AI agent engineered and branded by **Tohid** (`Tohidkhan6332`). It combines multilingual AI, memory, voice, vision, image generation, web search, protected GitHub automation, group controls and deployment-ready infrastructure.
 
 > 👨‍💻 **Developer: Tohid**  
-> 🚀 **Project: TOHID-AGENT V4**
+> 🚀 **Project: TOHID-AGENT V5**
 
-## ✨ V4 Highlights
+## ✨ V5 Highlights
 
 - 🌍 Multilingual AI + Hindi/Hinglish
 - 🧠 MongoDB persistent per-user conversation memory
@@ -34,14 +34,14 @@ Talk naturally instead of memorizing commands:
 `Read index.js from Tohidkhan6332/TOHID-AGENT`  
 `Find recent commits for my repo`  
 `Create a branch called feature/vision`  
-`Update README.md with the V3 features`  
+`Update README.md with the V5 features`  
 `Create an issue for the pairing bug`  
 `Open a pull request from feature/vision`
 
 For protected GitHub writes, the agent prepares the action first and asks for **CONFIRM**. The configured owner number is the only account allowed to execute writes.
 
 
-## 🚀 V4 Improvements
+## 🚀 V5 Improvements
 
 - 🧩 Explicit reply-category routing so each response path can use the correct image
 - 🎙️ Per-user voice reply setting: `.voice on/off`
@@ -52,7 +52,7 @@ For protected GitHub writes, the agent prepares the action first and asks for **
 - 📊 GitHub write usage is included in owner statistics
 - 🖼️ Voice, image and video flows now use category-specific reply visuals
 
-### V4 Settings
+### V5 Settings
 
 `.settings` — show your current settings  
 `.voice on/off` — enable or disable voice replies for your account  
@@ -216,17 +216,17 @@ TOHID-AGENT/
 
 This project is intentionally branded throughout the runtime, configuration, README and GitHub integration as:
 
-**TOHID-AGENT V4**  
+**TOHID-AGENT V5**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
 ---
 
-**TOHID-AGENT V4 • Built by Tohid • AI + WhatsApp + GitHub**
+**TOHID-AGENT V5 • Built by Tohid • AI + WhatsApp + GitHub**
 
-## 🧩 V4 Menu & UI Modes
+## 🧩 V5 Menu & UI Modes
 
-TOHID-AGENT V4 includes a WhatsApp button menu with a text-mode fallback.
+TOHID-AGENT V5 includes a WhatsApp button menu with a text-mode fallback.
 
 - `.menu` — opens the main menu
 - `.mode buttons` — enable button menus
@@ -235,3 +235,15 @@ TOHID-AGENT V4 includes a WhatsApp button menu with a text-mode fallback.
 - Button menus include AI, image, video, voice, memory, GitHub, stats and settings.
 - If the WhatsApp/Baileys client does not accept interactive buttons, the agent automatically falls back to a numbered text menu.
 - GitHub write actions remain protected by owner-only checks and `CONFIRM`.
+
+
+## 🚀 V5 Improvements
+
+- 🧩 Smart button menus with automatic text fallback
+- 🔘 Per-user Button/Text UI preference
+- 🛡️ Dedicated owner Admin menu
+- 📱 UI status inside Settings
+- 🔐 Protected GitHub confirmations expire after a configurable TTL (PENDING_ACTION_TTL_MS, default 5 minutes)
+- 📝 MongoDB audit logs for protected GitHub actions and UI-mode changes
+- 🌐 Optional JSON admin/monitor endpoint at /admin when ADMIN_PANEL_ENABLED=true
+- ⚙️ V5 configuration version aligned to 5.0.0
