@@ -223,3 +223,15 @@ This project is intentionally branded throughout the runtime, configuration, REA
 ---
 
 **TOHID-AGENT V4 • Built by Tohid • AI + WhatsApp + GitHub**
+
+## 🧩 V4 Menu & UI Modes
+
+TOHID-AGENT V4 includes a WhatsApp button menu with a text-mode fallback.
+
+- `.menu` — opens the main menu
+- `.mode buttons` — enable button menus
+- `.mode text` — switch to text menus
+- `.settings` — voice, memory and UI settings
+- Button menus include AI, image, video, voice, memory, GitHub, stats and settings.
+- If the WhatsApp/Baileys client does not accept interactive buttons, the agent automatically falls back to a numbered text menu.
+- GitHub write actions remain protected by owner-only checks and `CONFIRM`.
