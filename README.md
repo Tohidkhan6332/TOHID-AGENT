@@ -28,7 +28,7 @@ ChatGPT-style WhatsApp AI agent by Tohid with multilingual chat, voice input/out
 >
 > **Bot-Hosting.net:** create an Application deployment, select **GitHub** as the source, choose `Tohidkhan6332/TOHID-AGENT`, and use Node.js 20. The current Bot-Hosting.net panel supports GitHub cloning directly.
 
-## ☁️ Required Environment Variables
+## ▲ Vercel\n\n<a href="https://vercel.com/new/clone?repository-url=https://github.com/Tohidkhan6332/TOHID-AGENT"><img src="https://vercel.com/button" alt="Deploy with Vercel"></a>\n\nVercel can deploy the repository's HTTP/API layer. The long-running Baileys WhatsApp worker should run on a persistent worker host such as Heroku, Render, Koyeb, Railway, Replit, or Bot-Hosting.net.\n\n## ☁️ Required Environment Variables
 
 Set these on whichever platform you use:
 
