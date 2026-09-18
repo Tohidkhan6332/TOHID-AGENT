@@ -1,16 +1,14 @@
 {
   "name": "tohid-agent-whatsapp",
-  "version": "4.0.0",
+  "version": "6.0.0",
   "private": true,
-  "description": "TOHID-AGENT V4 — production WhatsApp AI Agent by Tohid",
+  "description": "TOHID-AGENT V6 — production WhatsApp AI Agent by Tohid",
   "main": "index.js",
   "type": "commonjs",
-  "engines": {
-    "node": ">=20"
-  },
+  "engines": {"node": ">=20"},
   "scripts": {
     "start": "node index.js",
-    "heroku-postbuild": "echo TOHID-AGENT V4 ready"
+    "heroku-postbuild": "echo TOHID-AGENT V6 ready"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "7.0.0-rc.14",
