@@ -1,6 +1,6 @@
 {
   "name":"tohid-agent-whatsapp",
-  "version":"1.1.0",
+  "version":"1.2.0",
   "private":true,
   "description":"TOHID AGENT ChatGPT-style WhatsApp AI bot",
   "main":"index.js",
@@ -12,6 +12,7 @@
     "axios":"^1.12.2",
     "dotenv":"^17.2.2",
     "form-data":"^4.0.4",
+    "mongodb":"^6.20.0",
     "pino":"^9.13.0",
     "qrcode-terminal":"^0.12.0"
   }
