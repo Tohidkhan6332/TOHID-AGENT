@@ -21,7 +21,15 @@ function isOwner(jid){return !!cfg.ownerNumber&&jid.split("@")[0].replace(/\D/g,
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
 function normalizeJid(jid){return String(jid||"").split(":")[0];}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
-async function send(sock,jid,text,ctx={}){\n const category=replyImages.getCategory({mode:ctx.mode,text:ctx.sourceText||text,imageData:!!ctx.imageData});\n const image=replyImages.getImage(category);\n if(image){\n  const caption="🤖 TOHID-AGENT V3 • "+category.toUpperCase()+" • By Tohid";\n  await sock.sendMessage(jid,{image:{url:image},caption});\n }\n return sock.sendMessage(jid,{text});\n}
+async function send(sock,jid,text,ctx={}){
+ const category=replyImages.getCategory({mode:ctx.mode,text:ctx.sourceText||text,imageData:!!ctx.imageData});
+ const image=replyImages.getImage(category);
+ if(image){
+  const caption="🤖 TOHID-AGENT V3 • "+category.toUpperCase()+" • By Tohid";
+  await sock.sendMessage(jid,{image:{url:image},caption});
+ }
+ return sock.sendMessage(jid,{text});
+}
 
 async function mongoAuth(){
  const client=new MongoClient(cfg.mongoUri);await client.connect();
