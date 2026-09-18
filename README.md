@@ -2,41 +2,81 @@
 
 ChatGPT-style WhatsApp AI agent by Tohid with multilingual chat, voice input/output, image generation, web search, image understanding, and owner-only GitHub operations.
 
+## 🚀 One-Click / Quick Deploy
+
 <p align="center">
-  <a href="https://heroku.com/deploy?template=https://github.com/Tohidkhan6332/TOHID-AGENT">
+  <a href="https://www.heroku.com/deploy?template=https://github.com/Tohidkhan6332/TOHID-AGENT">
     <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku">
+  </a>
+  <a href="https://render.com/deploy?repo=https://github.com/Tohidkhan6332/TOHID-AGENT">
+    <img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render">
+  </a>
+  <a href="https://app.koyeb.com/deploy?type=git&builder=buildpack&repository=github.com/Tohidkhan6332/TOHID-AGENT&branch=main&name=tohid-agent">
+    <img src="https://www.koyeb.com/static/images/deploy/button.svg" alt="Deploy to Koyeb">
   </a>
 </p>
 
-## Login
+<p align="center">
+  <a href="https://replit.com/github.com/Tohidkhan6332/TOHID-AGENT">▶️ Deploy / Import on Replit</a>
+  &nbsp; • &nbsp;
+  <a href="https://railway.com/new">🚂 Deploy on Railway</a>
+  &nbsp; • &nbsp;
+  <a href="https://bot-hosting.net/login">🤖 Bot-Hosting.net</a>
+</p>
+
+> **Railway:** connect this GitHub repository from Railway's **Deploy from GitHub repo** flow. The repository includes `railway.json` and a Node start command.
+>
+> **Bot-Hosting.net:** create an Application deployment, select **GitHub** as the source, choose `Tohidkhan6332/TOHID-AGENT`, and use Node.js 20. The current Bot-Hosting.net panel supports GitHub cloning directly.
+
+## ☁️ Required Environment Variables
+
+Set these on whichever platform you use:
+
+```env
+OPENAI_API_KEY=
+GITHUB_TOKEN=
+GITHUB_OWNER=Tohidkhan6332
+OWNER_NUMBER=91XXXXXXXXXX
+MONGO_URI=
+MONGO_DB=tohid-agent
+
+LOGIN_METHOD=qr
+PAIRING_NUMBER=
+
+AI_AGENT_ENABLED=true
+AI_VOICE_REPLY=true
+AI_WEB_SEARCH=true
+PREFIX=.
+```
+
+For persistent WhatsApp authentication, **MONGO_URI is strongly recommended**, especially on platforms with ephemeral filesystems.
+
+## 🔐 Login
+
 The bot supports **QR** and **pairing-code** login. Use one method per WhatsApp session:
+
 - QR: `LOGIN_METHOD=qr`
-- Pairing: `LOGIN_METHOD=pairing` and set `PAIRING_NUMBER=91XXXXXXXXXX`
+- Pairing: `LOGIN_METHOD=pairing` and `PAIRING_NUMBER=91XXXXXXXXXX`
 
-If `MONGO_URI` is configured, Baileys credentials and Signal keys are stored in MongoDB so Heroku dyno restarts do not normally require a new pairing.
+After deployment, open the platform's logs/console and complete the selected login method.
 
-## Heroku — One-click Deploy
+## 🧩 Supported Hosting
 
-1. Click the **Deploy to Heroku** button above.
-2. Choose/create your Heroku app.
-3. Fill the required Config Vars:
-   - `OPENAI_API_KEY`
-   - `GITHUB_TOKEN`
-   - `OWNER_NUMBER`
-   - `MONGO_URI`
-4. Choose:
-   - QR: `LOGIN_METHOD=qr`
-   - Pairing: `LOGIN_METHOD=pairing` + `PAIRING_NUMBER`
-5. Click **Deploy app**.
-6. Open **More → View logs** and complete the selected WhatsApp login.
+| Platform | Deployment |
+|---|---|
+| Heroku | One-click button + `app.json` + `Procfile` |
+| Render | One-click button + `render.yaml` |
+| Koyeb | One-click GitHub button |
+| Replit | GitHub import + `.replit` |
+| Railway | GitHub deployment + `railway.json` |
+| Bot-Hosting.net | GitHub source deployment |
+| Docker / VPS | `Dockerfile` + `npm start` |
 
-The repository includes a Heroku `Procfile` using `worker: node index.js`.
-
-## Local Setup
+## 🛠 Local Setup
 
 1. Node.js 20+
 2. Copy `.env.example` to `.env`
-3. Fill your API keys and configuration.
+3. Fill API keys and configuration.
 4. Run `npm install`
 5. Run `npm start`
 6. Complete QR or pairing-code login.
