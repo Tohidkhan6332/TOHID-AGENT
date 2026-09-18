@@ -9,9 +9,13 @@ module.exports={
   ttsVoice:process.env.OPENAI_TTS_VOICE||"cedar",
   githubToken:process.env.GITHUB_TOKEN,
   githubOwner:process.env.GITHUB_OWNER||"Tohidkhan6332",
-  ownerNumber:String(process.env.OWNER_NUMBER||"").replace(/\\D/g,""),
+  ownerNumber:String(process.env.OWNER_NUMBER||"").replace(/\D/g,""),
+  mongoUri:process.env.MONGO_URI||"",
+  mongoDb:process.env.MONGO_DB||"tohid-agent",
   enabled:process.env.AI_AGENT_ENABLED!=="false",
   voiceReply:process.env.AI_VOICE_REPLY==="true",
   webSearch:process.env.AI_WEB_SEARCH!=="false",
-  prefix:process.env.PREFIX||"."
+  prefix:process.env.PREFIX||".",
+  loginMethod:(process.env.LOGIN_METHOD||"qr").toLowerCase(),
+  pairingNumber:String(process.env.PAIRING_NUMBER||"").replace(/\D/g,"")
 };
