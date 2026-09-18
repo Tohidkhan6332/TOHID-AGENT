@@ -129,7 +129,7 @@ async function main(){
           text=await ai.transcribe(audioPath);
         }
         if(!text)continue;
-        if(text.toLowerCase().startsWith(cfg.prefix+"imagine ")){
+        if(text.toLowerCase().startsWith(cfg.prefix+"video ")){\n          const prompt=text.slice((cfg.prefix+"video ").length).trim();\n          if(!prompt){await send(sock,jid,"Usage: .video <prompt>");continue;}\n          await send(sock,jid,"🎬 Generating video... This may take a few minutes.");\n          const vid=await ai.video(prompt);\n          await sock.sendMessage(jid,{video:{url:vid},caption:"🎬 TOHID AGENT"});\n          if(fs.existsSync(vid))fs.unlinkSync(vid);\n          continue;\n        }\n\n        if(text.toLowerCase().startsWith(cfg.prefix+"imagine ")){
           const prompt=text.slice((cfg.prefix+"imagine ").length).trim();
           if(!prompt){await send(sock,jid,"Usage: .imagine <prompt>");continue;}
           await send(sock,jid,"🎨 Generating image...");
