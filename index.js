@@ -154,5 +154,5 @@ async function main(){
   }
  });
 }
-if(process.env.PORT)http.createServer((req,res)=>{res.writeHead(200,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",version:"4.0.0",developer:"Tohid",status:"online"}));}).listen(process.env.PORT,"0.0.0.0",()=>console.log("🌐 TOHID-AGENT V5 health server on "+process.env.PORT));
+if(process.env.PORT)http.createServer(async(req,res)=>{if(req.url==="/admin"&&cfg.adminPanelEnabled){const s=await db.stats();res.writeHead(200,{"content-type":"application/json"});return res.end(JSON.stringify({name:"TOHID-AGENT",version:"5.0.0",developer:"Tohid",status:"online",database:s.database,stats:s},null,2));}res.writeHead(200,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",version:"5.0.0",developer:"Tohid",status:"online"}));}).listen(process.env.PORT,"0.0.0.0",()=>console.log("🌐 TOHID-AGENT V5 health server on "+process.env.PORT));
 main().catch(console.error);
