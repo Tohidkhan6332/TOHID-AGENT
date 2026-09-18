@@ -50,6 +50,29 @@ Send an image with a caption/question:
 
 The V3 agent passes the image to the configured OpenAI vision-capable model.
 
+## 🖼️ Category-wise Reply Images
+
+TOHID-AGENT can automatically send a different image with each type of reply. Add your own images to `assets/reply-images/` using these exact filenames:
+
+- `ai.jpg` — normal AI chat
+- `github.jpg` — GitHub/repository/code-management requests
+- `image.jpg` — image generation
+- `vision.jpg` — image/screenshot analysis
+- `voice.jpg` — voice/audio requests
+- `video.jpg` — video generation
+- `web.jpg` — web search
+- `code.jpg` — coding/debugging
+- `group.jpg` — group features
+- `admin.jpg` — admin/maintenance/block controls
+- `memory.jpg` — memory requests
+- `utility.jpg` — utility/download/convert requests
+- `stats.jpg` — stats/analytics
+- `security.jpg` — security-related replies
+- `status.jpg` — status/health replies
+- `error.jpg` — error replies
+
+The images are optional: if an image is missing, the bot automatically sends the normal text reply. Set `REPLY_IMAGES_ENABLED=false` to disable the feature, or change `REPLY_IMAGE_DIR` to another folder.
+
 ## 🎙️ Voice
 
 Send a WhatsApp voice note. TOHID-AGENT transcribes it, understands the request and can reply by voice when `AI_VOICE_REPLY=true`.
