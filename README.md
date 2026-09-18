@@ -1,20 +1,93 @@
-# TOHID AGENT V2 — WhatsApp AI Agent
+# 🤖 TOHID-AGENT V3 — WhatsApp AI Agent
 
-ChatGPT-style WhatsApp AI Agent by Tohid with persistent memory, multilingual chat, voice, image/video generation, web search and GitHub tools.
+**TOHID-AGENT V3** is a ChatGPT-style WhatsApp AI agent engineered and branded by **Tohid** (`Tohidkhan6332`). It combines multilingual AI, memory, voice, vision, image generation, web search, protected GitHub automation, group controls and deployment-ready infrastructure.
 
-## ✨ V2 Features
-- 🌍 Multilingual AI + Hinglish
-- 🧠 MongoDB persistent conversation memory
-- 🎤 Voice note transcription + optional voice reply
+> 👨‍💻 **Developer: Tohid**  
+> 🚀 **Project: TOHID-AGENT V3**
+
+## ✨ V3 Highlights
+
+- 🌍 Multilingual AI + Hindi/Hinglish
+- 🧠 MongoDB persistent per-user conversation memory
+- 👁️ Image understanding — send an image with a question/caption
+- 🎤 Voice note → transcription → AI → optional voice reply
 - 🎨 AI image generation
-- 🎬 Prompt-to-video generation
+- 🎬 Prompt-to-video generation where the configured provider/API supports it
 - 🌐 Optional web search
-- 💻 GitHub agent for repositories, files, branches, issues and pull requests
-- 🔐 GitHub write actions are owner-only
-- 📊 Usage statistics
-- ❤️ Health/status endpoint
+- 💻 GitHub Agent: repos, repository search, files, commits, issues, branches and PRs
+- 🔐 GitHub write protection: owner-only + explicit **CONFIRM** step
+- 🛡️ Maintenance mode and owner controls
+- 🚫 Owner block/unblock system
+- ⚡ Per-user rate limiting and message-size protection
+- 👥 Group mode that responds when TOHID-AGENT is mentioned
+- 📊 Usage and runtime statistics
 - 📱 QR + pairing-code login
+- ☁️ MongoDB-backed WhatsApp auth for persistent deployments
 - 🐳 Docker / Heroku / Render / Railway / Koyeb / Replit / Bot-Hosting deployment configs
+
+## 🧠 Agent Mode
+
+Talk naturally instead of memorizing commands:
+
+`List my GitHub repositories`  
+`Search GitHub for Node.js WhatsApp bots`  
+`Read index.js from Tohidkhan6332/TOHID-AGENT`  
+`Find recent commits for my repo`  
+`Create a branch called feature/vision`  
+`Update README.md with the V3 features`  
+`Create an issue for the pairing bug`  
+`Open a pull request from feature/vision`
+
+For protected GitHub writes, the agent prepares the action first and asks for **CONFIRM**. The configured owner number is the only account allowed to execute writes.
+
+## 👁️ Vision
+
+Send an image with a caption/question:
+
+`Explain this error`  
+`What is wrong in this screenshot?`  
+`Read this code and suggest a fix`
+
+The V3 agent passes the image to the configured OpenAI vision-capable model.
+
+## 🎙️ Voice
+
+Send a WhatsApp voice note. TOHID-AGENT transcribes it, understands the request and can reply by voice when `AI_VOICE_REPLY=true`.
+
+## 🎨 Image + Video
+
+`.imagine futuristic TOHID-AGENT logo`
+
+`.video a cinematic AI robot walking through a neon city`
+
+Video availability depends on the configured provider/API and should be verified before production use.
+
+## 🛡️ Security
+
+- GitHub writes are owner-only.
+- GitHub writes require an additional **CONFIRM** message.
+- API keys and tokens are never intentionally returned to the user.
+- Messages are limited by `AI_MAX_MESSAGE_CHARS`.
+- Users are rate-limited by `AI_RATE_LIMIT_PER_MINUTE`.
+- Owner can enable maintenance mode.
+- Owner can block/unblock WhatsApp numbers.
+- Never commit `.env`, WhatsApp auth state or secrets.
+
+## 🤖 Commands
+
+`.help` / `.menu` — command list  
+`.ping` — health check  
+`.status` — runtime/config status  
+`.memory` — memory message count  
+`.newchat` / `.reset` — clear personal memory  
+`.stats` — owner statistics  
+`.imagine <prompt>` — image generation  
+`.video <prompt>` — video generation  
+`.maintenance on/off` — owner maintenance mode  
+`.block <number>` — owner block  
+`.unblock <number>` — owner unblock
+
+Normal text and voice messages are handled by the AI agent.
 
 ## 🚀 Deploy
 
@@ -40,58 +113,37 @@ ChatGPT-style WhatsApp AI Agent by Tohid with persistent memory, multilingual ch
 
 </p>
 
-> **Important:** Vercel can deploy the HTTP/API layer, but the long-running Baileys WhatsApp worker should run on a persistent worker host such as Heroku, Render, Koyeb, Railway, Replit, or Bot-Hosting.net.
-
+> **Vercel note:** Vercel is suitable for the HTTP/API layer. The long-running Baileys WhatsApp worker needs a persistent worker host.
 
 ## ⚙️ Environment
 
-See .env.example.
+Copy `.env.example` to `.env`.
 
-Required:
-- OPENAI_API_KEY
-- GITHUB_TOKEN if GitHub features are wanted
-- OWNER_NUMBER for owner-only writes
-- MONGO_URI strongly recommended for persistent auth + memory
+Important variables:
 
-## 🤖 Commands
+- `OPENAI_API_KEY`
+- `GITHUB_TOKEN` for GitHub features
+- `GITHUB_OWNER=Tohidkhan6332`
+- `OWNER_NUMBER` for owner controls
+- `MONGO_URI` for persistent memory + WhatsApp auth
+- `GROUP_AI_MODE=mention`
+- `AI_RATE_LIMIT_PER_MINUTE=20`
+- `AI_MAX_MESSAGE_CHARS=12000`
 
-.help — show commands
-.ping — health check
-.status — runtime status
-.newchat / .reset — clear personal AI memory
-.stats — owner-only usage statistics
-.imagine <prompt> — generate image
-.video <prompt> — generate video
-Normal text — ChatGPT-style AI
-Voice note — speech-to-text + AI; voice reply when enabled
+### Login
 
-### GitHub natural-language examples
+QR:
 
-"List my repositories"
-"Read README.md from Tohidkhan6332/TOHID-AGENT"
-"Create a branch called feature/test"
-"Update index.js with ..."
-"Create an issue titled ..."
-"Open a pull request ..."
+`LOGIN_METHOD=qr`
 
-GitHub write actions are restricted to the configured owner number.
+Pairing code:
 
-## 🔐 Login
-
-QR mode: LOGIN_METHOD=qr
-Pairing mode: LOGIN_METHOD=pairing and PAIRING_NUMBER=91XXXXXXXXXX
+`LOGIN_METHOD=pairing`  
+`PAIRING_NUMBER=91XXXXXXXXXX`
 
 Use one login method per WhatsApp session.
 
-## 🧠 Memory
-
-When MongoDB is configured, V2 stores the latest conversation context per WhatsApp user and usage counters. .newchat clears that user's conversation memory.
-
-## 🎬 Video
-
-Video generation depends on the configured provider/API and may be asynchronous. Verify current provider availability before production use.
-
-## 🛠 Local
+## 🛠️ Local Setup
 
 Node.js 20+:
 
@@ -99,7 +151,32 @@ Node.js 20+:
     cp .env.example .env
     npm start
 
-Never commit API keys, WhatsApp auth state or generated secrets.
+## 📁 Core Structure
+
+TOHID-AGENT/
+├── index.js
+├── config.js
+├── lib/
+│   ├── database.js
+│   ├── github.js
+│   ├── openai.js
+│   └── router.js
+├── api/
+├── README.md
+├── Dockerfile
+├── Procfile
+├── render.yaml
+├── railway.json
+└── app.json
+
+## 🏷️ Branding
+
+This project is intentionally branded throughout the runtime, configuration, README and GitHub integration as:
+
+**TOHID-AGENT V3**  
+**Developer: Tohid**  
+**GitHub: Tohidkhan6332**
 
 ---
-**TOHID AGENT V2 • Developer: Tohid**
+
+**TOHID-AGENT V3 • Built by Tohid • AI + WhatsApp + GitHub**
