@@ -195,7 +195,7 @@ async function main(){
 
     await sock.sendPresenceUpdate("composing",jid);
     const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData});
-    const userSettings=await db.getSettings(sender);const voiceReply=userSettings.voice===true||(userSettings.voice===undefined&&cfg.voiceReply);if((voiceReply||inputWasVoice)&&answer){const out=path.join(TMP,"reply-"+Date.now()+".mp3");await ai.tts(answer,out);await send(sock,jid,"🎙️ TOHID-AGENT voice reply",{category:"voice"});await sock.sendMessage(jid,{audio:{url:out},mimetype:"audio/mpeg",ptt:true});if(fs.existsSync(out))fs.unlinkSync(out);}
+    const userSettings=await db.getSettings(sender);const voiceReply=userSettings.voice===true||(userSettings.voice===undefined&&cfg.voiceReply);if((voiceReply||inputWasVoice)&&answer){const out=path.join(TMP,"reply-"+Date.now()+".mp3");await ai.tts(answer,out);await sock.sendMessage(jid,{audio:{url:out},mimetype:"audio/mpeg",ptt:true});if(fs.existsSync(out))fs.unlinkSync(out);}
     else await send(sock,jid,answer,{mode:"ai",sourceText:text,imageData});
     if(audioPath&&fs.existsSync(audioPath))fs.unlinkSync(audioPath);
    }catch(e){console.error(e);try{await send(sock,m.key.remoteJid,"❌ TOHID-AGENT: "+(e.response?.data?.error?.message||e.message),{category:"error"});}catch{}}
