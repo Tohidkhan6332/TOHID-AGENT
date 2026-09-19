@@ -23,11 +23,6 @@ function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0
 function normalizeJid(jid){return String(jid||"").split(":")[0];}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
 async function send(sock,jid,text,ctx={}){
- const category=replyImages.getCategory({category:ctx.category,mode:ctx.mode,text:ctx.sourceText||text,imageData:!!ctx.imageData});
- const image=replyImages.getImage(category);
- if(image){
-  return sock.sendMessage(jid,{image:{url:image},caption:String(text||"")});
- }
  return sock.sendMessage(jid,{text:String(text||"")});
 }
 
