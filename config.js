@@ -6,6 +6,7 @@ module.exports={
   version:"6.2.0",
   openaiKey:process.env.OPENAI_API_KEY||"",
   openaiModel:process.env.OPENAI_MODEL||"gpt-5.6-luna",
+  model:process.env.OPENAI_MODEL||"gpt-5.6-luna",
   geminiKey:process.env.GEMINI_API_KEY||"",
   geminiModel:process.env.GEMINI_MODEL||"gemini-3.8-flash",
   aiProvider:(process.env.AI_PROVIDER||"auto").toLowerCase(),
