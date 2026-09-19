@@ -208,25 +208,4 @@ if(process.env.PORT)http.createServer(async(req,res)=>{if(req.url==="/admin-ui")
   }
   res.writeHead(200,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",version:"6.0.0",developer:"Tohid",status:"online"}));
 }).listen(process.env.PORT,"0.0.0.0",()=>console.log("🌐 TOHID-AGENT V6 health server on "+process.env.PORT));
-main().catch(console.error)    if(mode==="settings"){const parts=text.trim().split(/\s+/);const key=parts[0].replace(cfg.prefix,"").toLowerCase();const value=parts[1]?.toLowerCase();if(!value){await send(sock,jid,"⚙️ *TOHID-AGENT V6 SETTINGS*\n\n🎙️ Voice: use .voice on/off\n🧠 Memory: use .memory on/off\n📊 Status: .status\n\nUse .menu to view the text menu.");continue;}if((key==="voice"||key==="memory")&&["on","off"].includes(value)){await db.setSettings(sender,{[key]:value==="on"});if(key==="memory"&&value==="off")await db.clearMemory(sender);await send(sock,jid,(key==="voice"?"🎙️ Voice reply ":"🧠 Memory ")+(value==="on"?"enabled":"disabled")+".",{category:key==="voice"?"voice":"memory"});continue;}await send(sock,jid,"Use .voice on/off or .memory on/off",{category:"admin"});continue;}
-    if(mode==="video"){const prompt=text.slice((cfg.prefix+"video ").length).trim();if(!prompt){await send(sock,jid,"Usage: .video <prompt>");continue;}await send(sock,jid,"🎬 Generating video...",{category:"video"});const vid=await ai.video(prompt);await db.track(sender,"video");await sock.sendMessage(jid,{video:{url:vid},caption:"🎬 TOHID-AGENT V6 • Tohid"});if(fs.existsSync(vid))fs.unlinkSync(vid);continue;}
-    if(mode==="image"){const prompt=text.slice((cfg.prefix+"imagine ").length).trim();if(!prompt){await send(sock,jid,"Usage: .imagine <prompt>");continue;}await send(sock,jid,"🎨 Generating image...",{category:"image"});const img=await ai.image(prompt);await db.track(sender,"image");await sock.sendMessage(jid,{image:{url:img},caption:"🎨 TOHID-AGENT V6 • Created by Tohid"});if(fs.existsSync(img))fs.unlinkSync(img);continue;}
-
-    await sock.sendPresenceUpdate("composing",jid);
-    const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData});
-    const userSettings=await db.getSettings(sender);const voiceReply=userSettings.voice===true||(userSettings.voice===undefined&&cfg.voiceReply);if((voiceReply||inputWasVoice)&&answer){const out=path.join(TMP,"reply-"+Date.now()+".mp3");await ai.tts(answer,out);await send(sock,jid,"🎙️ TOHID-AGENT voice reply",{category:"voice"});await sock.sendMessage(jid,{audio:{url:out},mimetype:"audio/mpeg",ptt:true});if(fs.existsSync(out))fs.unlinkSync(out);}
-    else await send(sock,jid,answer,{mode:"ai",sourceText:text,imageData});
-    if(audioPath&&fs.existsSync(audioPath))fs.unlinkSync(audioPath);
-   }catch(e){console.error(e);try{await send(sock,m.key.remoteJid,"❌ TOHID-AGENT: "+(e.response?.data?.error?.message||e.message),{category:"error"});}catch{}}
-  }
- });
-}
-if(process.env.PORT)http.createServer(async(req,res)=>{if(req.url==="/admin-ui"){res.writeHead(200,{"content-type":"text/html; charset=utf-8"});return res.end(fs.readFileSync(path.join(process.cwd(),"public/admin.html"),"utf8"));}
-  if(req.url==="/admin"&&cfg.adminPanelEnabled){
-    const token=req.headers["x-admin-token"]||"";
-    if(!cfg.adminPanelToken||token!==cfg.adminPanelToken){res.writeHead(401,{"content-type":"application/json"});return res.end(JSON.stringify({error:"Unauthorized"}));}
-    const s=await db.stats();res.writeHead(200,{"content-type":"application/json"});return res.end(JSON.stringify({name:"TOHID-AGENT",version:"6.0.0",developer:"Tohid",status:"online",database:s.database,stats:s},null,2));
-  }
-  res.writeHead(200,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",version:"6.0.0",developer:"Tohid",status:"online"}));
-}).listen(process.env.PORT,"0.0.0.0",()=>console.log("🌐 TOHID-AGENT V6 health server on "+process.env.PORT));
 main().catch(console.error);
