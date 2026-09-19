@@ -129,6 +129,44 @@ async function main(){
     if(!allowed(sender)){await send(sock,jid,"⏳ TOHID-AGENT rate limit reached. Please try again in a minute.",{category:"security"});continue;}
     const msg=m.message;
     let text=msg.conversation||msg.extendedTextMessage?.text||msg.imageMessage?.caption||"";
+    const group=jid.endsWith("@g.us");
+    if(group&&cfg.groupMode==="mention"){
+      const mentioned=msg.extendedTextMessage?.contextInfo?.mentionedJid||msg.imageMessage?.contextInfo?.mentionedJid||[];
+      const botId=normalizeJid(sock.user?.id);
+      if(!mentioned.some(x=>normalizeJid(x)===botId))continue;
+      text=text.replace(/@\d{5,}/g,"").trim();
+    }
+    let inputWasVoice=false,audioPath=null,imageData=null;
+    if(msg.audioMessage){
+      inputWasVoice=true;
+      const buf=await downloadMedia(msg.audioMessage,"audio");
+      audioPath=path.join(TMP,"voice-"+Date.now()+".ogg");fs.writeFileSync(audioPath,buf);
+      text=await ai.transcribe(audioPath);await db.track(sender,"voice");
+    }
+    if(msg.imageMessage){
+      const buf=await downloadMedia(msg.imageMessage,"image");
+      const mime=msg.imageMessage.mimetype||"image/jpeg";
+      imageData="data:"+mime+";base64,"+buf.toString("base64");
+      if(!text)text="Analyze this image.";
+    }
+    if(!text&&!imageData)continue;
+    console.log("📨 Incoming WhatsApp message from "+sender+" in "+jid+": "+String(text||"[media]").slice(0,120));
+    if(text.trim().toLowerCase()===cfg.prefix+"ping"){
+      try{
+        await sock.sendMessage(jid,{text:"🏓 TOHID-AGENT V6: online\\n👨‍💻 Developer: Tohid"});
+        console.log("📤 .ping reply sent to "+jid);
+      }catch(pingError){
+        console.error("❌ .ping send failed:",pingError?.stack||pingError?.message||pingError);
+      }
+      continue;
+    }
+    const mode=router.route(text,cfg.prefix);
+
+    if(mode==="maintenance_on"||mode==="maintenance_off"){
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"admin"});continue;}
+      maintenance=mode==="maintenance_on";await send(sock,jid,maintenance?"🛡️ Maintenance mode enabled.":"✅ Maintenance mode disabled.",{category:"admin"});continue;
+    }
+    if(maintenance&&!isOwner(sender)){await send(sock,jid,"🛡️ TOHID-AGENT is currently in maintenance mode.",{category:"admin"});continue;}
     if(mode==="block"||mode==="unblock"){
       if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.");continue;}
       const target=text.split(/\s+/)[1]?.replace(/\D/g,"");
