@@ -24,8 +24,9 @@ function normalizeJid(jid){return String(jid||"").split(":")[0];}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
 async function send(sock,jid,text,ctx={}){
  const category=ctx.category||null;
- const WITH_IMAGE=new Set(["ai","github","memory","vision","voice","web","code","group","admin","stats","security","status","error"]);
- const image=category&&WITH_IMAGE.has(category)?replyImages.getImage(category):null;
+ // Keep normal AI replies fast. Use a visual only for richer/system responses.
+ const visualCategories=new Set(["github","memory","vision","admin","stats","security","status","error","code","utility"]);
+ const image=category&&visualCategories.has(category)?replyImages.getImage(category):null;
  if(image){
   return sock.sendMessage(jid,{image:{url:image},caption:String(text||"")});
  }
