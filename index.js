@@ -4,7 +4,7 @@ const http=require("http");
 const qrcode=require("qrcode-terminal");
 const pino=require("pino");
 const {MongoClient}=require("mongodb");
-const {default:makeWASocket,useMultiFileAuthState,initAuthCreds,BufferJSON,DisconnectReason,downloadContentFromMessage,fetchLatestBaileysVersion,makeCacheableSignalKeyStore}=require("@whiskeysockets/baileys");
+const {default:makeWASocket,useMultiFileAuthState,initAuthCreds,BufferJSON,DisconnectReason,downloadContentFromMessage,fetchLatestBaileysVersion,makeCacheableSignalKeyStore,Browsers}=require("@whiskeysockets/baileys");
 const cfg=require("./config");
 const ai=require("./lib/openai");
 const db=require("./lib/database");
@@ -61,11 +61,11 @@ async function main(){
  const{state,saveCreds}=auth;
  const{version}=await fetchLatestBaileysVersion();
  console.log("📦 Baileys version: "+version.join("."));
- const sock=makeWASocket({version,auth:state,logger:pino({level:"silent"}),printQRInTerminal:false,browser:["TOHID-AGENT","Chrome","6.0.0"],markOnlineOnConnect:false,syncFullHistory:false});
+ const sock=makeWASocket({version,auth:state,logger:pino({level:"silent"}),printQRInTerminal:false,browser:Browsers.ubuntu("Chrome"),markOnlineOnConnect:false,syncFullHistory:false,connectTimeoutMs:60000});
  sock.ev.on("creds.update",saveCreds);
  let pairingRequested=false;
  sock.ev.on("connection.update",async({connection,lastDisconnect,qr})=>{
-  if(qr&&cfg.loginMethod!=="pairing"){console.log("\n📱 Scan QR with WhatsApp → Linked Devices:\n");qrcode.generate(qr,{small:true});}
+  if(qr&&cfg.loginMethod==="pairing"&&cfg.pairingNumber&&!state.creds.registered&&!pairingRequested){
   if(!state.creds.registered&&cfg.loginMethod==="pairing"&&cfg.pairingNumber&&!pairingRequested){
     pairingRequested=true;
     const number=String(cfg.pairingNumber).replace(/\\D/g,"");
@@ -92,9 +92,23 @@ async function main(){
     const code=lastDisconnect?.error?.output?.statusCode;
     const message=lastDisconnect?.error?.message||"";
     console.error("❌ WhatsApp connection closed. code="+code+" message="+message);
-    await closeAuth();
-    if(code!==DisconnectReason.loggedOut)setTimeout(()=>main().catch(console.error),3000);
-    else console.log("Logged out. Clear auth state and pair again.");
+    if(code===DisconnectReason.loggedOut){
+      console.error("🧹 Clearing failed pairing session for a fresh login...");
+      try{
+        if(cfg.mongoUri){
+          const c=new MongoClient(cfg.mongoUri);
+          await c.connect();
+          const d=c.db(cfg.mongoDb);
+          await Promise.all([d.collection("baileys_auth").deleteMany({}),d.collection("baileys_keys").deleteMany({})]);
+          await c.close();
+        }else fs.rmSync(AUTH,{recursive:true,force:true});
+      }catch(e){console.error("Auth reset error:",e?.message||e);}
+      await closeAuth();
+      console.log("🔄 Auth reset complete. Restart the bot for a fresh pairing code.");
+    }else{
+      await closeAuth();
+      setTimeout(()=>main().catch(console.error),3000);
+    }
   }
  });
 
