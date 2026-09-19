@@ -60,14 +60,42 @@ async function main(){
  else{auth=await useMultiFileAuthState(AUTH);console.log("⚠️ Local auth enabled; set MONGO_URI for persistent auth.");}
  const{state,saveCreds}=auth;
  const{version}=await fetchLatestBaileysVersion();
- const sock=makeWASocket({version,auth:state,logger:pino({level:"silent"}),printQRInTerminal:false,browser:["TOHID-AGENT","Chrome","6.0.0"]});
+ console.log("📦 Baileys version: "+version.join("."));
+ const sock=makeWASocket({version,auth:state,logger:pino({level:"silent"}),printQRInTerminal:false,browser:["TOHID-AGENT","Chrome","6.0.0"],markOnlineOnConnect:false,syncFullHistory:false});
  sock.ev.on("creds.update",saveCreds);
  let pairingRequested=false;
  sock.ev.on("connection.update",async({connection,lastDisconnect,qr})=>{
   if(qr&&cfg.loginMethod!=="pairing"){console.log("\n📱 Scan QR with WhatsApp → Linked Devices:\n");qrcode.generate(qr,{small:true});}
-  if(!state.creds.registered&&cfg.loginMethod==="pairing"&&cfg.pairingNumber&&!pairingRequested){pairingRequested=true;try{await new Promise(r=>setTimeout(r,1200));console.log("\n🔐 Pairing code: "+await sock.requestPairingCode(cfg.pairingNumber));}catch(e){console.error("Pairing error:",e.message);}}
+  if(!state.creds.registered&&cfg.loginMethod==="pairing"&&cfg.pairingNumber&&!pairingRequested){
+    pairingRequested=true;
+    const number=String(cfg.pairingNumber).replace(/\\D/g,"");
+    if(number.length<10||number.length>15){
+      console.error("❌ Invalid PAIRING_NUMBER. Use country code + number without + or spaces, e.g. 919876543210.");
+    }else{
+      for(let attempt=1;attempt<=3&&!state.creds.registered;attempt++){
+        try{
+          await new Promise(r=>setTimeout(r,1500));
+          const code=await sock.requestPairingCode(number);
+          console.log("\n🔐 WHATSAPP PAIRING CODE: "+code);
+          console.log("📱 WhatsApp → Settings → Linked Devices → Link a Device → Link with phone number");
+          console.log("⚠️ Enter this code immediately. Do not use the QR scanner for pairing mode.");
+          break;
+        }catch(e){
+          console.error("Pairing attempt "+attempt+" failed:",e?.message||e);
+          if(attempt<3)await new Promise(r=>setTimeout(r,2500));
+        }
+      }
+    }
+  }
   if(connection==="open")console.log("✅ TOHID-AGENT V6 connected. Developer: Tohid");
-  if(connection==="close"){const code=lastDisconnect?.error?.output?.statusCode;await closeAuth();if(code!==DisconnectReason.loggedOut)setTimeout(()=>main().catch(console.error),3000);else console.log("Logged out. Clear auth state and pair again.");}
+  if(connection==="close"){
+    const code=lastDisconnect?.error?.output?.statusCode;
+    const message=lastDisconnect?.error?.message||"";
+    console.error("❌ WhatsApp connection closed. code="+code+" message="+message);
+    await closeAuth();
+    if(code!==DisconnectReason.loggedOut)setTimeout(()=>main().catch(console.error),3000);
+    else console.log("Logged out. Clear auth state and pair again.");
+  }
  });
 
  sock.ev.on("messages.upsert",async({messages,type})=>{
