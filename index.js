@@ -23,6 +23,12 @@ function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0
 function normalizeJid(jid){return String(jid||"").split(":")[0];}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
 async function send(sock,jid,text,ctx={}){
+ const category=ctx.category||null;
+ const WITH_IMAGE=new Set(["ai","github","memory","vision","voice","web","code","group","admin","stats","security","status","error"]);
+ const image=category&&WITH_IMAGE.has(category)?replyImages.getImage(category):null;
+ if(image){
+  return sock.sendMessage(jid,{image:{url:image},caption:String(text||"")});
+ }
  return sock.sendMessage(jid,{text:String(text||"")});
 }
 
