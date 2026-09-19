@@ -90,7 +90,10 @@ async function main(){
       }
     }
   }
-  if(connection==="open")console.log("✅ TOHID-AGENT V6 connected. Developer: Tohid");
+  if(connection==="open"){
+    console.log("✅ TOHID-AGENT V6 connected. Developer: Tohid");
+    console.log("📡 WhatsApp message listener is active.");
+  }
   if(connection==="close"){
     const code=lastDisconnect?.error?.output?.statusCode;
     const message=lastDisconnect?.error?.message||"";
@@ -116,7 +119,8 @@ async function main(){
  });
 
  sock.ev.on("messages.upsert",async({messages,type})=>{
-  if(type!=="notify")return;
+  if(type!=="notify"&&type!=="append")return;
+  console.log("📩 WhatsApp messages.upsert: type="+type+" count="+messages.length);
   for(const m of messages){
    try{
     if(!m.message||m.key.fromMe)continue;
@@ -149,6 +153,16 @@ async function main(){
       if(!text)text="Analyze this image.";
     }
     if(!text&&!imageData)continue;
+    console.log("📨 Incoming WhatsApp message from "+sender+" in "+jid+": "+String(text||"[media]").slice(0,120));
+    if(text.trim().toLowerCase()===cfg.prefix+"ping"){
+      try{
+        await sock.sendMessage(jid,{text:"🏓 TOHID-AGENT V6: online\\n👨‍💻 Developer: Tohid"});
+        console.log("📤 .ping reply sent to "+jid);
+      }catch(pingError){
+        console.error("❌ .ping send failed:",pingError?.stack||pingError?.message||pingError);
+      }
+      continue;
+    }
     const mode=router.route(text,cfg.prefix);
 
     if(mode==="maintenance_on"||mode==="maintenance_off"){
