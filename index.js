@@ -26,10 +26,9 @@ async function send(sock,jid,text,ctx={}){
  const category=replyImages.getCategory({category:ctx.category,mode:ctx.mode,text:ctx.sourceText||text,imageData:!!ctx.imageData});
  const image=replyImages.getImage(category);
  if(image){
-  const caption="🤖 TOHID-AGENT V6 • "+category.toUpperCase()+" • By Tohid";
-  await sock.sendMessage(jid,{image:{url:image},caption});
+  return sock.sendMessage(jid,{image:{url:image},caption:String(text||"")});
  }
- return sock.sendMessage(jid,{text});
+ return sock.sendMessage(jid,{text:String(text||"")});
 }
 
 async function mongoAuth(){
