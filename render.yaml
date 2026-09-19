@@ -11,6 +11,8 @@ services:
         value: "20"
       - key: OPENAI_API_KEY
         sync: false
+      - key: GEMINI_API_KEY
+        sync: false
       - key: GITHUB_TOKEN
         sync: false
       - key: GITHUB_OWNER
@@ -22,7 +24,7 @@ services:
       - key: MONGO_DB
         value: tohid-agent
       - key: LOGIN_METHOD
-        value: qr
+        value: pairing
       - key: PAIRING_NUMBER
         sync: false
       - key: AI_AGENT_ENABLED
