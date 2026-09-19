@@ -158,6 +158,58 @@ Normal text and voice messages are handled by the AI agent.
 
 > **Vercel note:** Vercel is suitable for the HTTP/API layer. The long-running Baileys WhatsApp worker needs a persistent worker host.
 
+
+## 🌍 Portable Deployment
+
+TOHID-AGENT V6.3 uses a single standard startup command:
+
+`npm install`
+`npm start`
+
+The project is designed for long-running Node.js worker/container hosts. It reads all configuration from environment variables, listens on `0.0.0.0` when `PORT` is provided, and does not require provider-specific application code.
+
+### Supported deployment styles
+
+| Platform | Worker | Config |
+|---|---|---|
+| Heroku | ✅ | `Procfile` + `app.json` |
+| Railway | ✅ | `railway.json` / Nixpacks |
+| Render | ✅ | `render.yaml` |
+| Koyeb | ✅ | Node buildpack + `npm start` |
+| Bot-Hosting.net | ✅ | Node.js + `npm start` |
+| VPS / Linux | ✅ | `npm start` or Docker |
+| Docker | ✅ | `Dockerfile` |
+| Replit | ✅ | `npm start` |
+| Vercel | ⚠️ API/health only | `api/index.js` |
+
+**Important:** WhatsApp/Baileys is a persistent connection. Vercel serverless functions are not a replacement for the long-running WhatsApp worker. Use Heroku, Railway, Render, Koyeb, Bot-Hosting.net, a VPS, Docker, or another persistent worker host for the actual bot. Vercel can host the lightweight health/API layer.
+
+### Required production variables
+
+At minimum, configure:
+
+- `MONGO_URI` — strongly recommended for persistent WhatsApp auth and memory.
+- `OWNER_NUMBER` — owner number with country code, digits only.
+- At least one AI provider: `OPENAI_API_KEY` and/or `GEMINI_API_KEY`.
+- `GITHUB_TOKEN` only if GitHub automation is needed.
+- `LOGIN_METHOD=pairing` with `PAIRING_NUMBER`, or `LOGIN_METHOD=qr`.
+
+### Provider-neutral startup
+
+Do not hard-code secrets into the repository. Add them in the hosting platform's Environment Variables / Secrets section. The same repository can then be redeployed on another host without changing the source code.
+
+```bash
+npm install
+npm start
+```
+
+For Docker:
+
+```bash
+docker build -t tohid-agent .
+docker run --env-file .env tohid-agent
+```
+
 ## ⚙️ Environment
 
 Copy `.env.example` to `.env`.
