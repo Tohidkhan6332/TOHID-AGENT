@@ -65,8 +65,11 @@ async function main(){
  sock.ev.on("creds.update",saveCreds);
  let pairingRequested=false;
  sock.ev.on("connection.update",async({connection,lastDisconnect,qr})=>{
+  if(qr&&cfg.loginMethod!=="pairing"){
+    console.log("\n📱 Scan QR with WhatsApp → Linked Devices:\n");
+    qrcode.generate(qr,{small:true});
+  }
   if(qr&&cfg.loginMethod==="pairing"&&cfg.pairingNumber&&!state.creds.registered&&!pairingRequested){
-  if(!state.creds.registered&&cfg.loginMethod==="pairing"&&cfg.pairingNumber&&!pairingRequested){
     pairingRequested=true;
     const number=String(cfg.pairingNumber).replace(/\\D/g,"");
     if(number.length<10||number.length>15){
@@ -74,15 +77,15 @@ async function main(){
     }else{
       for(let attempt=1;attempt<=3&&!state.creds.registered;attempt++){
         try{
-          await new Promise(r=>setTimeout(r,1500));
+          await new Promise(r=>setTimeout(r,1000));
           const code=await sock.requestPairingCode(number);
           console.log("\n🔐 WHATSAPP PAIRING CODE: "+code);
           console.log("📱 WhatsApp → Settings → Linked Devices → Link a Device → Link with phone number");
-          console.log("⚠️ Enter this code immediately. Do not use the QR scanner for pairing mode.");
+          console.log("⚠️ Enter this code immediately.");
           break;
         }catch(e){
           console.error("Pairing attempt "+attempt+" failed:",e?.message||e);
-          if(attempt<3)await new Promise(r=>setTimeout(r,2500));
+          if(attempt<3)await new Promise(r=>setTimeout(r,2000));
         }
       }
     }
