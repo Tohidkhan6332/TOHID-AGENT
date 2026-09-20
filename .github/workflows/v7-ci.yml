@@ -1,4 +1,4 @@
-name: TOHID-AGENT V7 CI
+name: TOHID-AGENT V8 CI
 
 on:
   push:
@@ -21,6 +21,8 @@ jobs:
       - run: node --check lib/openai.js
       - run: node --check lib/agentTools.js
       - run: node --check lib/agentPlanner.js
+      - run: node --check lib/agentCore.js
+      - run: node --check lib/skills.js
       - run: node --check lib/heroku.js
       - run: node --check lib/database.js
       - run: node --check lib/router.js
