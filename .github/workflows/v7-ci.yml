@@ -1,0 +1,24 @@
+name: TOHID-AGENT V7 CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install --ignore-scripts
+      - run: node --check index.js
+      - run: node --check config.js
+      - run: node --check lib/openai.js
+      - run: node --check lib/agentTools.js
+      - run: node --check lib/database.js
+      - run: node --check lib/router.js
