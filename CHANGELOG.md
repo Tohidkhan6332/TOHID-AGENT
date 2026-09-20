@@ -1,5 +1,16 @@
 # TOHID-AGENT V7
 
+## V7.3.0
+
+- Added Heroku Agent 2.0 deployment monitoring for releases, builds and runtime logs.
+- Added protected Heroku rollback and build cancellation.
+- Added safe config-var name inspection plus protected set/delete actions without exposing values.
+- Added protected Heroku maintenance-mode control.
+- Added configurable TOHID TECH WhatsApp Channel promotion to bot responses.
+- Added `CHANNEL_LINK` environment setting.
+- Preserved owner-only + CONFIRM protection for destructive Heroku operations.
+
+
 ## V7.2.0
 
 - Added autonomous agent planner with structured multi-step execution plans.
