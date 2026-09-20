@@ -15,12 +15,17 @@ const router=require("./lib/router");
 const replyImages=require("./lib/replyImages");
 const menu=require("./lib/menu");
 const buttons=require("./lib/buttons");
+const preflight=require("./lib/preflight");
+const log=require("./lib/logger");
 
 const AUTH=path.join(process.cwd(),"auth_info_baileys");
 const TMP=path.join(process.cwd(),"tmp");
 if(!fs.existsSync(TMP))fs.mkdirSync(TMP,{recursive:true});
 const rate=new Map();
 let maintenance=false;
+let activeSocket=null;
+let activeCloseAuth=async()=>{};
+let shuttingDown=false;
 
 function isOwner(jid){return !!cfg.ownerNumber&&jid.split("@")[0].replace(/\D/g,"")===cfg.ownerNumber;}
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
@@ -121,6 +126,10 @@ async function sendInteractiveMenu(sock,jid,kind="main"){
 }
 async function main(){
  if(!cfg.enabled)return console.log("TOHID-AGENT is disabled.");
+ const check=preflight.validate();
+ if(!check.ok){check.errors.forEach(x=>log.error(x));throw new Error("Production preflight failed: "+check.errors.join(" | "));}
+ check.warnings.forEach(x=>log.warn(x));
+ log.info("Starting TOHID-AGENT V8.1",preflight.safeSummary());
  let auth,closeAuth=async()=>{};
  if(cfg.mongoUri){auth=await mongoAuth();closeAuth=auth.close;await db.connect();console.log("☁️ MongoDB auth + memory enabled.");}
  else{auth=await useMultiFileAuthState(AUTH);console.log("⚠️ Local auth enabled; set MONGO_URI for persistent auth.");}
@@ -128,6 +137,8 @@ async function main(){
  const{version}=await fetchLatestBaileysVersion();
  console.log("📦 Baileys version: "+version.join("."));
  const sock=makeWASocket({version,auth:state,logger:pino({level:"silent"}),printQRInTerminal:false,browser:Browsers.ubuntu("Chrome"),markOnlineOnConnect:false,syncFullHistory:false,connectTimeoutMs:60000});
+ activeSocket=sock;
+ activeCloseAuth=closeAuth;
  sock.ev.on("creds.update",saveCreds);
  let pairingRequested=false;
  sock.ev.on("connection.update",async({connection,lastDisconnect,qr})=>{
@@ -157,13 +168,13 @@ async function main(){
     }
   }
   if(connection==="open"){
-    console.log("✅ TOHID-AGENT V8.0 connected. Developer: Tohid");
+    log.info("TOHID-AGENT connected",{developer:"Tohid",version:cfg.version});
     console.log("📡 WhatsApp message listener is active.");
   }
   if(connection==="close"){
     const code=lastDisconnect?.error?.output?.statusCode;
     const message=lastDisconnect?.error?.message||"";
-    console.error("❌ WhatsApp connection closed. code="+code+" message="+message);
+    log.warn("WhatsApp connection closed",{code,message});
     if(code===DisconnectReason.loggedOut){
       console.error("🧹 Clearing failed pairing session for a fresh login...");
       try{
@@ -179,7 +190,7 @@ async function main(){
       console.log("🔄 Auth reset complete. Restart the bot for a fresh pairing code.");
     }else{
       await closeAuth();
-      setTimeout(()=>main().catch(console.error),3000);
+      if(!shuttingDown)setTimeout(()=>main().catch(error=>log.error(error?.message||String(error))),3000);
     }
   }
  });
@@ -325,12 +336,32 @@ async function main(){
   }
  });
 }
-if(process.env.PORT)http.createServer(async(req,res)=>{if(req.url==="/admin-ui"){res.writeHead(200,{"content-type":"text/html; charset=utf-8"});return res.end(fs.readFileSync(path.join(process.cwd(),"public/admin.html"),"utf8"));}
-  if(req.url==="/admin"&&cfg.adminPanelEnabled){
-    const token=req.headers["x-admin-token"]||"";
-    if(!cfg.adminPanelToken||token!==cfg.adminPanelToken){res.writeHead(401,{"content-type":"application/json"});return res.end(JSON.stringify({error:"Unauthorized"}));}
-    const s=await db.stats();res.writeHead(200,{"content-type":"application/json"});return res.end(JSON.stringify({name:"TOHID-AGENT",version:cfg.version,developer:"Tohid",status:"online",database:s.database,stats:s},null,2));
-  }
-  res.writeHead(200,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",version:cfg.version,developer:"Tohid",status:"online"}));
-}).listen(process.env.PORT,"0.0.0.0",()=>console.log("🌐 TOHID-AGENT V8.0 health server on "+process.env.PORT));
+if(process.env.PORT)http.createServer(async(req,res)=>{
+  try{
+    if(req.url==="/admin-ui"){res.writeHead(200,{"content-type":"text/html; charset=utf-8"});return res.end(fs.readFileSync(path.join(process.cwd(),"public/admin.html"),"utf8"));}
+    if(req.url==="/health"||req.url==="/healthz"){
+      const s=await db.stats();const p=preflight.safeSummary();
+      const body={name:"TOHID-AGENT",version:cfg.version,developer:"Tohid",status:activeSocket?"online":"starting",uptime:log.uptime(),node:process.version,database:s.database,providers:p.providers,integrations:{github:!!cfg.githubToken,heroku:!!cfg.herokuToken,vercel:!!cfg.vercelToken,render:!!cfg.renderApiKey,koyeb:!!cfg.koyebToken},whatsapp:!!activeSocket};
+      res.writeHead(body.status==="online"?200:503,{"content-type":"application/json"});return res.end(JSON.stringify(body,null,2));
+    }
+    if(req.url==="/admin"&&cfg.adminPanelEnabled){
+      const token=req.headers["x-admin-token"]||"";
+      if(!cfg.adminPanelToken||token!==cfg.adminPanelToken){res.writeHead(401,{"content-type":"application/json"});return res.end(JSON.stringify({error:"Unauthorized"}));}
+      const s=await db.stats();res.writeHead(200,{"content-type":"application/json"});return res.end(JSON.stringify({name:"TOHID-AGENT",version:cfg.version,developer:"Tohid",status:"online",database:s.database,stats:s},null,2));
+    }
+    res.writeHead(200,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",version:cfg.version,developer:"Tohid",status:"online"}));
+  }catch(error){res.writeHead(503,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",status:"degraded",error:"Health check unavailable"}));}
+}).listen(process.env.PORT,"0.0.0.0",()=>log.info("Health server listening",{port:process.env.PORT}));
+const shutdown=async(signal)=>{
+  if(shuttingDown)return;
+  shuttingDown=true;
+  log.info("Graceful shutdown requested",{signal});
+  try{if(activeSocket)activeSocket.end(undefined);}catch{}
+  try{await activeCloseAuth();}catch(e){log.warn("Auth close failed",{message:e?.message});}
+  process.exit(0);
+};
+process.once("SIGTERM",()=>shutdown("SIGTERM"));
+process.once("SIGINT",()=>shutdown("SIGINT"));
+process.on("unhandledRejection",error=>log.error("Unhandled promise rejection",{message:error?.message||String(error)}));
+process.on("uncaughtException",error=>{log.error("Uncaught exception",{message:error?.message||String(error)});process.exit(1);});
 main().catch((error)=>{console.error("❌ TOHID-AGENT startup failed:",error?.stack||error?.message||error);process.exit(1);});
