@@ -2,7 +2,6 @@
   "name": "TOHID-AGENT",
   "description": "TOHID-AGENT V8.0 — Autonomous WhatsApp AI Agent by Tohid",
   "repository": "https://github.com/Tohidkhan6332/TOHID-AGENT",
-  "logo": "https://raw.githubusercontent.com/Tohidkhan6332/TOHID-AGENT/main/assets/logo.png",
   "keywords": [
     "whatsapp",
     "ai",
@@ -20,8 +19,7 @@
   ],
   "formation": {
     "web": {
-      "quantity": 1,
-      "size": "eco"
+      "quantity": 1
     }
   },
   "env": {
