@@ -1,8 +1,8 @@
-# 🤖 TOHID-AGENT V7.5
+# 🤖 TOHID-AGENT V7.6
 
-**TOHID-AGENT V7.5** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
+**TOHID-AGENT V7.6** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
 
-## 🚀 V7.5 Core
+## 🚀 V7.6 Core
 
 - 🧭 Autonomous planner for complex multi-step tasks
 - ✅ Verified tool execution and result checks
@@ -31,7 +31,7 @@
 - ☁️ Persistent MongoDB-backed WhatsApp auth
 - 🐳 Portable deployment for worker/container hosts
 
-## 🧭 V7.5 Autonomous Planner
+## 🧭 V7.6 Autonomous Planner
 
 For complex requests, the agent can create a structured plan, execute tools step-by-step, verify returned results, and adapt the next step from the tool output. Protected operations remain gated by owner authorization and explicit **CONFIRM**.
 
@@ -290,7 +290,7 @@ TOHID-AGENT/
 
 ## 🏷️ Branding
 
-**TOHID-AGENT V7.5**  
+**TOHID-AGENT V7.6**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
@@ -306,14 +306,14 @@ Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANN
 `https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T`
 
 
-## V7.5 Interactive Buttons
+## V7.6 Interactive Buttons
 
-TOHID-AGENT V7.5 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
+TOHID-AGENT V7.6 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
 
 
-## V7.5 Contextual Interactive UI
+## V7.6 Contextual Interactive UI
 
-V7.5 keeps the UI deliberately hybrid:
+V7.6 keeps the UI deliberately hybrid:
 
 - 🔘 Buttons/lists are used for navigation, settings and link actions where they improve usability.
 - 💬 Normal AI chat, status, diagnostics, help, planning prompts and command responses stay as text.
@@ -323,3 +323,23 @@ V7.5 keeps the UI deliberately hybrid:
 - 🔧 Set `INTERACTIVE_BUTTONS_ENABLED=false` to disable interactive UI while keeping text commands.
 
 The bot does not add buttons to every AI response, avoiding unnecessary UI noise.
+
+
+## 🚀 V7.6 Build → GitHub → Deploy
+
+The agent now has an end-to-end deployment workflow. A WhatsApp request such as:
+
+`Build a portfolio website named Tohid Portfolio, create the GitHub repo, upload it, and deploy it to Vercel.`
+
+can be planned and executed by the agent without requiring the user to open the hosting dashboard, provided the required provider credentials are configured in the bot environment.
+
+Supported deployment adapters in the WhatsApp agent:
+- GitHub repository creation and file writes
+- Vercel
+- Render
+- Koyeb
+- Heroku through the dedicated Heroku Agent
+
+The deployment tools are owner-protected and require **CONFIRM** before creating/updating external resources. Provider credentials are never shown in chat.
+
+Render's API supports programmatic service creation from a repository, and Koyeb supports API-driven application/service management and GitHub-based deployment. citeturn2view0turn0search7
