@@ -1,5 +1,35 @@
 ## Baileys / WhatsApp UI
 
+TOHID-AGENT keeps **official `@whiskeysockets/baileys` as the primary WhatsApp runtime and the only live socket**.
+
+The project also contains an isolated **fork-derived extras layer** based on the optional features from `mauricegift/baileys-new`. It is adapted to the already-connected official socket rather than starting a second WhatsApp connection.
+
+### Extras architecture
+
+```
+Official Baileys
+      |
+      +--> normal WhatsApp runtime
+      |
+      +--> Baileys Extras Adapter
+              |
+              +--> official capability first
+              +--> fork-derived compatibility only when needed
+              +--> unsupported -> safe error
+```
+
+Currently this layer provides:
+- Group Status / multi-group status compatibility derived from `baileys-new`.
+- Official-first carousel helpers.
+- Official-first Channel/newsletter methods when exposed by the active Baileys build.
+- Capability reporting with the source (`official`, `baileys-new-derived`, or `unsupported`).
+- No second WhatsApp socket.
+
+The fork-derived group-status implementation is based on the public `mauricegift/baileys-new` implementation and keeps its source lineage documented in `lib/baileysForkExtras.js`.
+
+Set `BAILEYS_EXTRAS_ENABLED=false` to disable the extras layer while keeping official Baileys fully operational.
+
+
 TOHID-AGENT uses **official `@whiskeysockets/baileys` as the primary WhatsApp runtime**. Fork-only capabilities are isolated behind the Baileys extras adapter so the core connection stays on official Baileys.
 
 Enabled integrations include:
