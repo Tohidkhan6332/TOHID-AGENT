@@ -1,6 +1,6 @@
 {
   "name": "TOHID-AGENT",
-  "description": "TOHID-AGENT V8.1 — Production-hardened autonomous WhatsApp AI Agent by Tohid",
+  "description": "TOHID-AGENT V9.0 — Mission Control, persistent scheduling and autonomous WhatsApp AI Agent by Tohid",
   "repository": "https://github.com/Tohidkhan6332/TOHID-AGENT",
   "keywords": [
     "whatsapp",
@@ -133,6 +133,14 @@
     "KOYEB_API_TOKEN": {
       "required": false,
       "description": "Optional Koyeb API token for Koyeb management."
+    },
+    "MISSION_SCHEDULER_ENABLED": {
+      "value": "true",
+      "description": "Enable the MongoDB-backed V9 mission scheduler."
+    },
+    "MISSION_POLL_INTERVAL_MS": {
+      "value": "60000",
+      "description": "Mission scheduler polling interval in milliseconds."
     }
   }
 }
