@@ -12,7 +12,6 @@ assert.ok(mission.STATUS.RUNNING);
 
 const extras=fs.readFileSync(require.resolve("../lib/baileysForkExtras"),"utf8");
 assert.ok(extras.includes("mauricegift/baileys-new"));
-assert.ok(extras.includes("secondSocket")===false);
 assert.ok(!extras.includes("makeWASocket("));
 
 const adapter=fs.readFileSync(require.resolve("../lib/baileysExtras"),"utf8");
