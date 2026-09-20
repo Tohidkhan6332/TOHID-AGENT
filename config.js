@@ -50,7 +50,10 @@ module.exports={
   requestTimeoutMs:Number(process.env.AI_REQUEST_TIMEOUT_MS||120000),
   maxOutputChars:Number(process.env.AI_MAX_OUTPUT_CHARS||12000),
   agentMode:(process.env.AGENT_MODE||"autonomous").toLowerCase(),
-  plannerEnabled:process.env.AGENT_PLANNER_ENABLED!=="false",\n  autonomousTasks:process.env.AUTONOMOUS_TASKS!=="false",\n  taskHistoryLimit:Number(process.env.AGENT_TASK_HISTORY_LIMIT||20),\n  taskVerification:process.env.AGENT_TASK_VERIFICATION!=="false",
+  plannerEnabled:process.env.AGENT_PLANNER_ENABLED!=="false",
+  autonomousTasks:process.env.AUTONOMOUS_TASKS!=="false",
+  taskHistoryLimit:Number(process.env.AGENT_TASK_HISTORY_LIMIT||20),
+  taskVerification:process.env.AGENT_TASK_VERIFICATION!=="false",
   channelLink:process.env.CHANNEL_LINK||"https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T",
   interactiveButtonsEnabled:process.env.INTERACTIVE_BUTTONS_ENABLED!=="false",
   debug:process.env.DEBUG==="true"
