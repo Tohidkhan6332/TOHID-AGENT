@@ -295,7 +295,24 @@ async function main(){
       const caps=baileysExtras.capabilities(sock);
       await send(sock,jid,"🧩 *BAILEYS V9 COMPATIBILITY*\\n\\n"+Object.entries(caps).map(([k,v])=>(v?"✅ ":"❌ ")+k).join("\\n"),{category:"status"});continue;
     }
-    if(lower.startsWith(cfg.prefix+"channel ")){\n      const parts=text.trim().split(/\\s+/);\n      const action=(parts[1]||"").toLowerCase();\n      const channelJid=parts[2]||"";\n      if(!action||!channelJid){await send(sock,jid,"Usage: .channel <info|follow|unfollow|mute|unmute|subscribers> <channelJid>",{category:"utility"});continue;}\n      const mutating=["follow","unfollow","mute","unmute"].includes(action);\n      if(mutating&&!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}\n      if(mutating&&!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Protected channel changes require explicit CONFIRM. Example: .channel follow <channelJid> CONFIRM",{category:"security"});continue;}\n      try{\n        let result;\n        if(action==="info")result=await baileysExtras.newsletter(sock,"newsletterMetadata","jid",channelJid);\n        else if(action==="subscribers")result=await baileysExtras.newsletter(sock,"newsletterSubscribers",channelJid);\n        else result=await baileysExtras.newsletter(sock,"newsletter"+action.charAt(0).toUpperCase()+action.slice(1),channelJid);\n        await send(sock,jid,"📢 *CHANNEL "+action.toUpperCase()+"*\\n\\n"+JSON.stringify(result,null,2),{category:"status"});\n      }catch(e){await send(sock,jid,"❌ Channel feature unavailable: "+e.message,{category:"error"});}\n      continue;\n    }\n    if(lower.startsWith(cfg.prefix+"groupstatus ")){\n      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}\n      if(!group){await send(sock,jid,"⚠️ `.groupstatus` can only be used inside a WhatsApp group.");continue;}\n      const statusText=text.slice((cfg.prefix+"groupstatus ").length).trim();\n      if(!statusText){await send(sock,jid,"Usage: .groupstatus <text>");continue;}\n      try{await baileysExtras.sendGroupStatus(sock,jid,{text:statusText});await send(sock,jid,"✅ Group status sent.",{category:"status"});}catch(e){await send(sock,jid,"❌ Group status is unavailable in the active Baileys build: "+e.message,{category:"error"});}\n      continue;\n    }\n    if(lower===cfg.prefix+"skills"){
+    if(lower.startsWith(cfg.prefix+"channel ")){
+      const parts=text.trim().split(/\s+/);
+      const action=(parts[1]||"").toLowerCase();
+      const channelJid=parts[2]||"";
+      if(!action||!channelJid){await send(sock,jid,"Usage: .channel <info|follow|unfollow|mute|unmute|subscribers> <channelJid>",{category:"utility"});continue;}
+      const mutating=["follow","unfollow","mute","unmute"].includes(action);
+      if(mutating&&!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      if(mutating&&!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Protected channel changes require explicit CONFIRM. Example: .channel follow <channelJid> CONFIRM",{category:"security"});continue;}
+      try{
+        let result;
+        if(action==="info")result=await baileysExtras.newsletter(sock,"newsletterMetadata","jid",channelJid);
+        else if(action==="subscribers")result=await baileysExtras.newsletter(sock,"newsletterSubscribers",channelJid);
+        else result=await baileysExtras.newsletter(sock,"newsletter"+action.charAt(0).toUpperCase()+action.slice(1),channelJid);
+        await send(sock,jid,"📢 *CHANNEL "+action.toUpperCase()+"*\\n\\n"+JSON.stringify(result,null,2),{category:"status"});
+      }catch(e){await send(sock,jid,"❌ Channel feature unavailable: "+e.message,{category:"error"});}
+      continue;
+    }
+    if(lower.startsWith(cfg.prefix+"groupstatus ")){\n      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}\n      if(!group){await send(sock,jid,"⚠️ `.groupstatus` can only be used inside a WhatsApp group.");continue;}\n      const statusText=text.slice((cfg.prefix+"groupstatus ").length).trim();\n      if(!statusText){await send(sock,jid,"Usage: .groupstatus <text>");continue;}\n      try{await baileysExtras.sendGroupStatus(sock,jid,{text:statusText});await send(sock,jid,"✅ Group status sent.",{category:"status"});}catch(e){await send(sock,jid,"❌ Group status is unavailable in the active Baileys build: "+e.message,{category:"error"});}\n      continue;\n    }\n    if(lower===cfg.prefix+"skills"){
       await send(sock,jid,"🧩 *ACTIVE AGENT SKILLS*\\n\\n"+skills.list().map(x=>"• *"+x.name+"* — "+x.description).join("\\n"),{category:"utility"});continue;
     }
     if(lower===cfg.prefix+"missions"){
