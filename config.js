@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports={
   developer:"Tohid",
   brand:"TOHID-AGENT",
-  version:"8.0.0",
+  version:"8.1.0",
   openaiKey:process.env.OPENAI_API_KEY||"",
   openaiModel:process.env.OPENAI_MODEL||"gpt-5.6-luna",
   model:process.env.OPENAI_MODEL||"gpt-5.6-luna",
@@ -56,5 +56,8 @@ module.exports={
   taskVerification:process.env.AGENT_TASK_VERIFICATION!=="false",
   channelLink:process.env.CHANNEL_LINK||"https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T",
   interactiveButtonsEnabled:process.env.INTERACTIVE_BUTTONS_ENABLED!=="false",
-  debug:process.env.DEBUG==="true"
+  debug:process.env.DEBUG==="true",
+  githubEnabled:process.env.GITHUB_AGENT_ENABLED!=="false",
+  hostingEnabled:process.env.HOSTING_AGENT_ENABLED!=="false",
+  strictProduction:process.env.STRICT_PRODUCTION!=="false"
 };
