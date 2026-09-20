@@ -25,6 +25,6 @@
     "pino": "^9.13.0",
     "qrcode-terminal": "^0.12.0",
     "gifted-btns": "1.0.2",
-    "gifted-baileys": "github:mauricegift/baileys-new"
+    "@whiskeysockets/baileys": "7.2.0-rc14"
   }
 }
