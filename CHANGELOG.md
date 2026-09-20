@@ -1,5 +1,18 @@
 # TOHID-AGENT V7
 
+## V7.2.0
+
+- Added autonomous agent planner with structured multi-step execution plans.
+- Added `agent_plan` tool for complex workflows.
+- Added verified tool execution with explicit result validation.
+- Added protected-action planning metadata before confirmation.
+- Added `.plan <task>` for previewing an execution plan without executing it.
+- Added configurable `AGENT_PLANNER_ENABLED` setting.
+- Extended V7.2 tool-loop handling to use the configured loop limit.
+- Added V7.2 planner syntax validation to GitHub Actions CI.
+- Preserved owner-only + CONFIRM protection for GitHub and Heroku writes.
+
+
 ## V7.1.0
 
 - Added dedicated Heroku Platform API agent.
