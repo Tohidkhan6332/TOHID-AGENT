@@ -309,7 +309,7 @@ async function main(){
       const started=await mission.start(sender,m.id);
       await send(sock,jid,"🎯 *MISSION CREATED*\\n\\n🆔 "+(m.id||"local")+"\\n⚠️ Risk: "+m.risk+"\\n📊 Status: "+(started?.status||m.status)+"\\n🧭 Steps: "+(m.steps?.length||0)+"\\n\\nUse .mission status "+(m.id||"id")+" to inspect progress.",{category:"utility"});continue;
     }
-    if(lower.startsWith(cfg.prefix+"schedule ")){
+    if(lower.startsWith(cfg.prefix+"schedule ")&&!lower.startsWith(cfg.prefix+"schedule cancel ")){
       const args=text.trim().slice((cfg.prefix+"schedule").length).trim();
       const parts=args.split(/\\s+/);const delay=parseDelay(parts[0]);const request=parts.slice(1).join(" ").trim();
       if(!delay||!request){await send(sock,jid,"Usage: .schedule <delay> <mission>\\nExample: .schedule 30m check my GitHub project");continue;}
