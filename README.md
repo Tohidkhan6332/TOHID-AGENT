@@ -1,3 +1,17 @@
+## Baileys / WhatsApp UI
+
+TOHID-AGENT uses the **gifted-baileys** feature fork directly:
+`github:mauricegift/baileys-new`.
+
+Enabled integrations include:
+- WhatsApp Channel/newsletter create, metadata, follow/unfollow, mute/unmute, subscribers, reactions, message fetch, live updates, profile updates, admin/owner controls and delete.
+- Group Status, including single-group and multi-group status delivery.
+- Carousel messages with media and native-flow CTAs.
+- Native-flow buttons/lists through `gifted-btns`.
+- Baileys log suppression and CommonJS compatibility.
+
+Protected Channel and Group Status mutations require owner authorization and explicit `CONFIRM`.
+
 # 🤖 TOHID-AGENT V9.0
 
 **TOHID-AGENT V9.0** is the futuristic autonomous WhatsApp AI agent architecture by **Tohid**.
