@@ -19,6 +19,7 @@ const preflight=require("./lib/preflight");
 const log=require("./lib/logger");
 const mission=require("./lib/mission");
 const scheduler=require("./lib/scheduler");
+const baileysExtras=require("./lib/baileysExtras");
 
 const AUTH=path.join(process.cwd(),"auth_info_baileys");
 const TMP=path.join(process.cwd(),"tmp");
@@ -144,6 +145,7 @@ async function sendInteractiveMenu(sock,jid,kind="main"){
   }
 }
 async function main(){
+ baileysExtras.suppressLogs();
  if(!cfg.enabled)return console.log("TOHID-AGENT is disabled.");
  const check=preflight.validate();
  if(!check.ok){check.errors.forEach(x=>log.error(x));throw new Error("Production preflight failed: "+check.errors.join(" | "));}
@@ -289,7 +291,11 @@ async function main(){
     if(lower===cfg.prefix+"agent"||lower===cfg.prefix+"agent status"||lower===cfg.prefix+"health"){
       await send(sock,jid,"🧠 *TOHID-AGENT V9.0 CORE*\\n\\n"+JSON.stringify(agentCore.health(),null,2),{category:"status"});continue;
     }
-    if(lower===cfg.prefix+"skills"){
+    if(lower===cfg.prefix+"baileys"){
+      const caps=baileysExtras.capabilities(sock);
+      await send(sock,jid,"🧩 *BAILEYS V9 COMPATIBILITY*\\n\\n"+Object.entries(caps).map(([k,v])=>(v?"✅ ":"❌ ")+k).join("\\n"),{category:"status"});continue;
+    }
+    if(lower.startsWith(cfg.prefix+"groupstatus ")){\n      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}\n      if(!group){await send(sock,jid,"⚠️ `.groupstatus` can only be used inside a WhatsApp group.");continue;}\n      const statusText=text.slice((cfg.prefix+"groupstatus ").length).trim();\n      if(!statusText){await send(sock,jid,"Usage: .groupstatus <text>");continue;}\n      try{await baileysExtras.sendGroupStatus(sock,jid,{text:statusText});await send(sock,jid,"✅ Group status sent.",{category:"status"});}catch(e){await send(sock,jid,"❌ Group status is unavailable in the active Baileys build: "+e.message,{category:"error"});}\n      continue;\n    }\n    if(lower===cfg.prefix+"skills"){
       await send(sock,jid,"🧩 *ACTIVE AGENT SKILLS*\\n\\n"+skills.list().map(x=>"• *"+x.name+"* — "+x.description).join("\\n"),{category:"utility"});continue;
     }
     if(lower===cfg.prefix+"missions"){
