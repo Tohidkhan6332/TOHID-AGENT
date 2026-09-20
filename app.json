@@ -1,24 +1,131 @@
 {
   "name": "TOHID-AGENT",
-  "description": "TOHID-AGENT V6.3 — WhatsApp AI Agent by Tohid",
-  "buildpacks": [{"url": "heroku/nodejs"}],
-  "formation": {"worker": {"quantity": 1}},
+  "description": "TOHID-AGENT V8.0 — Autonomous WhatsApp AI Agent by Tohid",
+  "repository": "https://github.com/Tohidkhan6332/TOHID-AGENT",
+  "logo": "https://raw.githubusercontent.com/Tohidkhan6332/TOHID-AGENT/main/assets/logo.png",
+  "keywords": [
+    "whatsapp",
+    "ai",
+    "baileys",
+    "openai",
+    "gemini",
+    "mongodb",
+    "github",
+    "agent"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
   "env": {
-    "OPENAI_API_KEY": {"required": false},
-    "GEMINI_API_KEY": {"required": false},
-    "GITHUB_TOKEN": {"required": false},
-    "GITHUB_OWNER": {"value": "Tohidkhan6332"},
-    "OWNER_NUMBER": {"required": true},
-    "MONGO_URI": {"required": true},
-    "MONGO_DB": {"value": "tohid-agent"},
-    "LOGIN_METHOD": {"value": "pairing"},
-    "PAIRING_NUMBER": {"required": false},
-    "AI_AGENT_ENABLED": {"value": "true"},
-    "AI_VOICE_REPLY": {"value": "true"},
-    "AI_WEB_SEARCH": {"value": "true"},
-    "GROUP_AI_MODE": {"value": "mention"},
-    "AI_RATE_LIMIT_PER_MINUTE": {"value": "20"},
-    "AI_MAX_MESSAGE_CHARS": {"value": "12000"},
-    "PREFIX": {"value": "."}
+    "OPENAI_API_KEY": {
+      "required": false,
+      "description": "OpenAI API key. Leave blank if you use Gemini only."
+    },
+    "GEMINI_API_KEY": {
+      "required": false,
+      "description": "Google Gemini API key. Leave blank if you use OpenAI only."
+    },
+    "AI_PROVIDER": {
+      "value": "auto",
+      "description": "AI provider mode: auto, openai, or gemini."
+    },
+    "MONGO_URI": {
+      "required": true,
+      "description": "MongoDB connection URI. Required for persistent WhatsApp auth, memory and task history."
+    },
+    "MONGO_DB": {
+      "value": "tohid-agent",
+      "description": "MongoDB database name."
+    },
+    "OWNER_NUMBER": {
+      "required": true,
+      "description": "Owner WhatsApp number in international format, digits only. Example: 9198XXXXXXXX."
+    },
+    "GITHUB_OWNER": {
+      "value": "Tohidkhan6332",
+      "description": "GitHub account/organization owner used by the GitHub agent."
+    },
+    "GITHUB_TOKEN": {
+      "required": false,
+      "description": "GitHub personal access token. Required only for GitHub API automation."
+    },
+    "LOGIN_METHOD": {
+      "value": "pairing",
+      "description": "WhatsApp login method."
+    },
+    "PAIRING_NUMBER": {
+      "required": false,
+      "description": "WhatsApp number used to generate the pairing code, in international format, digits only."
+    },
+    "AI_AGENT_ENABLED": {
+      "value": "true"
+    },
+    "AUTONOMOUS_TASKS": {
+      "value": "true"
+    },
+    "AGENT_MODE": {
+      "value": "autonomous"
+    },
+    "AGENT_PLANNER_ENABLED": {
+      "value": "true"
+    },
+    "AGENT_TASK_VERIFICATION": {
+      "value": "true"
+    },
+    "AGENT_TASK_HISTORY_LIMIT": {
+      "value": "20"
+    },
+    "AI_VOICE_REPLY": {
+      "value": "true"
+    },
+    "AI_WEB_SEARCH": {
+      "value": "true"
+    },
+    "GROUP_AI_MODE": {
+      "value": "mention"
+    },
+    "AI_RATE_LIMIT_PER_MINUTE": {
+      "value": "20"
+    },
+    "AI_MAX_MESSAGE_CHARS": {
+      "value": "12000"
+    },
+    "INTERACTIVE_BUTTONS_ENABLED": {
+      "value": "true"
+    },
+    "PREFIX": {
+      "value": "."
+    },
+    "CHANNEL_LINK": {
+      "value": "https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T"
+    },
+    "HEROKU_API_KEY": {
+      "required": false,
+      "description": "Optional Heroku API key for managing other Heroku apps from WhatsApp."
+    },
+    "VERCEL_TOKEN": {
+      "required": false,
+      "description": "Optional Vercel token for Vercel deployment management."
+    },
+    "RENDER_API_KEY": {
+      "required": false,
+      "description": "Optional Render API key for Render management."
+    },
+    "RENDER_OWNER_ID": {
+      "required": false,
+      "description": "Optional Render owner/team ID."
+    },
+    "KOYEB_API_TOKEN": {
+      "required": false,
+      "description": "Optional Koyeb API token for Koyeb management."
+    }
   }
 }
