@@ -20,5 +20,6 @@ jobs:
       - run: node --check config.js
       - run: node --check lib/openai.js
       - run: node --check lib/agentTools.js
+      - run: node --check lib/agentPlanner.js
       - run: node --check lib/database.js
       - run: node --check lib/router.js
