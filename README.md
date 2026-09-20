@@ -1,8 +1,8 @@
-# 🤖 TOHID-AGENT V7.4
+# 🤖 TOHID-AGENT V7.5
 
-**TOHID-AGENT V7.4** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
+**TOHID-AGENT V7.5** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
 
-## 🚀 V7.4 Core
+## 🚀 V7.5 Core
 
 - 🧭 Autonomous planner for complex multi-step tasks
 - ✅ Verified tool execution and result checks
@@ -31,7 +31,7 @@
 - ☁️ Persistent MongoDB-backed WhatsApp auth
 - 🐳 Portable deployment for worker/container hosts
 
-## 🧭 V7.4 Autonomous Planner
+## 🧭 V7.5 Autonomous Planner
 
 For complex requests, the agent can create a structured plan, execute tools step-by-step, verify returned results, and adapt the next step from the tool output. Protected operations remain gated by owner authorization and explicit **CONFIRM**.
 
@@ -290,7 +290,7 @@ TOHID-AGENT/
 
 ## 🏷️ Branding
 
-**TOHID-AGENT V7.4**  
+**TOHID-AGENT V7.5**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
@@ -306,6 +306,20 @@ Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANN
 `https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T`
 
 
-## V7.4 Interactive Buttons
+## V7.5 Interactive Buttons
 
-TOHID-AGENT V7.4 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
+TOHID-AGENT V7.5 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
+
+
+## V7.5 Contextual Interactive UI
+
+V7.5 keeps the UI deliberately hybrid:
+
+- 🔘 Buttons/lists are used for navigation, settings and link actions where they improve usability.
+- 💬 Normal AI chat, status, diagnostics, help, planning prompts and command responses stay as text.
+- ⚙️ Settings now has native controls for Voice ON/OFF and Memory ON/OFF.
+- 🧭 Planner remains text-first because a task still needs a user-provided prompt.
+- 🛡️ Interactive UI failures automatically fall back to the existing text menu.
+- 🔧 Set `INTERACTIVE_BUTTONS_ENABLED=false` to disable interactive UI while keeping text commands.
+
+The bot does not add buttons to every AI response, avoiding unnecessary UI noise.
