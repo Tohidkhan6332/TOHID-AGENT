@@ -189,6 +189,34 @@ npm install
 npm start
 ```
 
+
+## ☁️ Heroku Agent
+
+V7.1 adds a dedicated Heroku Platform API agent. Configure `HEROKU_API_KEY` in the hosting environment — never commit it.
+
+From WhatsApp, the owner can naturally request:
+
+- `List my Heroku apps`
+- `Show info for myapp`
+- `Restart myapp`
+- `Stop myapp`
+- `Start myapp`
+- `Scale myapp web=1 worker=0`
+- `Redeploy myapp from <source tarball URL>`
+
+Heroku restart/stop/start/scale/redeploy actions are protected by the same owner + explicit **CONFIRM** workflow used for GitHub writes.
+
+Heroku's Platform API uses bearer-token authentication. Heroku documents dyno restart through the dyno/formation API and scaling through formation updates. A true Platform API build/redeploy requires a downloadable source tarball URL; for apps connected to GitHub, Heroku's GitHub integration can perform manual deploys from the connected branch. citeturn0search0turn0search5turn1search0
+
+### Heroku environment
+
+```env
+HEROKU_API_KEY=
+```
+
+The token must be configured directly in the hosting provider's Secrets/Environment Variables. Do not paste or commit the token into GitHub.
+
+
 ## 🔐 Environment Variables
 
 Never commit real credentials.
@@ -239,5 +267,7 @@ TOHID-AGENT/
 **TOHID-AGENT V7**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
+
+**Official WhatsApp Channel: TOHID TECH** — https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T
 
 > V7 is structured as an extensible agent core so future integrations can be added as tools instead of tightly coupling new features to the WhatsApp listener.
