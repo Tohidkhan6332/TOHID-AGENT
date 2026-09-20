@@ -213,7 +213,9 @@ async function main(){
         const helpLangs={__TOHID_HELP_HI__:"Hindi",__TOHID_HELP_BN__:"Bengali",__TOHID_HELP_PA__:"Punjabi",__TOHID_HELP_UR__:"Urdu",__TOHID_HELP_TA__:"Tamil",__TOHID_HELP_TE__:"Telugu",__TOHID_HELP_MR__:"Marathi",__TOHID_HELP_GU__:"Gujarati",__TOHID_HELP_KN__:"Kannada",__TOHID_HELP_ML__:"Malayalam",__TOHID_HELP_AR__:"Arabic",__TOHID_HELP_ES__:"Spanish",__TOHID_HELP_FR__:"French",__TOHID_HELP_DE__:"German",__TOHID_HELP_TR__:"Turkish"};
         if(helpLangs[action]){await buttons.sendHelp(sock,jid,helpLangs[action]);continue;}
         if(action==="__TOHID_HELP_OTHER__"){await send(sock,jid,"🌐 *Other language*\\n\\nUse: .help <language>\\nExample: .help Japanese");continue;}
-        if(action==="__TOHID_HELP_HI__"){await buttons.sendHelp(sock,jid,"Hindi");continue;}\n        if(action==="__TOHID_HELP_EN__"){await buttons.sendHelp(sock,jid,"en");continue;}\n        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}
+        if(action==="__TOHID_HELP_HI__"){await buttons.sendHelp(sock,jid,"Hindi");continue;}
+        if(action==="__TOHID_HELP_EN__"){await buttons.sendHelp(sock,jid,"en");continue;}
+        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
