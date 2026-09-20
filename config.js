@@ -24,6 +24,7 @@ module.exports={
   ttsModel:process.env.OPENAI_TTS_MODEL||"gpt-4o-mini-tts",
   ttsVoice:process.env.OPENAI_TTS_VOICE||"cedar",
   githubToken:process.env.GITHUB_TOKEN,
+  herokuToken:process.env.HEROKU_API_KEY||process.env.HEROKU_TOKEN||"",
   githubOwner:process.env.GITHUB_OWNER||"Tohidkhan6332",
   ownerNumber:String(process.env.OWNER_NUMBER||"").replace(/\D/g,""),
   mongoUri:process.env.MONGO_URI||"",
