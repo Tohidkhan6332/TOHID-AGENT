@@ -1,6 +1,6 @@
-# 🤖 TOHID-AGENT V8.1
+# 🤖 TOHID-AGENT V9.0
 
-**TOHID-AGENT V8.1** is the futuristic autonomous WhatsApp AI agent architecture by **Tohid**.
+**TOHID-AGENT V9.0** is the futuristic autonomous WhatsApp AI agent architecture by **Tohid**.
 
 ## 🧠 V8.1 Agent Core
 
@@ -56,7 +56,61 @@ V8 does **not** remove the existing permission model. External writes, deploymen
 ---
 
 
-**TOHID-AGENT V8.1** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
+**TOHID-AGENT V9.0** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
+
+
+## 🎯 V9 Mission Control
+
+V9 introduces a persistent mission layer above the existing planner and tools. Missions are stored in MongoDB and expose a lifecycle instead of treating every request as a one-shot message.
+
+### Mission lifecycle
+
+```
+QUEUED → RUNNING → COMPLETED
+           │
+           ├→ WAITING_CONFIRMATION
+           ├→ FAILED
+           └→ CANCELLED
+```
+
+Commands:
+
+- `.mission <request>` — create a persistent mission and generate its execution steps.
+- `.missions` — show recent missions and progress.
+- `.mission status <id>` — inspect one mission.
+- `.mission confirm <id>` — release a confirmation-gated mission.
+- `.mission cancel <id>` — cancel a queued/running mission.
+- `.schedule <delay> <mission>` — schedule a mission, for example `.schedule 30m check my GitHub project`.
+- `.schedules` — list scheduled missions.
+- `.schedule cancel <id>` — cancel a scheduled mission.
+
+The V9 scheduler is MongoDB-backed and uses bounded polling. Scheduled jobs do not bypass the existing permission model: protected GitHub, hosting, configuration and destructive actions still require the normal authorization and confirmation gates.
+
+### V9 architecture
+
+```
+WhatsApp
+   ↓
+Mission Control
+   ├── Persistent Missions
+   ├── Progress / Step State
+   ├── Confirmation Gate
+   ├── Cancellation
+   └── Verification metadata
+        ↓
+Autonomous Planner
+   ↓
+Skill Registry
+   ├── GitHub
+   ├── DevOps
+   ├── Memory
+   ├── Vision / Voice / Media
+   └── Security
+        ↓
+MongoDB + WhatsApp
+```
+
+V9 is the foundation for the next Mission Mode layer: repository analysis → implementation → validation → commit → deploy → health verification → final report.
 
 ## 🚀 V7.6 Core
 
@@ -394,7 +448,7 @@ TOHID-AGENT/
 
 ## 🏷️ Branding
 
-**TOHID-AGENT V8.1**  
+**TOHID-AGENT V9.0**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
@@ -412,7 +466,7 @@ Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANN
 
 ## V7.6 Interactive Buttons
 
-TOHID-AGENT V8.1 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
+TOHID-AGENT V9.0 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
 
 
 ## V7.6 Contextual Interactive UI
