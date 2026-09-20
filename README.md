@@ -1,10 +1,10 @@
-# 🤖 TOHID-AGENT V8.0
+# 🤖 TOHID-AGENT V8.1
 
-**TOHID-AGENT V8.0** is the futuristic autonomous WhatsApp AI agent architecture by **Tohid**.
+**TOHID-AGENT V8.1** is the futuristic autonomous WhatsApp AI agent architecture by **Tohid**.
 
-## 🧠 V8.0 Agent Core
+## 🧠 V8.1 Agent Core
 
-V8.0 moves TOHID-AGENT toward a modular personal-agent platform instead of a command-only bot.
+V8.1 moves TOHID-AGENT toward a modular personal-agent platform instead of a command-only bot.
 
 - 🧠 **Autonomous Agent Core** — structured task planning, risk classification and verification gates.
 - 🧩 **Modular Skill Registry** — core, memory, GitHub, DevOps, vision, voice, media, planner and security skills.
@@ -56,7 +56,7 @@ V8 does **not** remove the existing permission model. External writes, deploymen
 ---
 
 
-**TOHID-AGENT V8.0** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
+**TOHID-AGENT V8.1** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
 
 ## 🚀 V7.6 Core
 
@@ -256,6 +256,18 @@ Supported deployment styles:
 
 Vercel can host the lightweight API/health layer, but the long-running Baileys worker should run on a persistent worker/container host.
 
+### 🛡️ V8.1 Production Hardening
+
+V8.1 adds deployment-focused safeguards so a Heroku deployment fails early with a useful message instead of starting in a broken state.
+
+- 🔎 **Startup preflight** — validates Node 22, AI provider, owner number and production MongoDB configuration.
+- 🩺 **Real health endpoints** — `/health` and `/healthz` report WhatsApp, MongoDB, AI-provider and optional-integration readiness without exposing secrets.
+- 🧹 **Graceful shutdown** — closes WhatsApp authentication and MongoDB connections during Heroku dyno termination.
+- 📝 **Structured logs** — timestamped INFO/WARN/ERROR runtime logs.
+- 🔐 **Secret-safe diagnostics** — no API keys, tokens or MongoDB credentials are returned by health checks.
+- 🎛️ **Optional integration switches** — GitHub and hosting-management features can be disabled independently.
+- 📌 **Node runtime pinning** — Node 22 is declared in `.nvmrc`, `package.json` and deployment configuration.
+
 ### 🚀 One-click Heroku deployment
 
 Use the button below to open Heroku's deployment flow directly from this repository:
@@ -278,9 +290,9 @@ All non-secret defaults are already defined in `app.json`, including `AI_PROVIDE
 
 After deployment:
 1. Open the Heroku app logs.
-2. Wait for the WhatsApp pairing/connection flow.
-3. If pairing login is enabled, use the configured `PAIRING_NUMBER`.
-4. Check the health endpoint at `https://<your-app-name>.herokuapp.com/`.
+2. Check `https://<your-app-name>.herokuapp.com/health` for a safe production health report.
+3. Wait for the WhatsApp pairing/connection flow.
+4. If pairing login is enabled, use the configured `PAIRING_NUMBER`.
 5. Send `.help` to the connected WhatsApp account.
 
 For local/VPS deployment:
@@ -382,7 +394,7 @@ TOHID-AGENT/
 
 ## 🏷️ Branding
 
-**TOHID-AGENT V8.0**  
+**TOHID-AGENT V8.1**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
@@ -400,7 +412,7 @@ Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANN
 
 ## V7.6 Interactive Buttons
 
-TOHID-AGENT V8.0 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
+TOHID-AGENT V8.1 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
 
 
 ## V7.6 Contextual Interactive UI
@@ -447,3 +459,17 @@ TOHID-AGENT can manage the configured hosting platforms directly from WhatsApp:
 Read-only status queries can run immediately. Deployments, lifecycle changes, configuration changes, and deletions remain owner-only and require an explicit CONFIRM before execution.
 
 Example messages: `Vercel projects dikhao`, `Render project redeploy karo`, `Koyeb service pause karo`, `Heroku app delete karo`.
+
+
+## 🩺 Production Health
+
+Heroku and other hosts can use:
+
+``
+GET /health
+GET /healthz
+```
+
+The endpoint intentionally exposes only safe operational state: version, uptime, Node version, database connectivity, provider readiness and integration availability. Secret values are never returned.
+
+If the health endpoint returns HTTP 503, inspect the application logs for the startup preflight error or runtime failure.
