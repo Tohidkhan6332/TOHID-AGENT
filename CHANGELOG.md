@@ -1,3 +1,12 @@
+## 7.5.0 — Contextual Hybrid UI
+
+- Added native Settings panel with Voice ON/OFF and Memory ON/OFF controls.
+- Added Settings and Planner entries to the interactive menu list.
+- Added direct interactive routing for personal voice/memory preferences.
+- Added an explicit interactive UI feature flag with text-only fallback.
+- Kept normal AI responses, diagnostics, status, help and planner prompts text-first.
+- Updated V7.5 branding and documentation.
+
 ## 7.4.0 — Interactive WhatsApp UI
 
 - Added native-flow reply buttons and single-select menu.
