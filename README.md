@@ -343,3 +343,15 @@ Supported deployment adapters in the WhatsApp agent:
 The deployment tools are owner-protected and require **CONFIRM** before creating/updating external resources. Provider credentials are never shown in chat.
 
 Render's API supports programmatic service creation from a repository, and Koyeb supports API-driven application/service management and GitHub-based deployment. citeturn2view0turn0search7
+
+### V7.7 — WhatsApp Hosting Management
+
+TOHID-AGENT can manage the configured hosting platforms directly from WhatsApp:
+- **Vercel:** projects, deployment status, inspect deployments, redeploy, delete project/deployment.
+- **Render:** services, service status, redeploy, delete service.
+- **Koyeb:** apps/services, status, redeploy, pause/resume, delete service/app.
+- **Heroku:** existing app/release/build/log/config-var controls plus protected app deletion.
+
+Read-only status queries can run immediately. Deployments, lifecycle changes, configuration changes, and deletions remain owner-only and require an explicit CONFIRM before execution.
+
+Example messages: `Vercel projects dikhao`, `Render project redeploy karo`, `Koyeb service pause karo`, `Heroku app delete karo`.
