@@ -7,6 +7,8 @@ const {MongoClient}=require("mongodb");
 const {default:makeWASocket,useMultiFileAuthState,initAuthCreds,BufferJSON,DisconnectReason,downloadContentFromMessage,fetchLatestBaileysVersion,makeCacheableSignalKeyStore,Browsers}=require("@whiskeysockets/baileys");
 const cfg=require("./config");
 const planner=require("./lib/agentPlanner");
+const agentCore=require("./lib/agentCore");
+const skills=require("./lib/skills");
 const ai=require("./lib/openai");
 const db=require("./lib/database");
 const router=require("./lib/router");
@@ -48,7 +50,7 @@ async function mongoAuth(){
 function promo(){return "📢 *TOHID TECH*\n"+cfg.channelLink;}
 function withPromo(text){const s=String(text||"");return s.includes(cfg.channelLink)?s:s+"\\n\\n"+promo();}
 function help(){
-return "🤖 *TOHID-AGENT V7.7 — COMPLETE HELP*\\n\\n"+
+return "🤖 *TOHID-AGENT V8.0 — COMPLETE HELP*\\n\\n"+
 "👨‍💻 Developer: Tohid\\n"+
 "📢 Channel: "+cfg.channelLink+"\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
@@ -114,7 +116,7 @@ async function sendInteractiveMenu(sock,jid,kind="main"){
   }catch(e){
     console.error("❌ Interactive UI send failed; using text fallback:",e?.stack||e?.message||e);
     if(kind==="dev")return menu.sendMenu(sock,jid,"main",{text:"👨‍💻 *Developer: Tohid*\\n\\nInteractive buttons are unavailable on this client, so text mode is active."});
-    return menu.sendMenu(sock,jid,"main",{text:"🤖 *TOHID-AGENT V7.5*\\n\\nInteractive buttons could not be rendered on this client. Text mode remains active."});
+    return menu.sendMenu(sock,jid,"main",{text:"🤖 *TOHID-AGENT V8.0*\\n\\nInteractive buttons could not be rendered on this client. Text mode remains active."});
   }
 }
 async function main(){
@@ -249,6 +251,24 @@ async function main(){
         console.error("❌ .ping send failed:",pingError?.stack||pingError?.message||pingError);
       }
       continue;
+    }
+    const lower=text.trim().toLowerCase();
+    if(lower===cfg.prefix+"agent"||lower===cfg.prefix+"agent status"||lower===cfg.prefix+"health"){
+      await send(sock,jid,"🧠 *TOHID-AGENT V8.0 CORE*\\n\\n"+JSON.stringify(agentCore.health(),null,2),{category:"status"});continue;
+    }
+    if(lower===cfg.prefix+"skills"){
+      await send(sock,jid,"🧩 *ACTIVE AGENT SKILLS*\\n\\n"+skills.list().map(x=>"• *"+x.name+"* — "+x.description).join("\\n"),{category:"utility"});continue;
+    }
+    if(lower===cfg.prefix+"tasks"){
+      const tasks=await agentCore.recentTasks(sender,cfg.taskHistoryLimit);
+      await send(sock,jid,tasks.length?"📋 *RECENT AGENT TASKS*\\n\\n"+tasks.map((x,i)=>(i+1)+". "+x.status+" — "+x.request).join("\\n"):"📋 No agent tasks recorded yet.",{category:"utility"});continue;
+    }
+    if(lower.startsWith(cfg.prefix+"task ")){
+      const request=text.trim().slice((cfg.prefix+"task").length).trim();
+      if(!request){await send(sock,jid,"Usage: .task <what you want TOHID-AGENT to do>");continue;}
+      if(!cfg.autonomousTasks){await send(sock,jid,"🧠 Autonomous tasks are disabled by configuration.");continue;}
+      const task=await agentCore.startTask(sender,request);
+      await send(sock,jid,"🧭 *TASK CREATED*\\n\\n"+JSON.stringify(task.plan,null,2)+"\\n\\nThe AI agent will use the required tools, respect confirmation gates, and verify external results.",{category:"utility"});continue;
     }
     const mode=router.route(text,cfg.prefix);
 
