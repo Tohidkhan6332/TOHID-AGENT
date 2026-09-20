@@ -1,11 +1,10 @@
 ## Baileys / WhatsApp UI
 
-TOHID-AGENT uses the **gifted-baileys** feature fork directly:
-`github:mauricegift/baileys-new`.
+TOHID-AGENT uses **official `@whiskeysockets/baileys` as the primary WhatsApp runtime**. Fork-only capabilities are isolated behind the Baileys extras adapter so the core connection stays on official Baileys.
 
 Enabled integrations include:
-- WhatsApp Channel/newsletter create, metadata, follow/unfollow, mute/unmute, subscribers, reactions, message fetch, live updates, profile updates, admin/owner controls and delete.
-- Group Status, including single-group and multi-group status delivery.
+- WhatsApp Channel/newsletter capabilities are used from the official socket when available; fork-only channel capabilities are isolated behind the extras layer.
+- Group Status, including single-group and multi-group status delivery, through the extras compatibility layer when supported.
 - Carousel messages with media and native-flow CTAs.
 - Native-flow buttons/lists through `gifted-btns`.
 - Baileys log suppression and CommonJS compatibility.
