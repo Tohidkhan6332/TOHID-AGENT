@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports={
   developer:"Tohid",
   brand:"TOHID-AGENT",
-  version:"6.2.0",
+  version:"7.0.0",
   openaiKey:process.env.OPENAI_API_KEY||"",
   openaiModel:process.env.OPENAI_MODEL||"gpt-5.6-luna",
   model:process.env.OPENAI_MODEL||"gpt-5.6-luna",
@@ -40,5 +40,10 @@ module.exports={
   maxMessageChars:Number(process.env.AI_MAX_MESSAGE_CHARS||12000),
   maxMemoryMessages:Number(process.env.AI_MAX_MEMORY_MESSAGES||50),
   loginMethod:(process.env.LOGIN_METHOD||"pairing").toLowerCase(),
-  pairingNumber:String(process.env.PAIRING_NUMBER||"").replace(/\D/g,"")
+  pairingNumber:String(process.env.PAIRING_NUMBER||"").replace(/\D/g,""),
+  toolLoopLimit:Number(process.env.AI_TOOL_LOOP_LIMIT||8),
+  requestTimeoutMs:Number(process.env.AI_REQUEST_TIMEOUT_MS||120000),
+  maxOutputChars:Number(process.env.AI_MAX_OUTPUT_CHARS||12000),
+  agentMode:(process.env.AGENT_MODE||"auto").toLowerCase(),
+  debug:process.env.DEBUG==="true"
 };
