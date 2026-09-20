@@ -18,13 +18,13 @@
     "pretest": "node --check index.js && node --check lib/mission.js && node --check lib/scheduler.js"
   },
   "dependencies": {
-    "@whiskeysockets/baileys": "7.2.0-rc14",
     "axios": "^1.12.2",
     "dotenv": "^17.2.2",
     "form-data": "^4.0.4",
     "mongodb": "^6.20.0",
     "pino": "^9.13.0",
     "qrcode-terminal": "^0.12.0",
-    "gifted-btns": "1.0.2"
+    "gifted-btns": "1.0.2",
+    "gifted-baileys": "github:mauricegift/baileys-new"
   }
 }
