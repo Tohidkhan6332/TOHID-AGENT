@@ -242,10 +242,9 @@ It never prints secret values.
 
 ## 🌍 Deployment
 
-The WhatsApp worker needs a persistent process.
+TOHID-AGENT is designed for long-running WhatsApp hosting.
 
-Supported deployment styles include:
-
+Supported deployment styles:
 - Heroku
 - Railway
 - Render
@@ -257,7 +256,34 @@ Supported deployment styles include:
 
 Vercel can host the lightweight API/health layer, but the long-running Baileys worker should run on a persistent worker/container host.
 
-Start:
+### 🚀 One-click Heroku deployment
+
+Use the button below to open Heroku's deployment flow directly from this repository:
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Tohidkhan6332/TOHID-AGENT)
+
+The repository includes a production-ready `app.json`. Heroku reads that file automatically and pre-creates the application's Config Vars, so you **do not need to manually add the variable names one by one**.
+
+**You only need to enter your own secret/account values when Heroku asks for them**, such as:
+- `MONGO_URI` — required for persistent MongoDB auth, memory and task history.
+- `OWNER_NUMBER` — your WhatsApp owner number.
+- `OPENAI_API_KEY` **or** `GEMINI_API_KEY` — at least one AI provider key.
+- `PAIRING_NUMBER` — if using pairing login.
+- `GITHUB_TOKEN` — only if you want GitHub automation.
+- `HEROKU_API_KEY`, `VERCEL_TOKEN`, `RENDER_API_KEY`, `KOYEB_API_TOKEN` — only for optional hosting-management integrations.
+
+All non-secret defaults are already defined in `app.json`, including `AI_PROVIDER=auto`, MongoDB database name, autonomous mode, planner/verification settings, login method, rate limits and interactive UI.
+
+> **Important:** API keys and MongoDB credentials must never be hard-coded into `app.json` or committed to GitHub. Heroku stores values entered during deployment as Config Vars.
+
+After deployment:
+1. Open the Heroku app logs.
+2. Wait for the WhatsApp pairing/connection flow.
+3. If pairing login is enabled, use the configured `PAIRING_NUMBER`.
+4. Check the health endpoint at `https://<your-app-name>.herokuapp.com/`.
+5. Send `.help` to the connected WhatsApp account.
+
+For local/VPS deployment:
 
 ```bash
 npm install
@@ -300,23 +326,33 @@ The token must be configured directly in the hosting provider's Secrets/Environm
 
 ## 🔐 Environment Variables
 
+For Heroku, **do not manually create Config Var names**. The included `app.json` declares the deployment configuration and Heroku will create those fields in the deploy form.
+
 Never commit real credentials.
 
-Required production configuration:
+### Required values for a working production deployment
 
 ```env
-OPENAI_API_KEY=
-GEMINI_API_KEY=
 MONGO_URI=
 OWNER_NUMBER=
-GITHUB_TOKEN=
-GITHUB_OWNER=Tohidkhan6332
-LOGIN_METHOD=pairing
-PAIRING_NUMBER=
-AI_PROVIDER=auto
+OPENAI_API_KEY=
+# or:
+GEMINI_API_KEY=
 ```
 
-See `.env.example` for the complete configuration.
+### Optional integrations
+
+```env
+GITHUB_TOKEN=
+HEROKU_API_KEY=
+VERCEL_TOKEN=
+RENDER_API_KEY=
+RENDER_OWNER_ID=
+KOYEB_API_TOKEN=
+```
+
+Everything else has safe defaults in `app.json`. See `.env.example` for the full local configuration.
+
 
 ## 📁 Structure
 
