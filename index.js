@@ -53,63 +53,40 @@ return "🤖 *TOHID-AGENT V7.7 — COMPLETE HELP*\\n\\n"+
 "📢 Channel: "+cfg.channelLink+"\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
 "💬 *AI / CHAT*\\n"+
-"• Normal message → AI se direct chat\\n"+
-"• Image + caption → image analysis\\n"+
-"• Voice note → transcription + AI reply\\n"+
-"• .imagine <prompt> → AI image\\n"+
-"• .video <prompt> → AI video\\n"+
-"• .newchat / .reset → conversation memory clear\\n"+
-"• .memory → saved memory count\\n"+
-"• .memory on/off → memory enable/disable\\n"+
-"• .voice on/off → voice replies enable/disable\\n\\n"+
+"• Send any message → AI chat\\n"+
+"• Send an image + caption → image analysis\\n"+
+"• Send a voice note → speech-to-text + AI reply\\n"+
+"• .imagine <prompt> → generate an image\\n"+
+"• .video <prompt> → generate a video\\n"+
+"• .newchat / .reset → clear conversation memory\\n"+
+"• .memory → view memory count\\n"+
+"• .memory on/off → enable or disable memory\\n"+
+"• .voice on/off → enable or disable voice replies\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
 "🐙 *GITHUB AGENT*\\n"+
-"Ask naturally: list/search repositories, read files, inspect commits/issues, create branch/issue/PR, edit/create files.\\n"+
+"Ask naturally to list/search repositories, read files, inspect commits/issues, create branches/issues/PRs, create or edit files, and upload projects.\\n"+
 "Examples:\\n"+
-"• \\"Mere GitHub repos dikhao\\"\\n"+
-"• \\"TOHID-AGENT ka index.js read karo\\"\\n"+
-"• \\"GitHub par portfolio repo banao\\"\\n"+
-"• \\"Is project ko GitHub par upload karo\\"\\n"+
-"🔐 GitHub write actions → owner + CONFIRM.\\n\\n"+
+"• \\"Show my GitHub repositories\\"\\n"+
+"• \\"Read index.js from TOHID-AGENT\\"\\n"+
+"• \\"Create a GitHub portfolio repository\\"\\n"+
+"• \\"Upload this project to GitHub\\"\\n"+
+"🔐 GitHub write actions require owner authorization + CONFIRM.\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
 "🚀 *HOSTING / DEPLOYMENT*\\n"+
-"Supported: *Vercel • Render • Koyeb • Heroku*\\n\\n"+
-"📋 Status / list:\\n"+
-"• \\"Vercel ke projects dikhao\\"\\n"+
-"• \\"Render ke services dikhao\\"\\n"+
-"• \\"Koyeb ke apps dikhao\\"\\n"+
-"• \\"Heroku ke apps dikhao\\"\\n\\n"+
-"🔎 Details / deployment:\\n"+
-"• \\"Vercel project <name> ka status batao\\"\\n"+
-"• \\"Vercel project <name> ki deployments dikhao\\"\\n"+
-"• \\"Vercel deployment <id> ka status batao\\"\\n"+
-"• \\"Render service <id> ka status batao\\"\\n"+
-"• \\"Koyeb service <id> ka status batao\\"\\n"+
-"• \\"Heroku <app> ke builds/releases/logs dikhao\\"\\n\\n"+
-"🚀 Deploy / redeploy:\\n"+
-"• \\"GitHub project ko Vercel par deploy karo\\"\\n"+
-"• \\"Render project redeploy karo\\"\\n"+
-"• \\"Koyeb service redeploy karo\\"\\n"+
-"• \\"Heroku app redeploy karo\\"\\n"+
-"Bot GitHub repo → files → hosting workflow ko plan karke execute kar sakta hai.\\n\\n"+
-"⏯️ Lifecycle:\\n"+
-"• Koyeb service pause/resume\\n"+
-"• Heroku restart/start/stop/scale/maintenance\\n"+
-"• Heroku rollback/cancel build\\n\\n"+
-"🗑️ *DELETE*\\n"+
-"• \\"Vercel project delete karo\\"\\n"+
-"• \\"Vercel deployment delete karo\\"\\n"+
-"• \\"Render service delete karo\\"\\n"+
-"• \\"Koyeb service/app delete karo\\"\\n"+
-"• \\"Heroku app delete karo\\"\\n"+
-"⚠️ Delete/redeploy/pause/resume/start/stop/scale/config changes jaise protected actions ke liye owner authorization + CONFIRM required hai.\\n\\n"+
-"━━━━━━━━━━━━━━━━━━\\n"+
-"☁️ *HEROKU AGENT*\\n"+
-"Apps, app info, dynos/formation, releases, builds, logs, config-var names, rollback, maintenance aur protected app deletion manage kar sakta hai.\\n"+
-"Config-var values chat mein reveal nahi ki jaati.\\n\\n"+
+"Supported: *Vercel • Render • Koyeb • Heroku*\\n"+
+"• Show my Vercel projects\\n"+
+"• Show Render services\\n"+
+"• Show Koyeb apps\\n"+
+"• Show Heroku apps\\n"+
+"• Deploy a GitHub project to Vercel\\n"+
+"• Redeploy Render, Koyeb or Heroku projects\\n"+
+"• Check deployment, service, build and release status\\n"+
+"• Manage supported lifecycle actions such as restart, start, stop, scale, pause, resume, rollback and maintenance\\n"+
+"• Delete supported projects, services or apps\\n"+
+"⚠️ Protected hosting changes require owner authorization + CONFIRM.\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
 "🧭 *PLANNER / TOOLS*\\n"+
-"• .plan <task> → execution plan preview\\n"+
+"• .plan <task> → preview an execution plan\\n"+
 "• .tools → available tools\\n"+
 "• .doctor → configuration diagnostics\\n"+
 "• .provider → AI provider status\\n"+
@@ -119,12 +96,12 @@ return "🤖 *TOHID-AGENT V7.7 — COMPLETE HELP*\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
 "⚙️ *MENU / SETTINGS*\\n"+
 "• .menu → interactive menu\\n"+
-"• .settings → settings\\n"+
+"• .settings → voice and memory settings\\n"+
 "• .profile → profile settings\\n"+
-"• .help → this complete help\\n\\n"+
+"• .help → show this complete help\\n\\n"+
 "🔐 *SECURITY*\\n"+
-"External writes/deletes are protected. Bot never reveals API keys, tokens or secret values. If a required hosting credential is missing, it will tell you which credential is needed.\\n\\n"+
-"💡 You can simply tell the bot what you want in normal Hindi/Hinglish; exact command syntax is not required.";
+"API keys, tokens and secret values are never revealed. Missing provider credentials are reported without exposing their values.\\n\\n"+
+"💡 Use natural-language requests; exact command syntax is not required.";
 }
 
 async function sendInteractiveMenu(sock,jid,kind="main"){
