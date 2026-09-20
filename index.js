@@ -56,6 +56,17 @@ return "🤖 *TOHID-AGENT V7.4*\n\n"+
 "🔐 GitHub writes are owner-only and require CONFIRM before execution.";
 }
 
+async function sendInteractiveMenu(sock,jid,kind="main"){
+  try{
+    if(kind==="main")return await buttons.sendMain(sock,jid);
+    if(kind==="list")return await buttons.sendList(sock,jid);
+    if(kind==="dev")return await buttons.sendDev(sock,jid);
+  }catch(e){
+    console.error("❌ Interactive UI send failed; using text fallback:",e?.stack||e?.message||e);
+    if(kind==="dev")return menu.sendMenu(sock,jid,"main",{text:"👨‍💻 *Developer: Tohid*\\n\\nInteractive buttons are unavailable on this client, so text mode is active."});
+    return menu.sendMenu(sock,jid,"main",{text:"🤖 *TOHID-AGENT V7.4*\\n\\nInteractive buttons could not be rendered on this client. Text mode remains active."});
+  }
+}
 async function main(){
  if(!cfg.enabled)return console.log("TOHID-AGENT is disabled.");
  let auth,closeAuth=async()=>{};
@@ -138,9 +149,9 @@ async function main(){
       const action=buttons.actionToText(buttonId);
       if(action){
         console.log("🔘 Interactive button selected: "+buttonId+" from "+sender);
-        if(action==="__TOHID_LIST__"){await buttons.sendList(sock,jid);continue;}
-        if(action==="__TOHID_DEV__"){await buttons.sendDev(sock,jid);continue;}
-        if(action==="__TOHID_MENU__"){await buttons.sendMain(sock,jid);continue;}
+        if(action==="__TOHID_LIST__"){await sendInteractiveMenu(sock,jid,"list");continue;}
+        if(action==="__TOHID_DEV__"){await sendInteractiveMenu(sock,jid,"dev");continue;}
+        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
@@ -206,7 +217,7 @@ async function main(){
       await db.setProfile(sender,{[key]:value});await send(sock,jid,"✅ Profile "+key+" updated.");continue;
     }
     if(mode==="reset"){await ai.clearMemory(sender);await send(sock,jid,"🧹 Your TOHID-AGENT conversation memory has been cleared.",{category:"memory"});continue;}
-    if(mode==="menu"){await buttons.sendMain(sock,jid);continue;}
+    if(mode==="menu"){await sendInteractiveMenu(sock,jid,"main");continue;}
     if(mode==="settings"){const parts=text.trim().split(/\s+/);const key=parts[0].replace(cfg.prefix,"").toLowerCase();const value=parts[1]?.toLowerCase();if(!value){await send(sock,jid,"⚙️ *TOHID-AGENT V7.4 SETTINGS*\n\n🎙️ Voice: use .voice on/off\n🧠 Memory: use .memory on/off\n📊 Status: .status\n\nUse .menu to view the text menu.");continue;}if((key==="voice"||key==="memory")&&["on","off"].includes(value)){await db.setSettings(sender,{[key]:value==="on"});if(key==="memory"&&value==="off")await db.clearMemory(sender);await send(sock,jid,(key==="voice"?"🎙️ Voice reply ":"🧠 Memory ")+(value==="on"?"enabled":"disabled")+".",{category:key==="voice"?"voice":"memory"});continue;}await send(sock,jid,"Use .voice on/off or .memory on/off",{category:"admin"});continue;}
     if(mode==="video"){const prompt=text.slice((cfg.prefix+"video ").length).trim();if(!prompt){await send(sock,jid,"Usage: .video <prompt>");continue;}await send(sock,jid,"🎬 Generating video...",{category:"video"});const vid=await ai.video(prompt);await db.track(sender,"video");await sock.sendMessage(jid,{video:{url:vid},caption:withPromo("🎬 TOHID-AGENT V7.4 • Tohid")});if(fs.existsSync(vid))fs.unlinkSync(vid);continue;}
     if(mode==="image"){const prompt=text.slice((cfg.prefix+"imagine ").length).trim();if(!prompt){await send(sock,jid,"Usage: .imagine <prompt>");continue;}await send(sock,jid,"🎨 Generating image...",{category:"image"});const img=await ai.image(prompt);await db.track(sender,"image");await sock.sendMessage(jid,{image:{url:img},caption:withPromo("🎨 TOHID-AGENT V7.4 • Created by Tohid")});if(fs.existsSync(img))fs.unlinkSync(img);continue;}
