@@ -59,5 +59,7 @@ module.exports={
   debug:process.env.DEBUG==="true",
   githubEnabled:process.env.GITHUB_AGENT_ENABLED!=="false",
   hostingEnabled:process.env.HOSTING_AGENT_ENABLED!=="false",
-  strictProduction:process.env.STRICT_PRODUCTION!=="false"
+  strictProduction:process.env.STRICT_PRODUCTION!=="false",
+  missionSchedulerEnabled:process.env.MISSION_SCHEDULER_ENABLED!=="false",
+  missionPollIntervalMs:Number(process.env.MISSION_POLL_INTERVAL_MS||60000)
 };
