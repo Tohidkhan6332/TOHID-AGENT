@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports={
   developer:"Tohid",
   brand:"TOHID-AGENT",
-  version:"8.1.0",
+  version:"9.0.0",
   openaiKey:process.env.OPENAI_API_KEY||"",
   openaiModel:process.env.OPENAI_MODEL||"gpt-5.6-luna",
   model:process.env.OPENAI_MODEL||"gpt-5.6-luna",
