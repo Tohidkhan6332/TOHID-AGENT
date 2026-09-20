@@ -1,3 +1,10 @@
+## 7.4.0 — Interactive WhatsApp UI
+
+- Added native-flow reply buttons and single-select menu.
+- Added button response routing with legacy response compatibility.
+- Preserved text commands and added safe interactive sending through Baileys relay.
+- Added V7.4 branding.
+
 # TOHID-AGENT V7
 
 ## V7.3.0
