@@ -403,7 +403,7 @@ async function main(){
     if(mode==="image"){const prompt=text.slice((cfg.prefix+"imagine ").length).trim();if(!prompt){await send(sock,jid,"Usage: .imagine <prompt>");continue;}await send(sock,jid,"🎨 Generating image...",{category:"image"});const img=await ai.image(prompt);await db.track(sender,"image");await sock.sendMessage(jid,{image:{url:img},caption:withPromo("🎨 TOHID-AGENT V9.0 • Created by Tohid")});if(fs.existsSync(img))fs.unlinkSync(img);continue;}
 
     await sock.sendPresenceUpdate("composing",jid);
-    const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData});
+    const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData,baileysExtras,sock,jid});
     const userSettings=await db.getSettings(sender);const voiceReply=userSettings.voice===true||(userSettings.voice===undefined&&cfg.voiceReply);if((voiceReply||inputWasVoice)&&answer){const out=path.join(TMP,"reply-"+Date.now()+".mp3");await ai.tts(answer,out);await sock.sendMessage(jid,{audio:{url:out},mimetype:"audio/mpeg",ptt:true});await send(sock,jid,promo(),{category:"utility"});if(fs.existsSync(out))fs.unlinkSync(out);}
     else await send(sock,jid,answer,{mode:"ai",sourceText:text,imageData});
     if(audioPath&&fs.existsSync(audioPath))fs.unlinkSync(audioPath);
