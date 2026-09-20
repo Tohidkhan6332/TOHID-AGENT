@@ -30,7 +30,7 @@ let activeCloseAuth=async()=>{};
 let shuttingDown=false;
 
 function parseDelay(value){
-  const m=String(value||"").trim().match(/^(\\d+)\\s*(s|m|h|d)$/i);
+  const m=String(value||"").trim().match(/^(\d+)\s*(s|m|h|d)$/i);
   if(!m)return null;
   const n=Number(m[1]); const unit=m[2].toLowerCase();
   const ms=n*(unit==="s"?1000:unit==="m"?60000:unit==="h"?3600000:86400000);
