@@ -6,7 +6,8 @@
   "main": "index.js",
   "type": "commonjs",
   "engines": {
-    "node": ">=20"
+    "node": "22.x",
+    "npm": "10.x"
   },
   "scripts": {
     "start": "node index.js",
