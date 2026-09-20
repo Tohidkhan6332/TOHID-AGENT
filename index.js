@@ -208,8 +208,8 @@ if(process.env.PORT)http.createServer(async(req,res)=>{if(req.url==="/admin-ui")
   if(req.url==="/admin"&&cfg.adminPanelEnabled){
     const token=req.headers["x-admin-token"]||"";
     if(!cfg.adminPanelToken||token!==cfg.adminPanelToken){res.writeHead(401,{"content-type":"application/json"});return res.end(JSON.stringify({error:"Unauthorized"}));}
-    const s=await db.stats();res.writeHead(200,{"content-type":"application/json"});return res.end(JSON.stringify({name:"TOHID-AGENT",version:"6.0.0",developer:"Tohid",status:"online",database:s.database,stats:s},null,2));
+    const s=await db.stats();res.writeHead(200,{"content-type":"application/json"});return res.end(JSON.stringify({name:"TOHID-AGENT",version:"7.2.0",developer:"Tohid",status:"online",database:s.database,stats:s},null,2));
   }
-  res.writeHead(200,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",version:"6.0.0",developer:"Tohid",status:"online"}));
+  res.writeHead(200,{"content-type":"application/json"});res.end(JSON.stringify({name:"TOHID-AGENT",version:"7.2.0",developer:"Tohid",status:"online"}));
 }).listen(process.env.PORT,"0.0.0.0",()=>console.log("🌐 TOHID-AGENT V7.2 health server on "+process.env.PORT));
 main().catch(console.error);
