@@ -358,6 +358,7 @@ const shutdown=async(signal)=>{
   log.info("Graceful shutdown requested",{signal});
   try{if(activeSocket)activeSocket.end(undefined);}catch{}
   try{await activeCloseAuth();}catch(e){log.warn("Auth close failed",{message:e?.message});}
+  try{await db.close();}catch(e){log.warn("Database close failed",{message:e?.message});}
   process.exit(0);
 };
 process.once("SIGTERM",()=>shutdown("SIGTERM"));
