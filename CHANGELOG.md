@@ -1,3 +1,13 @@
+## 7.6.0 — Autonomous Build & Deploy
+
+- Added GitHub repository creation tool.
+- Added deployment orchestration for Vercel, Render and Koyeb.
+- Connected deployment actions to the existing owner + CONFIRM protection.
+- Added provider credential configuration for Vercel, Render and Koyeb.
+- Added build → GitHub → deploy workflow guidance to the agent system prompt.
+- Preserved Heroku's dedicated deployment agent.
+- Kept provider secrets out of responses and logs.
+
 ## 7.5.0 — Contextual Hybrid UI
 
 - Added native Settings panel with Voice ON/OFF and Memory ON/OFF controls.
