@@ -1,5 +1,16 @@
 # TOHID-AGENT V7
 
+## V7.1.0
+
+- Added dedicated Heroku Platform API agent.
+- Added Heroku app listing and app/formation inspection.
+- Added protected Heroku restart, stop, start and scale actions.
+- Added protected Heroku Platform API redeploy from a downloadable source tarball URL.
+- Added Heroku provider diagnostics and menu documentation.
+- Added `HEROKU_API_KEY` to the environment template.
+- Added official TOHID TECH WhatsApp channel to project documentation.
+- Preserved owner-only + CONFIRM protection for destructive deployment actions.
+
 ## V7.0.0
 
 - Added extensible local agent tool layer.
