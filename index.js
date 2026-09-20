@@ -189,7 +189,7 @@ async function main(){
   if(connection==="open"){
     log.info("TOHID-AGENT connected",{developer:"Tohid",version:cfg.version});
     console.log("📡 WhatsApp message listener is active.");
-    scheduler.start(60000);
+    if(cfg.missionSchedulerEnabled)scheduler.start(cfg.missionPollIntervalMs);
   }
   if(connection==="close"){
     const code=lastDisconnect?.error?.output?.statusCode;
