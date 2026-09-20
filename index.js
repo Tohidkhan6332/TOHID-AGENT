@@ -296,18 +296,43 @@ async function main(){
       await send(sock,jid,"🧩 *BAILEYS V9 COMPATIBILITY*\\n\\n"+Object.entries(caps).map(([k,v])=>(v?"✅ ":"❌ ")+k).join("\\n"),{category:"status"});continue;
     }
     if(lower.startsWith(cfg.prefix+"channel ")){
-      const parts=text.trim().split(/\s+/);
-      const action=(parts[1]||"").toLowerCase();
-      const channelJid=parts[2]||"";
-      if(!action||!channelJid){await send(sock,jid,"Usage: .channel <info|follow|unfollow|mute|unmute|subscribers> <channelJid>",{category:"utility"});continue;}
-      const mutating=["follow","unfollow","mute","unmute"].includes(action);
+      const raw=text.trim().slice((cfg.prefix+"channel").length).trim();
+      const parts=raw.split(/\\s+/);
+      const action=(parts[0]||"").toLowerCase();
+      const mutating=["create","follow","unfollow","mute","unmute","update","updatename","updatedescription","updatepicture","removepicture","changeowner","demote","delete","react","subscribeupdates"].includes(action);
+      if(!action){await send(sock,jid,"Usage: .channel <action> ...\\n\\nActions: info, create, follow, unfollow, mute, unmute, subscribers, react, fetch, subscribeupdates, update, updatename, updatedescription, updatepicture, removepicture, admincount, changeowner, demote, delete",{category:"utility"});continue;}
       if(mutating&&!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
-      if(mutating&&!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Protected channel changes require explicit CONFIRM. Example: .channel follow <channelJid> CONFIRM",{category:"security"});continue;}
+      if(mutating&&!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Protected Channel changes require explicit CONFIRM.",{category:"security"});continue;}
       try{
         let result;
-        if(action==="info")result=await baileysExtras.newsletter(sock,"newsletterMetadata","jid",channelJid);
-        else if(action==="subscribers")result=await baileysExtras.newsletter(sock,"newsletterSubscribers",channelJid);
-        else result=await baileysExtras.newsletter(sock,"newsletter"+action.charAt(0).toUpperCase()+action.slice(1),channelJid);
+        const clean=parts.filter(x=>x.toUpperCase()!=="CONFIRM");
+        const arg1=clean[1]||"";
+        const arg2=clean[2]||"";
+        if(action==="create"){
+          const name=raw.replace(/^create\\s+/i,"").replace(/\\s+CONFIRM$/i,"").split("|")[0].trim();
+          const description=raw.includes("|")?raw.split("|").slice(1).join("|").replace(/\\s+CONFIRM$/i,"").trim():"";
+          if(!name)throw new Error("Usage: .channel create <name> | <description> CONFIRM");
+          result=await baileysExtras.newsletter(sock,"newsletterCreate",name,description);
+        }else if(action==="info")result=await baileysExtras.newsletter(sock,"newsletterMetadata","jid",arg1);
+        else if(action==="subscribers")result=await baileysExtras.newsletter(sock,"newsletterSubscribers",arg1);
+        else if(action==="admincount")result=await baileysExtras.newsletter(sock,"newsletterAdminCount",arg1);
+        else if(action==="fetch")result=await baileysExtras.newsletter(sock,"newsletterFetchMessages",arg1,Number(arg2||10));
+        else if(action==="subscribeupdates")result=await baileysExtras.newsletter(sock,"subscribeNewsletterUpdates",arg1);
+        else if(action==="react")result=await baileysExtras.newsletter(sock,"newsletterReactMessage",arg1,arg2,clean[3]||"👍");
+        else if(action==="update"){
+          const updates=JSON.parse(clean.slice(2).join(" ").replace(/\\s+CONFIRM$/i,""));
+          result=await baileysExtras.newsletter(sock,"newsletterUpdate",arg1,updates);
+        }else if(action==="updatename")result=await baileysExtras.newsletter(sock,"newsletterUpdateName",arg1,clean[2]);
+        else if(action==="updatedescription")result=await baileysExtras.newsletter(sock,"newsletterUpdateDescription",arg1,clean.slice(2).filter(x=>x.toUpperCase()!=="CONFIRM").join(" "));
+        else if(action==="updatepicture")result=await baileysExtras.newsletter(sock,"newsletterUpdatePicture",arg1,{url:clean[2]});
+        else if(action==="removepicture")result=await baileysExtras.newsletter(sock,"newsletterRemovePicture",arg1);
+        else if(action==="changeowner")result=await baileysExtras.newsletter(sock,"newsletterChangeOwner",arg1,clean[2]);
+        else if(action==="demote")result=await baileysExtras.newsletter(sock,"newsletterDemote",arg1,clean[2]);
+        else if(action==="delete")result=await baileysExtras.newsletter(sock,"newsletterDelete",arg1);
+        else {
+          const map={follow:"newsletterFollow",unfollow:"newsletterUnfollow",mute:"newsletterMute",unmute:"newsletterUnmute"};
+          result=await baileysExtras.newsletter(sock,map[action],arg1);
+        }
         await send(sock,jid,"📢 *CHANNEL "+action.toUpperCase()+"*\\n\\n"+JSON.stringify(result,null,2),{category:"status"});
       }catch(e){await send(sock,jid,"❌ Channel feature unavailable: "+e.message,{category:"error"});}
       continue;
