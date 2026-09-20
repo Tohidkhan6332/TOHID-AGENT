@@ -1,6 +1,12 @@
-# 🤖 TOHID-AGENT V7
+# 🤖 TOHID-AGENT V7.2
 
-**TOHID-AGENT V7** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
+**TOHID-AGENT V7.2** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
+
+## 🚀 V7.2 Core
+
+- 🧭 Autonomous planner for complex multi-step tasks
+- ✅ Verified tool execution and result checks
+- 🗺️ `.plan <task>` workflow preview without execution
 
 ## 🚀 V7 Core
 
@@ -24,6 +30,18 @@
 - 📱 QR and pairing-code login
 - ☁️ Persistent MongoDB-backed WhatsApp auth
 - 🐳 Portable deployment for worker/container hosts
+
+## 🧭 V7.2 Autonomous Planner
+
+For complex requests, the agent can create a structured plan, execute tools step-by-step, verify returned results, and adapt the next step from the tool output. Protected operations remain gated by owner authorization and explicit **CONFIRM**.
+
+Preview a plan without execution:
+
+```text
+.plan Deploy my GitHub project to Heroku and verify it
+```
+
+The planner does not bypass permissions or confirmations; it is an orchestration layer around the existing tool security model.
 
 ## 🧠 V7 Architecture
 
@@ -58,6 +76,7 @@ The tool layer is intentionally separated so future tools can be added without r
 `.status` — runtime status  
 `.doctor` — configuration diagnostics  
 `.provider` — AI provider status  
+`.plan <task>` — build a structured execution plan without executing it  
 `.tools` — available tool categories  
 `.memory` — memory count  
 `.memory clear` / `.newchat` — clear personal memory  
@@ -245,6 +264,7 @@ TOHID-AGENT/
 ├── config.js
 ├── lib/
 │   ├── agentTools.js
+│   ├── agentPlanner.js
 │   ├── database.js
 │   ├── github.js
 │   ├── menu.js
@@ -264,7 +284,7 @@ TOHID-AGENT/
 
 ## 🏷️ Branding
 
-**TOHID-AGENT V7**  
+**TOHID-AGENT V7.2**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
