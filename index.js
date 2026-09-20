@@ -158,6 +158,10 @@ async function main(){
  const{version}=await fetchLatestBaileysVersion();
  console.log("📦 Baileys version: "+version.join("."));
  const sock=makeWASocket({version,auth:state,logger:pino({level:"silent"}),printQRInTerminal:false,browser:Browsers.ubuntu("Chrome"),markOnlineOnConnect:false,syncFullHistory:false,connectTimeoutMs:60000});
+ if(cfg.baileysExtrasEnabled){
+  const extraState=baileysExtras.attachExtras(sock);
+  log.info("Baileys extras layer",extraState);
+ }
  activeSocket=sock;
  activeCloseAuth=closeAuth;
  sock.ev.on("creds.update",saveCreds);
