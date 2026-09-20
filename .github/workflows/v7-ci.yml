@@ -1,4 +1,4 @@
-name: TOHID-AGENT V8 CI
+name: TOHID-AGENT V9 CI
 
 on:
   push:
@@ -30,3 +30,6 @@ jobs:
       - run: node --check lib/preflight.js
       - run: node --check lib/logger.js
       - run: node --check scripts/prestart.js
+      - run: node --check lib/mission.js
+      - run: node --check lib/scheduler.js
+      - run: npm test
