@@ -17,6 +17,8 @@ const menu=require("./lib/menu");
 const buttons=require("./lib/buttons");
 const preflight=require("./lib/preflight");
 const log=require("./lib/logger");
+const mission=require("./lib/mission");
+const scheduler=require("./lib/scheduler");
 
 const AUTH=path.join(process.cwd(),"auth_info_baileys");
 const TMP=path.join(process.cwd(),"tmp");
@@ -26,6 +28,23 @@ let maintenance=false;
 let activeSocket=null;
 let activeCloseAuth=async()=>{};
 let shuttingDown=false;
+
+function parseDelay(value){
+  const m=String(value||"").trim().match(/^(\\d+)\\s*(s|m|h|d)$/i);
+  if(!m)return null;
+  const n=Number(m[1]); const unit=m[2].toLowerCase();
+  const ms=n*(unit==="s"?1000:unit==="m"?60000:unit==="h"?3600000:86400000);
+  return ms>=60000?ms:null;
+}
+
+scheduler.register("mission",async(job)=>{
+  const p=job.payload||{};
+  const created=await mission.create(job.jid,p.request||"Scheduled mission",{scheduled:true});
+  if(activeSocket){
+    const msg="⏰ *Scheduled Mission Started*\\n\\n🆔 "+(created.id||"local")+"\\n🧭 "+(created.request||"")+"\\n📊 Status: "+created.status;
+    await activeSocket.sendMessage(job.jid,{text:withPromo(msg)});
+  }
+});
 
 function isOwner(jid){return !!cfg.ownerNumber&&jid.split("@")[0].replace(/\D/g,"")===cfg.ownerNumber;}
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
@@ -170,6 +189,7 @@ async function main(){
   if(connection==="open"){
     log.info("TOHID-AGENT connected",{developer:"Tohid",version:cfg.version});
     console.log("📡 WhatsApp message listener is active.");
+    scheduler.start(60000);
   }
   if(connection==="close"){
     const code=lastDisconnect?.error?.output?.statusCode;
@@ -271,6 +291,38 @@ async function main(){
     }
     if(lower===cfg.prefix+"skills"){
       await send(sock,jid,"🧩 *ACTIVE AGENT SKILLS*\\n\\n"+skills.list().map(x=>"• *"+x.name+"* — "+x.description).join("\\n"),{category:"utility"});continue;
+    }
+    if(lower===cfg.prefix+"missions"){
+      const list=await mission.list(sender,cfg.taskHistoryLimit);
+      await send(sock,jid,list.length?"🎯 *RECENT MISSIONS*\\n\\n"+list.map((x,i)=>(i+1)+". "+x.status+" • "+x.progress+"% • "+x.request).join("\\n"):"🎯 No missions recorded yet.",{category:"utility"});continue;
+    }
+    if(lower.startsWith(cfg.prefix+"mission ")){
+      const args=text.trim().slice((cfg.prefix+"mission").length).trim();
+      const parts=args.split(/\\s+/);
+      const sub=(parts[0]||"").toLowerCase();
+      if(sub==="status"&&parts[1]){const m=await mission.get(sender,parts[1]);await send(sock,jid,m?"🎯 *MISSION*\\n\\n"+JSON.stringify(m,null,2):"❌ Mission not found.",{category:"status"});continue;}
+      if(sub==="cancel"&&parts[1]){const m=await mission.cancel(sender,parts[1]);await send(sock,jid,m?"🛑 Mission cancelled.":"❌ Mission not found.",{category:"admin"});continue;}
+      if(sub==="confirm"&&parts[1]){const m=await mission.confirm(sender,parts[1]);await send(sock,jid,m?"✅ Mission confirmed and moved to running state.":"❌ Mission not found.",{category:"security"});continue;}
+      const request=args;
+      if(!request){await send(sock,jid,"Usage: .mission <request> | .mission status <id> | .mission confirm <id> | .mission cancel <id>");continue;}
+      const m=await mission.create(sender,request,{source:"whatsapp"});
+      const started=await mission.start(sender,m.id);
+      await send(sock,jid,"🎯 *MISSION CREATED*\\n\\n🆔 "+(m.id||"local")+"\\n⚠️ Risk: "+m.risk+"\\n📊 Status: "+(started?.status||m.status)+"\\n🧭 Steps: "+(m.steps?.length||0)+"\\n\\nUse .mission status "+(m.id||"id")+" to inspect progress.",{category:"utility"});continue;
+    }
+    if(lower.startsWith(cfg.prefix+"schedule ")){
+      const args=text.trim().slice((cfg.prefix+"schedule").length).trim();
+      const parts=args.split(/\\s+/);const delay=parseDelay(parts[0]);const request=parts.slice(1).join(" ").trim();
+      if(!delay||!request){await send(sock,jid,"Usage: .schedule <delay> <mission>\\nExample: .schedule 30m check my GitHub project");continue;}
+      const job=await scheduler.add(sender,new Date(Date.now()+delay),{type:"mission",request});
+      await send(sock,jid,"⏰ *MISSION SCHEDULED*\\n\\n🆔 "+(job.id||"local")+"\\n⏱️ Runs in "+parts[0]+"\\n🧭 "+request);continue;
+    }
+    if(lower===cfg.prefix+"schedules"){
+      const jobs=await scheduler.list(sender,20);
+      await send(sock,jid,jobs.length?"⏰ *SCHEDULED MISSIONS*\\n\\n"+jobs.map((x,i)=>(i+1)+". "+String(x._id)+" • "+new Date(x.runAt).toLocaleString()+" • "+x.payload?.request).join("\\n"):"⏰ No scheduled missions.",{category:"utility"});continue;
+    }
+    if(lower.startsWith(cfg.prefix+"schedule cancel ")){
+      const id=text.trim().slice((cfg.prefix+"schedule cancel").length).trim();
+      const ok=await scheduler.cancel(sender,id);await send(sock,jid,ok?"🛑 Scheduled mission cancelled.":"❌ Scheduled job not found.");continue;
     }
     if(lower===cfg.prefix+"tasks"){
       const tasks=await agentCore.recentTasks(sender,cfg.taskHistoryLimit);
