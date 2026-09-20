@@ -1,8 +1,8 @@
 {
   "name": "tohid-agent-whatsapp",
-  "version": "8.1.0",
+  "version": "9.0.0",
   "private": true,
-  "description": "TOHID-AGENT V8.1 — production-hardened autonomous WhatsApp AI agent by Tohid",
+  "description": "TOHID-AGENT V9 — mission control, persistent scheduling and autonomous WhatsApp AI agent by Tohid",
   "main": "index.js",
   "type": "commonjs",
   "engines": {
@@ -13,7 +13,9 @@
     "start": "node index.js",
     "dev": "node index.js",
     "heroku-postbuild": "node scripts/prestart.js",
-    "prestart": "node scripts/prestart.js"
+    "prestart": "node scripts/prestart.js",
+    "test": "node test/v9-core.test.js",
+    "pretest": "node --check index.js && node --check lib/mission.js && node --check lib/scheduler.js"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "7.2.0-rc14",
