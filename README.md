@@ -1,6 +1,62 @@
-# 🤖 TOHID-AGENT V7.6
+# 🤖 TOHID-AGENT V8.0
 
-**TOHID-AGENT V7.6** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
+**TOHID-AGENT V8.0** is the futuristic autonomous WhatsApp AI agent architecture by **Tohid**.
+
+## 🧠 V8.0 Agent Core
+
+V8.0 moves TOHID-AGENT toward a modular personal-agent platform instead of a command-only bot.
+
+- 🧠 **Autonomous Agent Core** — structured task planning, risk classification and verification gates.
+- 🧩 **Modular Skill Registry** — core, memory, GitHub, DevOps, vision, voice, media, planner and security skills.
+- 📋 **Tracked Agent Tasks** — MongoDB-backed task history and audit events.
+- 🛡️ **Safety Engine** — read/write/deploy/delete/config risk classification with confirmation for external side effects.
+- 🩺 **Agent Health** — provider, integration, planner and safety capability status.
+- 🌍 **AI Language Layer** — English master help with on-demand AI translation for other languages.
+- 🤖 **Natural-language execution** — users can describe goals instead of memorizing commands.
+- 🔍 **Verification-first execution** — external actions must be verified before the agent reports success.
+
+### V8 commands
+
+`.task <request>` — create a tracked autonomous task and generate its execution plan  
+`.tasks` — show recent tracked tasks  
+`.agent` / `.health` — show agent-core health and capabilities  
+`.skills` — show active modular skills  
+`.plan <task>` — preview an execution plan  
+`.help` — English master help + AI language selector
+
+### V8 architecture
+
+```
+WhatsApp
+   ↓
+Message Router
+   ↓
+TOHID-AGENT Core
+   ├── AI Provider Router
+   │    ├── OpenAI
+   │    └── Gemini fallback
+   ├── Agent Core
+   │    ├── Planner
+   │    ├── Risk Guard
+   │    ├── Task Tracker
+   │    └── Verification
+   ├── Skill Registry
+   │    ├── GitHub
+   │    ├── DevOps
+   │    ├── Memory
+   │    ├── Vision
+   │    ├── Voice
+   │    └── Media
+   ├── Persistent MongoDB
+   └── WhatsApp Interface
+```
+
+V8 does **not** remove the existing permission model. External writes, deployments, configuration changes and destructive operations remain protected by owner authorization and explicit confirmation.
+
+---
+
+
+**TOHID-AGENT V8.0** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
 
 ## 🚀 V7.6 Core
 
@@ -290,7 +346,7 @@ TOHID-AGENT/
 
 ## 🏷️ Branding
 
-**TOHID-AGENT V7.6**  
+**TOHID-AGENT V8.0**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
@@ -308,7 +364,7 @@ Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANN
 
 ## V7.6 Interactive Buttons
 
-TOHID-AGENT V7.6 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
+TOHID-AGENT V8.0 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
 
 
 ## V7.6 Contextual Interactive UI
