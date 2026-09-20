@@ -1,8 +1,8 @@
-# 🤖 TOHID-AGENT V7.3
+# 🤖 TOHID-AGENT V7.4
 
-**TOHID-AGENT V7.3** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
+**TOHID-AGENT V7.4** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
 
-## 🚀 V7.3 Core
+## 🚀 V7.4 Core
 
 - 🧭 Autonomous planner for complex multi-step tasks
 - ✅ Verified tool execution and result checks
@@ -31,7 +31,7 @@
 - ☁️ Persistent MongoDB-backed WhatsApp auth
 - 🐳 Portable deployment for worker/container hosts
 
-## 🧭 V7.3 Autonomous Planner
+## 🧭 V7.4 Autonomous Planner
 
 For complex requests, the agent can create a structured plan, execute tools step-by-step, verify returned results, and adapt the next step from the tool output. Protected operations remain gated by owner authorization and explicit **CONFIRM**.
 
@@ -290,7 +290,7 @@ TOHID-AGENT/
 
 ## 🏷️ Branding
 
-**TOHID-AGENT V7.3**  
+**TOHID-AGENT V7.4**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
@@ -304,3 +304,8 @@ TOHID-AGENT/
 Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANNEL_LINK` to change it.
 
 `https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T`
+
+
+## V7.4 Interactive Buttons
+
+TOHID-AGENT V7.4 adds native WhatsApp interactive reply buttons and list selection while preserving all text commands. If a client cannot render the interactive message, the bot keeps its normal text-command flow available.
