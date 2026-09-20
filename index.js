@@ -230,7 +230,7 @@ async function main(){
         if(action==="__TOHID_MEMORY_ON__"){await db.setSettings(sender,{memory:true});await send(sock,jid,"🧠 Memory enabled.");continue;}
         if(action==="__TOHID_MEMORY_OFF__"){await db.setSettings(sender,{memory:false});await db.clearMemory(sender);await send(sock,jid,"🧹 Memory disabled and current conversation memory cleared.",{category:"memory"});continue;}
         if(action==="__TOHID_PLAN__"){await send(sock,jid,"🧭 *Agent Planner*\n\nSend a task after `.plan`, for example:\n`.plan deploy my GitHub project to Heroku and verify it`");continue;}
-        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}
+        if(action==="__TOHID_HELP_HI__"){await buttons.sendHelp(sock,jid,"hi");continue;}\n        if(action==="__TOHID_HELP_EN__"){await buttons.sendHelp(sock,jid,"en");continue;}\n        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
@@ -282,7 +282,7 @@ async function main(){
       if(!target){await send(sock,jid,"Usage: "+cfg.prefix+mode+" <number>",{category:"admin"});continue;}
       await db.setBlocked(target+"@s.whatsapp.net",mode==="block");await send(sock,jid,(mode==="block"?"🚫 Blocked ":"✅ Unblocked ")+target,{category:"security"});continue;
     }
-    if(mode==="help"){await send(sock,jid,help(),{category:"ai"});continue;}
+    if(mode==="help"){if(cfg.interactiveButtonsEnabled){try{await buttons.sendHelp(sock,jid,"en");}catch(e){await send(sock,jid,help(),{category:"ai"});}}else await send(sock,jid,help(),{category:"ai"});continue;}
     if(mode==="ping"){await send(sock,jid,"🏓 TOHID-AGENT V7.5: online\n👨‍💻 Developer: Tohid");continue;}
     if(mode==="status"){const s=await db.stats();await send(sock,jid,"⚡ *TOHID-AGENT V7.5*\nStatus: Online\nDeveloper: Tohid\nAI: "+(cfg.openaiKey&&cfg.geminiKey?"OpenAI → Gemini fallback":cfg.openaiKey?"OpenAI":cfg.geminiKey?"Gemini":"Not configured")+"\nMemory DB: "+(s.database?"Connected":"Not configured")+"\nGitHub: "+(cfg.githubToken?"Configured":"Not configured")+"\nBlocked users: "+(s.blocked??0));continue;}
     if(mode==="doctor"){const checks=[["OpenAI",!!cfg.openaiKey],["Gemini",!!cfg.geminiKey],["MongoDB",!!cfg.mongoUri],["GitHub",!!cfg.githubToken],["Pairing",!!cfg.pairingNumber]];await send(sock,jid,"🩺 *TOHID-AGENT V7.5 DOCTOR*\n\n"+checks.map(x=>(x[1]?"✅ ":"❌ ")+x[0]).join("\n")+"\n\nNode: "+process.version+"\nTool loop: "+cfg.toolLoopLimit+"\nMemory limit: "+cfg.maxMemoryMessages);continue;}
