@@ -56,6 +56,7 @@ module.exports={
   taskVerification:process.env.AGENT_TASK_VERIFICATION!=="false",
   channelLink:process.env.CHANNEL_LINK||"https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T",
   interactiveButtonsEnabled:process.env.INTERACTIVE_BUTTONS_ENABLED!=="false",
+  baileysExtrasEnabled:process.env.BAILEYS_EXTRAS_ENABLED!=="false",
   debug:process.env.DEBUG==="true",
   githubEnabled:process.env.GITHUB_AGENT_ENABLED!=="false",
   hostingEnabled:process.env.HOSTING_AGENT_ENABLED!=="false",
