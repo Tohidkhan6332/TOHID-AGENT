@@ -1,8 +1,8 @@
-# 🤖 TOHID-AGENT V7.2
+# 🤖 TOHID-AGENT V7.3
 
-**TOHID-AGENT V7.2** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
+**TOHID-AGENT V7.3** is a production-oriented WhatsApp AI Agent engineered and branded by **Tohid**.
 
-## 🚀 V7.2 Core
+## 🚀 V7.3 Core
 
 - 🧭 Autonomous planner for complex multi-step tasks
 - ✅ Verified tool execution and result checks
@@ -31,7 +31,7 @@
 - ☁️ Persistent MongoDB-backed WhatsApp auth
 - 🐳 Portable deployment for worker/container hosts
 
-## 🧭 V7.2 Autonomous Planner
+## 🧭 V7.3 Autonomous Planner
 
 For complex requests, the agent can create a structured plan, execute tools step-by-step, verify returned results, and adapt the next step from the tool output. Protected operations remain gated by owner authorization and explicit **CONFIRM**.
 
@@ -209,7 +209,7 @@ npm start
 ```
 
 
-## ☁️ Heroku Agent
+## ☁️ Heroku Agent 2.0
 
 V7.1 adds a dedicated Heroku Platform API agent. Configure `HEROKU_API_KEY` in the hosting environment — never commit it.
 
@@ -221,6 +221,12 @@ From WhatsApp, the owner can naturally request:
 - `Stop myapp`
 - `Start myapp`
 - `Scale myapp web=1 worker=0`
+- `Show releases/builds/logs for myapp`
+- `Rollback myapp to v42`
+- `Show config vars for myapp` (names only; values are never revealed)
+- `Set/delete a config var` (owner + CONFIRM)
+- `Enable/disable maintenance mode` (owner + CONFIRM)
+- `Cancel a running build` (owner + CONFIRM)
 - `Redeploy myapp from <source tarball URL>`
 
 Heroku restart/stop/start/scale/redeploy actions are protected by the same owner + explicit **CONFIRM** workflow used for GitHub writes.
@@ -284,10 +290,17 @@ TOHID-AGENT/
 
 ## 🏷️ Branding
 
-**TOHID-AGENT V7.2**  
+**TOHID-AGENT V7.3**  
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
 **Official WhatsApp Channel: TOHID TECH** — https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T
 
 > V7 is structured as an extensible agent core so future integrations can be added as tools instead of tightly coupling new features to the WhatsApp listener.
+
+
+## 📢 TOHID TECH Promotion
+
+Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANNEL_LINK` to change it.
+
+`https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T`
