@@ -48,14 +48,83 @@ async function mongoAuth(){
 function promo(){return "📢 *TOHID TECH*\n"+cfg.channelLink;}
 function withPromo(text){const s=String(text||"");return s.includes(cfg.channelLink)?s:s+"\\n\\n"+promo();}
 function help(){
-return "🤖 *TOHID-AGENT V7.5*\n\n"+
-"👨‍💻 Developer: Tohid\n\n"+
-"💬 Chat — send text\n🖼️ Vision — send an image + caption\n🎤 Voice — send a voice note\n"+
-"🎨 .imagine <prompt>\n🎬 .video <prompt>\n🧠 .newchat / .reset\n"+
-"📊 .stats (owner)\n🧠 .memory\n🛡️ .maintenance on/off (owner)\n"+
-"🚫 .block <number> / .unblock <number> (owner)\n❤️ .ping\nℹ️ .status\n🛠️ .help\n\n"+
-"GitHub: ask naturally to search repos, read code, inspect commits/issues, create branches, edit files and open PRs.\n"+
-"🔐 GitHub writes are owner-only and require CONFIRM before execution.";
+return "🤖 *TOHID-AGENT V7.7 — COMPLETE HELP*\\n\\n"+
+"👨‍💻 Developer: Tohid\\n"+
+"📢 Channel: "+cfg.channelLink+"\\n\\n"+
+"━━━━━━━━━━━━━━━━━━\\n"+
+"💬 *AI / CHAT*\\n"+
+"• Normal message → AI se direct chat\\n"+
+"• Image + caption → image analysis\\n"+
+"• Voice note → transcription + AI reply\\n"+
+"• .imagine <prompt> → AI image\\n"+
+"• .video <prompt> → AI video\\n"+
+"• .newchat / .reset → conversation memory clear\\n"+
+"• .memory → saved memory count\\n"+
+"• .memory on/off → memory enable/disable\\n"+
+"• .voice on/off → voice replies enable/disable\\n\\n"+
+"━━━━━━━━━━━━━━━━━━\\n"+
+"🐙 *GITHUB AGENT*\\n"+
+"Ask naturally: list/search repositories, read files, inspect commits/issues, create branch/issue/PR, edit/create files.\\n"+
+"Examples:\\n"+
+"• \\"Mere GitHub repos dikhao\\"\\n"+
+"• \\"TOHID-AGENT ka index.js read karo\\"\\n"+
+"• \\"GitHub par portfolio repo banao\\"\\n"+
+"• \\"Is project ko GitHub par upload karo\\"\\n"+
+"🔐 GitHub write actions → owner + CONFIRM.\\n\\n"+
+"━━━━━━━━━━━━━━━━━━\\n"+
+"🚀 *HOSTING / DEPLOYMENT*\\n"+
+"Supported: *Vercel • Render • Koyeb • Heroku*\\n\\n"+
+"📋 Status / list:\\n"+
+"• \\"Vercel ke projects dikhao\\"\\n"+
+"• \\"Render ke services dikhao\\"\\n"+
+"• \\"Koyeb ke apps dikhao\\"\\n"+
+"• \\"Heroku ke apps dikhao\\"\\n\\n"+
+"🔎 Details / deployment:\\n"+
+"• \\"Vercel project <name> ka status batao\\"\\n"+
+"• \\"Vercel project <name> ki deployments dikhao\\"\\n"+
+"• \\"Vercel deployment <id> ka status batao\\"\\n"+
+"• \\"Render service <id> ka status batao\\"\\n"+
+"• \\"Koyeb service <id> ka status batao\\"\\n"+
+"• \\"Heroku <app> ke builds/releases/logs dikhao\\"\\n\\n"+
+"🚀 Deploy / redeploy:\\n"+
+"• \\"GitHub project ko Vercel par deploy karo\\"\\n"+
+"• \\"Render project redeploy karo\\"\\n"+
+"• \\"Koyeb service redeploy karo\\"\\n"+
+"• \\"Heroku app redeploy karo\\"\\n"+
+"Bot GitHub repo → files → hosting workflow ko plan karke execute kar sakta hai.\\n\\n"+
+"⏯️ Lifecycle:\\n"+
+"• Koyeb service pause/resume\\n"+
+"• Heroku restart/start/stop/scale/maintenance\\n"+
+"• Heroku rollback/cancel build\\n\\n"+
+"🗑️ *DELETE*\\n"+
+"• \\"Vercel project delete karo\\"\\n"+
+"• \\"Vercel deployment delete karo\\"\\n"+
+"• \\"Render service delete karo\\"\\n"+
+"• \\"Koyeb service/app delete karo\\"\\n"+
+"• \\"Heroku app delete karo\\"\\n"+
+"⚠️ Delete/redeploy/pause/resume/start/stop/scale/config changes jaise protected actions ke liye owner authorization + CONFIRM required hai.\\n\\n"+
+"━━━━━━━━━━━━━━━━━━\\n"+
+"☁️ *HEROKU AGENT*\\n"+
+"Apps, app info, dynos/formation, releases, builds, logs, config-var names, rollback, maintenance aur protected app deletion manage kar sakta hai.\\n"+
+"Config-var values chat mein reveal nahi ki jaati.\\n\\n"+
+"━━━━━━━━━━━━━━━━━━\\n"+
+"🧭 *PLANNER / TOOLS*\\n"+
+"• .plan <task> → execution plan preview\\n"+
+"• .tools → available tools\\n"+
+"• .doctor → configuration diagnostics\\n"+
+"• .provider → AI provider status\\n"+
+"• .status → bot status\\n"+
+"• .ping → health check\\n"+
+"• .stats → owner statistics\\n\\n"+
+"━━━━━━━━━━━━━━━━━━\\n"+
+"⚙️ *MENU / SETTINGS*\\n"+
+"• .menu → interactive menu\\n"+
+"• .settings → settings\\n"+
+"• .profile → profile settings\\n"+
+"• .help → this complete help\\n\\n"+
+"🔐 *SECURITY*\\n"+
+"External writes/deletes are protected. Bot never reveals API keys, tokens or secret values. If a required hosting credential is missing, it will tell you which credential is needed.\\n\\n"+
+"💡 You can simply tell the bot what you want in normal Hindi/Hinglish; exact command syntax is not required.";
 }
 
 async function sendInteractiveMenu(sock,jid,kind="main"){
