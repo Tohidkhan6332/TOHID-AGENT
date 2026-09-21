@@ -28,8 +28,11 @@ const rbac=require("./lib/rbac");
 const dashboard=require("./lib/dashboard");
 const doctor=require("./lib/doctor");
 const dmRelay=require("./lib/dmRelay");
+const urlManager=require("./lib/urlManager");
+const pairingManager=require("./lib/pairingManager");
+const pairingWeb=require("./lib/pairingWeb");
 
-const AUTH=path.join(process.cwd(),"auth_info_baileys");
+const AUTH=path.resolve(process.env.AUTH_DIR||path.join(process.cwd(),"auth_info_baileys"));
 const TMP=path.join(process.cwd(),"tmp");
 if(!fs.existsSync(TMP))fs.mkdirSync(TMP,{recursive:true});
 const rate=new Map();
@@ -184,8 +187,8 @@ async function main(){
  check.warnings.forEach(x=>log.warn(x));
  log.info("Starting TOHID-AGENT V11.0",preflight.safeSummary());
  let auth,closeAuth=async()=>{};
- if(cfg.mongoUri||cfg.postgresUrl){auth=await databaseAuth();closeAuth=auth.close;await db.connect();const globalConfig=await db.getGlobalConfig();applyGlobalConfig(globalConfig);applyFeatureState();await loadDelegatedOwners();console.log("☁️ Database-backed auth + memory enabled ("+(cfg.mongoUri?"MongoDB primary":"PostgreSQL primary")+").");}
- else{auth=await useMultiFileAuthState(AUTH);console.log("⚠️ Local auth enabled; configure MONGO_URI or POSTGRES_URL for persistent auth.");}
+ if((cfg.mongoUri||cfg.postgresUrl)&&process.env.LOCAL_AUTH_ONLY!=="1"){auth=await databaseAuth();closeAuth=auth.close;await db.connect();if(process.env.TOHID_PAIRING_CHILD!=="1"){const globalConfig=await db.getGlobalConfig();applyGlobalConfig(globalConfig);applyFeatureState();await loadDelegatedOwners();}console.log("☁️ Database-backed auth + memory enabled ("+(cfg.mongoUri?"MongoDB primary":"PostgreSQL primary")+").");}
+ else{auth=await useMultiFileAuthState(AUTH);if(cfg.mongoUri||cfg.postgresUrl)await db.connect();console.log("⚠️ Local auth enabled; configure MONGO_URI or POSTGRES_URL for persistent auth.");}
  const{state,saveCreds}=auth;
  const{version}=await fetchLatestBaileysVersion();
  console.log("📦 Baileys version: "+version.join("."));
@@ -199,6 +202,7 @@ async function main(){
  sock.ev.on("creds.update",saveCreds);
  let pairingRequested=false;
  sock.ev.on("connection.update",async({connection,lastDisconnect,qr})=>{
+  if(qr&&process.send){try{process.send({type:"qr",qr:String(qr)});}catch{}}
   if(qr&&cfg.loginMethod!=="pairing"){
     console.log("\n📱 Scan QR with WhatsApp → Linked Devices:\n");
     qrcode.generate(qr,{small:true});
@@ -213,6 +217,7 @@ async function main(){
         try{
           await new Promise(r=>setTimeout(r,1000));
           const code=await sock.requestPairingCode(number);
+          try{if(process.send)process.send({type:"pairing-code",code:String(code)});}catch{}
           console.log("\n🔐 WHATSAPP PAIRING CODE: "+code);
           console.log("📱 WhatsApp → Settings → Linked Devices → Link a Device → Link with phone number");
           console.log("⚠️ Enter this code immediately.");
@@ -225,18 +230,20 @@ async function main(){
     }
   }
   if(connection==="open"){
+    try{if(process.send)process.send({type:"connected",number:normalizeOwnerNumber(state.creds.me?.id||"")});}catch{}
     log.info("TOHID-AGENT connected",{developer:"Tohid",version:cfg.version});
     console.log("📡 WhatsApp message listener is active.");
     if(cfg.missionSchedulerEnabled)scheduler.start(cfg.missionPollIntervalMs);
   }
   if(connection==="close"){
+    try{if(process.send)process.send({type:"status",status:"closed",code:lastDisconnect?.error?.output?.statusCode||null});}catch{}
     const code=lastDisconnect?.error?.output?.statusCode;
     const message=lastDisconnect?.error?.message||"";
     log.warn("WhatsApp connection closed",{code,message});
     if(code===DisconnectReason.loggedOut){
       console.error("🧹 Clearing failed pairing session for a fresh login...");
       try{
-        if(cfg.mongoUri||cfg.postgresUrl)await db.clearBaileysAuth();else fs.rmSync(AUTH,{recursive:true,force:true});
+        if((cfg.mongoUri||cfg.postgresUrl)&&process.env.LOCAL_AUTH_ONLY!=="1")await db.clearBaileysAuth();else fs.rmSync(AUTH,{recursive:true,force:true});
       }catch(e){console.error("Auth reset error:",e?.message||e);}
       await closeAuth();
       console.log("🔄 Auth reset complete. Restart the bot for a fresh pairing code.");
@@ -450,6 +457,46 @@ async function main(){
       await send(sock,jid,"🧭 *TASK CREATED*\\n\\n"+JSON.stringify(task.plan,null,2)+"\\n\\nThe AI agent will use the required tools, respect confirmation gates, and verify external results.",{category:"utility"});continue;
     }
     const mode=router.route(text,cfg.prefix);
+
+    if(mode==="pair"||mode==="qr"){
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only. Use the pairing website for your own account.",{category:"security"});continue;}
+      const parts=text.trim().split(/\s+/);const number=parts[1]||"";const method=mode==="qr"?"qr":"pairing";
+      if(!number){await send(sock,jid,"Usage: "+cfg.prefix+mode+" <country-code-number>\nExample: "+cfg.prefix+mode+" 919876543210",{category:"utility"});continue;}
+      try{
+        const session=pairingManager.create({phone:number,mode,env:{}});
+        await send(sock,jid,"🔗 *TOHID-AGENT "+method.toUpperCase()+" SESSION*\n\n📱 Number: "+session.phone+"\n🆔 Session: "+session.id+"\n⏳ Waiting for WhatsApp…\n\nThe pairing code/QR will appear here when ready.",{category:"utility"});
+        const waitUntil=Date.now()+120000;
+        while(Date.now()<waitUntil){
+          await new Promise(r=>setTimeout(r,1000));const current=pairingManager.get(session.id);if(!current)break;
+          if(current.code){await send(sock,jid,"🔐 *PAIRING CODE*\n\n"+current.code+"\n\nWhatsApp → Linked Devices → Link with phone number → enter the 8-character code.",{category:"security"});break;}
+          if(current.qr&&method==="qr"){await send(sock,jid,"📱 *QR READY*\n\nOpen WhatsApp → Linked Devices → Link a device and scan the QR shown at the web pairing page.\n\nWeb: /pair",{category:"utility"});break;}
+          if(current.connected){await send(sock,jid,"✅ *Bot connected successfully*\n\nNumber: "+current.phone,{category:"utility"});break;}
+          if(["stopped","error"].includes(current.status))break;
+        }
+      }catch(e){await send(sock,jid,"❌ Pairing failed: "+e.message,{category:"error"});}
+      continue;
+    }
+
+    if(mode==="url"){
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      const parts=text.trim().split(/\s+/);const sub=(parts[1]||"list").toLowerCase();
+      try{
+        if(sub==="list"){
+          const data=await urlManager.list(db);const rows=Object.entries(data.items||{}).map(([k,v])=>(k===data.active?"• ":"  ")+k+" → "+v);
+          await send(sock,jid,"🔗 *URL MANAGER*\n\n"+(rows.join("\n")||"No URLs configured.")+"\n\nActive: "+(data.active||"none")+"\n\nUse .url add <name> <url>\n.url switch <name>\n.url remove <name>",{category:"admin"});continue;
+        }
+        if(sub==="add"||sub==="set"||sub==="switch"){
+          if(sub==="switch"){const result=await urlManager.switchUrl(db,parts[2]);await send(sock,jid,"✅ Active URL switched to *"+result.key+"*\n"+result.url,{category:"admin"});continue;}
+          const key=parts[2],value=parts[3];if(!key||!value){await send(sock,jid,"Usage: .url "+sub+" <name> <https-url>",{category:"utility"});continue;}
+          const result=await urlManager.add(db,key,value);await send(sock,jid,"✅ URL saved: *"+result.key+"*\n"+result.url+"\nStorage: "+(result.persistent?"persistent":"runtime/local"),{category:"admin"});continue;
+        }
+        if(sub==="remove"||sub==="delete"){
+          const ok=await urlManager.remove(db,parts[2]);await send(sock,jid,ok?"🗑️ URL removed.":"❌ URL not found.",{category:"admin"});continue;
+        }
+        await send(sock,jid,"Usage: .url list | .url add <name> <url> | .url switch <name> | .url remove <name>",{category:"utility"});
+      }catch(e){await send(sock,jid,"❌ URL action failed: "+e.message,{category:"error"});}
+      continue;
+    }
     const databaseRequiredModes=new Set(["reset","memory","profile","language","mode","ui","stats","owner","role","dashboard","workflow","env","settings","block","unblock"]);
     if(databaseRequiredModes.has(mode)&&db.status().primary==="none"){
       await send(sock,jid,"🗄️ *Database required for this command*\\n\\nTOHID-AGENT can still run and connect without MongoDB or PostgreSQL, but this command needs persistent storage.\\n\\nAdd either MONGO_URI or POSTGRES_URL and restart the bot.",{category:"database"});
@@ -598,6 +645,7 @@ async function main(){
  });
 }
 if(process.env.PORT)http.createServer(async(req,res)=>{
+  const handled=await pairingWeb.handle(req,res,pairingManager);if(handled)return;
   try{
     if(req.url==="/admin-ui"){res.writeHead(200,{"content-type":"text/html; charset=utf-8"});return res.end(fs.readFileSync(path.join(process.cwd(),"public/admin.html"),"utf8"));}
     if(req.url==="/health"||req.url==="/healthz"){
