@@ -167,8 +167,7 @@ return "🤖 *TOHID-AGENT V11.0 — COMPLETE HELP*\\n\\n"+
 "• .stats → owner statistics\\n"+
 "• .pair <number> → start an 8-digit pairing session\\n"+
 "• .qr → start a QR pairing session (no phone number)\\n"+
-"• .url list/add/switch/remove → manage URLs from WhatsApp\\n\\n"+\n"🛡️ *GROUP PROTECTION*\\n"+\n"• .antilink on/off/delete/warn/kick → block links\\n"+\n"• .antistatus on/off/delete/warn/kick → block status mentions in groups\\n"+\n"• .antitag on/off/delete/warn/kick → block member mentions\\n"+\n"• .antitagall on/off/delete/warn/kick → block mass/@all mentions\\n"+\n"• .antibot on/off/delete/warn/kick → protect against configured bots\\n"+\n"• .antibot add/remove <number> | list | clear → manage bot list\\n"+\n"• .antipdm on/off → protect admin promotion/demotion actions\\n\\\n"+\n"• .antibad on/off/delete/warn/kick → block configured bad words\n"+
-"━━━━━━━━━━━━━━━━━━\\n"+
+"• .url list/add/switch/remove → manage URLs from WhatsApp\\n\\n"+\n"🛡️ *GROUP PROTECTION*\\n"+\n"• .antilink on/off/delete/warn/kick → block links\\n"+\n"• .antistatus on/off/delete/warn/kick → block status mentions in groups\\n"+\n"• .antitag on/off/delete/warn/kick → block member mentions\\n"+\n"• .antitagall on/off/delete/warn/kick → block mass/@all mentions\\n"+\n"• .antibot on/off/delete/warn/kick → protect against configured bots\\n"+\n"• .antibot add/remove <number> | list | clear → manage bot list\\n"+\n"• .antipdm on/off → protect admin promotion/demotion actions\\n"+\n"• .antibad on/off/delete/warn/kick → block configured bad words\\n\\n"+\n"━━━━━━━━━━━━━━━━━━\\n"+
 "⚙️ *MENU / SETTINGS*\\n"+
 "• .menu → interactive menu\\n"+
 "• .settings → voice and memory settings\\n"+
