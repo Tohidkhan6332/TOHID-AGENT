@@ -41,9 +41,9 @@ Enabled integrations include:
 
 Protected Channel and Group Status mutations require owner authorization and explicit `CONFIRM`.
 
-# 🤖 TOHID-AGENT V11.0
+# 🤖 TOHID-AGENT V11.2.0
 
-**TOHID-AGENT V9.0** is the futuristic autonomous WhatsApp AI agent architecture by **Tohid**.
+**TOHID-AGENT V11.2.0** is the current production release of the autonomous WhatsApp AI agent architecture by **Tohid**.
 
 ## 🧠 V8.1 Agent Core
 
