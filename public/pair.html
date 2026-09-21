@@ -8,10 +8,10 @@ input,select,textarea{width:100%;padding:13px 14px;border-radius:12px;border:1px
 button{width:100%;padding:14px;border:0;border-radius:12px;background:#25d366;color:#06130a;font-weight:800;cursor:pointer;margin-top:12px}.secondary{background:#1d293b;color:#fff}.status{margin-top:18px;padding:16px;border-radius:14px;background:#09111c;border:1px solid #263246;white-space:pre-wrap}
 .code{font-size:34px;letter-spacing:8px;text-align:center;font-weight:900;padding:20px}.qr{display:block;max-width:300px;width:100%;margin:16px auto;border-radius:16px;background:#fff;padding:10px}.hidden{display:none}.warn{font-size:12px;color:#fbbf24;margin-top:12px;line-height:1.5}
 </style></head><body><main class="card">
-<div class="brand">TOHID-AGENT</div><p class="muted">Pair your WhatsApp number with Pairing Code or QR. Your environment values are applied only to this bot session.</p>
+<div class="brand">TOHID-AGENT</div><p class="muted">Pair your WhatsApp with an 8-digit Pairing Code or QR. Phone number is required only for Pairing Code; QR mode needs no number. Your environment values are applied only to this bot session.</p>
 <div class="grid">
-<label>Phone number<input id="phone" inputmode="numeric" placeholder="919876543210"></label>
-<label>Method<select id="mode"><option value="pairing">8-character Pairing Code</option><option value="qr">QR Code</option></select></label>
+<label id="phoneWrap">Phone number<input id="phone" inputmode="numeric" placeholder="919876543210"></label>
+<label>Method<select id="mode"><option value="pairing">8-digit Pairing Code</option><option value="qr">QR Code (no number)</option></select></label>
 </div>
 <label style="display:block;margin-top:12px">Agent ENV (optional JSON)<textarea id="env" placeholder='{"OPENAI_API_KEY":"...","GITHUB_TOKEN":"...","AI_PROVIDER":"auto"}'></textarea></label>
 <button id="start">Start Pairing</button>
@@ -24,7 +24,7 @@ function show(s){$("result").classList.remove("hidden");$("result").textContent=
 $("start").onclick=async()=>{
  $("start").disabled=true;show("Starting…");
  let env={};try{env=$("env").value.trim()?JSON.parse($("env").value):{}}catch(e){show("Invalid ENV JSON");$("start").disabled=false;return}
- const r=await fetch("/pair",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({phone:$("phone").value,mode:$("mode").value,env})});
+ const mode=$("mode").value;const r=await fetch("/pair",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({phone:mode==="qr"?"":$("phone").value,mode,env})});
  const d=await r.json();if(!r.ok){show(d.error||"Pairing failed");$("start").disabled=false;return}
  id=d.id;show("Session: "+id+"\nWaiting for WhatsApp…");poll();
 };
