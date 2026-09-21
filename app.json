@@ -158,6 +158,10 @@
     "POSTGRES_POOL_MAX": {
       "value": "5",
       "description": "PostgreSQL connection pool size."
+    },
+    "MAX_PAIRING_SESSIONS": {
+      "value": "10",
+      "description": "Maximum concurrent web/WhatsApp pairing sessions."
     }
   }
 }
