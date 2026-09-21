@@ -167,7 +167,7 @@ return "🤖 *TOHID-AGENT V11.0 — COMPLETE HELP*\\n\\n"+
 "• .stats → owner statistics\\n"+
 "• .pair <number> → start an 8-digit pairing session\\n"+
 "• .qr → start a QR pairing session (no phone number)\\n"+
-"• .url list/add/switch/remove → manage URLs from WhatsApp\\n\\n"+\n"🛡️ *GROUP PROTECTION*\\n"+\n"• .antilink on/off/delete/warn/kick → block links\\n"+\n"• .antistatus on/off/delete/warn/kick → block status mentions in groups\\n"+\n"• .antitag on/off/delete/warn/kick → block member mentions\\n"+\n"• .antitagall on/off/delete/warn/kick → block mass/@all mentions\\n"+\n"• .antibot on/off/delete/warn/kick → protect against configured bots\\n"+\n"• .antibot add/remove <number> | list | clear → manage bot list\\n\\n"+
+"• .url list/add/switch/remove → manage URLs from WhatsApp\\n\\n"+\n"🛡️ *GROUP PROTECTION*\\n"+\n"• .antilink on/off/delete/warn/kick → block links\\n"+\n"• .antistatus on/off/delete/warn/kick → block status mentions in groups\\n"+\n"• .antitag on/off/delete/warn/kick → block member mentions\\n"+\n"• .antitagall on/off/delete/warn/kick → block mass/@all mentions\\n"+\n"• .antibot on/off/delete/warn/kick → protect against configured bots\\n"+\n"• .antibot add/remove <number> | list | clear → manage bot list\\n"+\n"• .antipdm on/off → protect admin promotion/demotion actions\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
 "⚙️ *MENU / SETTINGS*\\n"+
 "• .menu → interactive menu\\n"+
@@ -270,7 +270,7 @@ async function main(){
   }
  });
 
- sock.ev.on("group-participants.update",async(update)=>{\n  try{await groupGuard.handleParticipantUpdate({sock,id:update.id,participants:update.participants,action:update.action,db,send});}\n  catch(e){log.warn("Group protection participant handler failed",{message:e?.message});}\n });\n\n sock.ev.on("messages.upsert",async({messages,type})=>{
+ sock.ev.on("group-participants.update",async(update)=>{\n  try{await groupGuard.handleParticipantUpdate({sock,id:update.id,participants:update.participants,action:update.action,author:update.author,authorPn:update.authorPn,db,send});}\n  catch(e){log.warn("Group protection participant handler failed",{message:e?.message});}\n });\n\n sock.ev.on("messages.upsert",async({messages,type})=>{
   if(type!=="notify"&&type!=="append")return;
   console.log("📩 WhatsApp messages.upsert: type="+type+" count="+messages.length);
   for(const m of messages){
