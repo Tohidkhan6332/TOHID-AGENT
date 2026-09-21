@@ -3,6 +3,7 @@ const fs=require("fs");
 const core=require("../lib/agentCore");
 const mission=require("../lib/mission");
 const plugins=require("../lib/pluginManager");
+const control=require("../lib/controlCenter");
 
 const plan=core.createPlan("Build my website and deploy it to Vercel");
 assert.ok(plan.steps.length>=2);
@@ -27,3 +28,4 @@ assert.strictEqual(validation.warning,null);
 assert.throws(()=>plugins.validateSource("module.exports={"),/Unexpected token|Unexpected end/);
 assert.ok(Array.isArray(plugins.list()));
 console.log("V10 plugin manager tests passed.");
+\nconst controlStatus=control.status();\nassert.strictEqual(controlStatus.controlVersion,"11.0");\nassert.ok(Array.isArray(control.listFiles(".")));\nassert.ok(typeof control.featureEnabled("missing-feature",true)==="boolean");\nconsole.log("V11 control center tests passed.");\n
