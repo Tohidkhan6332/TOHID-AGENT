@@ -584,3 +584,15 @@ Commands:
 - `.help <language>` — view translated help and set that language for the chat
 
 The selected language applies to system messages, confirmations, menus, help text and AI responses. Commands, URLs, code, IDs and technical identifiers remain unchanged.
+
+
+## 🎛️ Interface Modes
+
+The WhatsApp interface supports three per-chat modes:
+
+- `.mode buttons` — buttons/interactive UI only
+- `.mode text` — text/command UI only
+- `.mode both` — buttons + text/command UI together
+- `.mode` — show the current mode
+
+The default is **both**. The selected mode is stored per chat in settings. Natural-language AI interaction remains available in every mode.
