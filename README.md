@@ -650,3 +650,44 @@ Plugins use a small API: `registerCommand`, `onMessage`, `send`, `db`, and `log`
 
 The control center is designed so routine bot administration can be performed from WhatsApp without opening the hosting dashboard or editing files manually. External destructive operations still retain owner/confirmation gates.
 \n\n## 🛠️ V11 WhatsApp AI Command Center\n\nThe bot can now act as its own WhatsApp-only control center for the owner.\n\n- `.admin` — live control-center status\n- `.feature list` / `.feature on <name> CONFIRM` / `.feature off <name> CONFIRM` — persistent runtime feature flags\n- `.file list [dir]` — workspace file browser\n- `.file read <path>` — read source files over WhatsApp\n- `.file backup <path>` / `.file backups [path]` — versioned local backups\n- `.file restore <backup-id> CONFIRM` — rollback with a pre-restore backup\n- `.file write <path> CONFIRM` + code block — owner-only file editing with automatic backup\n- `.plugin test <name>` / `.plugin logs <name>` / `.plugin update <name> <URL> CONFIRM` — plugin lifecycle controls\n- AI planner can continue to handle supported GitHub and hosting operations using natural-language requests.\n\n### Security model\nAll control-center operations are owner-only. File writes/restores and runtime-changing plugin/feature operations require explicit `CONFIRM`. File paths are sandboxed to the bot workspace and exclude `.git`, `node_modules`, and the control-data directory. Plugin code is trusted Node.js code and should only be installed from sources you trust.\n
+
+## 🚀 V11.1 Control Center Upgrade
+
+V11.1 adds a more complete WhatsApp-native administration layer.
+
+### 📊 Dashboard
+- `.dashboard` — live runtime, MongoDB, users, plugin, owner and integration summary.
+
+### 🛡️ RBAC
+Roles:
+- `primary_owner` — full control.
+- `delegated_owner` — full bot control except ownership transfer/revocation.
+- `developer` — development-oriented GitHub/hosting/plugin/file/mission permissions.
+- `admin` — bot/user/plugin/mission administration.
+- `user` — normal AI, memory and bot access.
+
+Primary owner can manage roles:
+- `.role list`
+- `.role get <number>`
+- `.role set <number> developer CONFIRM`
+- `.role set <number> admin CONFIRM`
+- `.role set <number> user CONFIRM`
+
+### 🧩 Plugin Marketplace
+- `.plugin search <query>` searches public GitHub repositories using the `tohid-agent-plugin` keyword.
+- Review a repository before installing it.
+- Existing URL/file/code installation remains protected by owner access and explicit `CONFIRM`.
+
+### 🩺 Doctor 2.0
+`.doctor` now checks Node.js, MongoDB, AI provider configuration, GitHub configuration, plugin storage and network/DNS reachability.
+
+### 🧭 Workflow Mode
+`.workflow <multi-step task>` starts an autonomous agent workflow using the existing planner/task engine. Existing confirmation gates remain active for protected external actions.
+
+### 💾 Backup & Rollback
+The existing control center automatically creates backups before file edits and restores. Use:
+- `.file backup <path>`
+- `.file backups [path]`
+- `.file restore <backup-id> CONFIRM`
+
+V11.1 keeps secrets out of source control and does not expose API keys through dashboard/doctor output.
