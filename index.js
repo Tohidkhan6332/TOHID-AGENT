@@ -278,7 +278,7 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
         if(action==="__TOHID_HELP_OTHER__"){await send(sock,jid,"🌐 *Other language*\\n\\nUse: .language <language>\\nExample: .language Japanese");continue;}
         if(action==="__TOHID_HELP_HI__"){await buttons.sendHelp(sock,jid,"Hindi");continue;}
         if(action==="__TOHID_HELP_EN__"){await i18n.setLanguage(jid,"English");await buttons.sendHelpByMode(sock,jid,"en",await getUIMode(jid));continue;}
-        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}
+        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}\n        if(action.startsWith("__TOHID_CATEGORY__")){await buttons.sendCommandMenu(sock,jid,ui.resolve(await getUIMode(jid),"selection"),Number(action.slice("__TOHID_CATEGORY__".length)));continue;}
         if(action.startsWith("__TOHID_CMD__")){text=action.slice("__TOHID_CMD__".length);}
 
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
