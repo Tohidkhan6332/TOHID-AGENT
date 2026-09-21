@@ -250,10 +250,10 @@ async function main(){
         if(action==="__TOHID_PLAN__"){await send(sock,jid,"🧭 *Agent Planner*\n\nSend a task after `.plan`, for example:\n`.plan deploy my GitHub project to Heroku and verify it`");continue;}
         if(action==="__TOHID_HELP_LANGUAGES__"){await buttons.sendLanguageMenu(sock,jid);continue;}
         const helpLangs={__TOHID_HELP_HI__:"Hindi",__TOHID_HELP_BN__:"Bengali",__TOHID_HELP_PA__:"Punjabi",__TOHID_HELP_UR__:"Urdu",__TOHID_HELP_TA__:"Tamil",__TOHID_HELP_TE__:"Telugu",__TOHID_HELP_MR__:"Marathi",__TOHID_HELP_GU__:"Gujarati",__TOHID_HELP_KN__:"Kannada",__TOHID_HELP_ML__:"Malayalam",__TOHID_HELP_AR__:"Arabic",__TOHID_HELP_ES__:"Spanish",__TOHID_HELP_FR__:"French",__TOHID_HELP_DE__:"German",__TOHID_HELP_TR__:"Turkish"};
-        if(helpLangs[action]){await i18n.setLanguage(jid,helpLangs[action]);await buttons.sendHelp(sock,jid,helpLangs[action]);continue;}
+        if(helpLangs[action]){await i18n.setLanguage(jid,helpLangs[action]);await buttons.sendHelpByMode(sock,jid,helpLangs[action],await getUIMode(jid));continue;}
         if(action==="__TOHID_HELP_OTHER__"){await send(sock,jid,"🌐 *Other language*\\n\\nUse: .language <language>\\nExample: .language Japanese");continue;}
         if(action==="__TOHID_HELP_HI__"){await buttons.sendHelp(sock,jid,"Hindi");continue;}
-        if(action==="__TOHID_HELP_EN__"){await i18n.setLanguage(jid,"English");await buttons.sendHelp(sock,jid,"en");continue;}
+        if(action==="__TOHID_HELP_EN__"){await i18n.setLanguage(jid,"English");await buttons.sendHelpByMode(sock,jid,"en",await getUIMode(jid));continue;}
         if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
