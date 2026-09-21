@@ -60,13 +60,17 @@ scheduler.register("mission",async(job)=>{
   }
 });
 
-function normalizeOwnerNumber(value){return String(value||"").split("@")[0].replace(/\D/g,"");}\nfunction isPrimaryOwner(jid){return !!cfg.ownerNumber&&normalizeOwnerNumber(jid)===cfg.ownerNumber;}\nfunction isOwner(jid){const n=normalizeOwnerNumber(jid);return !!n&&(n===cfg.ownerNumber||delegatedOwners.has(n));}
-async function hasPermission(jid,permission){return isOwner(jid)||await rbac.can(jid,permission,cfg,delegatedOwners);}\nasync function loadDelegatedOwners(){try{const list=await db.getDelegatedOwners();for(const n of list)delegatedOwners.add(n);log.info("Delegated owners loaded",{count:delegatedOwners.size});}catch(e){log.warn("Delegated owners could not be loaded",{message:e?.message});}}
+function normalizeOwnerNumber(value){return String(value||"").split("@")[0].replace(/\D/g,"");}
+function isPrimaryOwner(jid){return !!cfg.ownerNumber&&normalizeOwnerNumber(jid)===cfg.ownerNumber;}
+function isOwner(jid){const n=normalizeOwnerNumber(jid);return !!n&&(n===cfg.ownerNumber||delegatedOwners.has(n));}
+async function hasPermission(jid,permission){return isOwner(jid)||await rbac.can(jid,permission,cfg,delegatedOwners);}
+async function loadDelegatedOwners(){try{const list=await db.getDelegatedOwners();for(const n of list)delegatedOwners.add(n);log.info("Delegated owners loaded",{count:delegatedOwners.size});}catch(e){log.warn("Delegated owners could not be loaded",{message:e?.message});}}
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
 function normalizeUIMode(value){return ui.normalize(value);}
 async function getUIMode(jid){return ui.get(jid);}
 function normalizeJid(jid){return String(jid||"").split(":")[0];}
-function applyGlobalConfig(values={}){for(const [key,value] of Object.entries(values)){if(!Object.prototype.hasOwnProperty.call(cfg,key))continue;const current=cfg[key];if(typeof current==="boolean")cfg[key]=String(value).toLowerCase()==="true";else if(typeof current==="number")cfg[key]=Number(value);else cfg[key]=value;}}\nfunction applyFeatureState(){const f=control.featureList();for(const key of ["githubEnabled","hostingEnabled","pluginSystemEnabled","videoEnabled","webSearch","baileysExtrasEnabled"]){if(Object.prototype.hasOwnProperty.call(f,key))cfg[key]=!!f[key];}}
+function applyGlobalConfig(values={}){for(const [key,value] of Object.entries(values)){if(!Object.prototype.hasOwnProperty.call(cfg,key))continue;const current=cfg[key];if(typeof current==="boolean")cfg[key]=String(value).toLowerCase()==="true";else if(typeof current==="number")cfg[key]=Number(value);else cfg[key]=value;}}
+function applyFeatureState(){const f=control.featureList();for(const key of ["githubEnabled","hostingEnabled","pluginSystemEnabled","videoEnabled","webSearch","baileysExtrasEnabled"]){if(Object.prototype.hasOwnProperty.call(f,key))cfg[key]=!!f[key];}}
 function maskConfigValue(key,value){const secret=/(key|token|secret|password|uri)/i.test(String(key));if(secret&&value)return String(value).length>8?String(value).slice(0,4)+"••••"+String(value).slice(-4):"••••";return String(value??"");}
 async function pluginSend(jid,text,ctx={}){return send(activeSocket,jid,text,ctx);}
 async function installPluginFromMessage(jid,sender,msg,text){
@@ -160,7 +164,7 @@ return "🤖 *TOHID-AGENT V11.0 — COMPLETE HELP*\\n\\n"+
 "• .ping → health check\\n"+
 "• .stats → owner statistics\\n"+
 "• .pair <number> → start an 8-digit pairing session\\n"+
-"• .qr <number> → start a QR pairing session\\n"+
+"• .qr → start a QR pairing session (no phone number)\\n"+
 "• .url list/add/switch/remove → manage URLs from WhatsApp\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
 "⚙️ *MENU / SETTINGS*\\n"+
@@ -235,7 +239,12 @@ async function main(){
     }
   }
   if(connection==="open"){
-    try{if(process.send)process.send({type:"connected",number:normalizeOwnerNumber(state.creds.me?.id||"")});}catch{}
+    const connectedNumber=normalizeOwnerNumber(state.creds.me?.id||"");
+    if(process.env.TOHID_PAIRING_CHILD==="1"&&!cfg.ownerNumber&&connectedNumber){
+      cfg.ownerNumber=connectedNumber;
+      log.info("Pairing child owner identity established",{number:connectedNumber});
+    }
+    try{if(process.send)process.send({type:"connected",number:connectedNumber});}catch{}
     log.info("TOHID-AGENT connected",{developer:"Tohid",version:cfg.version});
     console.log("📡 WhatsApp message listener is active.");
     if(cfg.missionSchedulerEnabled)scheduler.start(cfg.missionPollIntervalMs);
