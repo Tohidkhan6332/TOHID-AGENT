@@ -50,7 +50,7 @@ scheduler.register("mission",async(job)=>{
 
 function isOwner(jid){return !!cfg.ownerNumber&&jid.split("@")[0].replace(/\D/g,"")===cfg.ownerNumber;}
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
-function normalizeJid(jid){return String(jid||"").split(":")[0];}
+function normalizeUIMode(value){const m=String(value||"").toLowerCase();return ["buttons","text","both"].includes(m)?m:cfg.defaultUIMode;}\nasync function getUIMode(jid){try{const s=await db.getSettings(jid);return normalizeUIMode(s.uiMode);}catch{return normalizeUIMode(cfg.defaultUIMode);}}\nfunction normalizeJid(jid){return String(jid||"").split(":")[0];}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
 async function send(sock,jid,text,ctx={}){
  const category=ctx.category||null;
@@ -136,10 +136,10 @@ return "🤖 *TOHID-AGENT V9.0 — COMPLETE HELP*\\n\\n"+
 async function sendInteractiveMenu(sock,jid,kind="main"){
   if(!cfg.interactiveButtonsEnabled)return menu.sendMenu(sock,jid,"main");
   try{
-    if(kind==="main")return await buttons.sendMain(sock,jid);
-    if(kind==="list")return await buttons.sendList(sock,jid);
-    if(kind==="dev")return await buttons.sendDev(sock,jid);
-    if(kind==="settings")return await buttons.sendSettings(sock,jid);
+    if(kind==="main")return await buttons.sendMenuByMode(sock,jid,"main",await getUIMode(jid));
+    if(kind==="list")return await buttons.sendMenuByMode(sock,jid,"list",await getUIMode(jid));
+    if(kind==="dev")return await buttons.sendMenuByMode(sock,jid,"dev",await getUIMode(jid));
+    if(kind==="settings")return await buttons.sendMenuByMode(sock,jid,"settings",await getUIMode(jid));
   }catch(e){
     console.error("❌ Interactive UI send failed; using text fallback:",e?.stack||e?.message||e);
     if(kind==="dev")return menu.sendMenu(sock,jid,"main",{text:"👨‍💻 *Developer: Tohid*\\n\\nInteractive buttons are unavailable on this client, so text mode is active."});
@@ -399,7 +399,7 @@ async function main(){
     }
     const mode=router.route(text,cfg.prefix);
 
-    if(mode==="language"){
+    if(mode==="ui"||mode==="mode"){\n      const requested=text.trim().replace(new RegExp("^"+cfg.prefix+"(?:ui|mode)\\s*","i"),"").trim().toLowerCase();\n      if(!requested){await send(sock,jid,"🎛️ *Interface Mode*\\n\\nCurrent: "+await getUIMode(jid)+"\\nAvailable: buttons, text, both\\n\\nUse: "+cfg.prefix+"mode buttons | "+cfg.prefix+"mode text | "+cfg.prefix+"mode both",{category:"utility"});}\n      else if(!["buttons","text","both"].includes(requested)){await send(sock,jid,"❌ Invalid mode. Use: buttons, text or both.",{category:"error"});}\n      else{await db.setSettings(jid,{uiMode:requested});await send(sock,jid,"✅ Interface mode changed to *"+requested+"*.",{category:"utility"});}\n      continue;\n    }\n    if(mode==="language"){
       const requested=text.trim().replace(new RegExp("^"+cfg.prefix+"(?:language|lang)\\s*","i"),"").trim();
       if(!requested){
         await send(sock,jid,"🌐 *Bot Language*\n\nCurrent language: "+await i18n.getLanguage(jid)+"\nDefault language: "+cfg.defaultLanguage+"\n\nUse: "+cfg.prefix+"language <language>\nExample: "+cfg.prefix+"language Hindi",{category:"utility"});
