@@ -1,6 +1,6 @@
 {
   "name": "TOHID-AGENT",
-  "description": "TOHID-AGENT V9.0 — Mission Control, persistent scheduling and autonomous WhatsApp AI Agent by Tohid",
+  "description": "TOHID-AGENT V10.0 — Mission Control, persistent scheduling and autonomous WhatsApp AI Agent by Tohid",
   "repository": "https://github.com/Tohidkhan6332/TOHID-AGENT",
   "keywords": [
     "whatsapp",
@@ -98,6 +98,10 @@
     },
     "INTERACTIVE_BUTTONS_ENABLED": {
       "value": "true"
+    },
+    "BOT_UI_MODE": {
+      "value": "auto",
+      "description": "Adaptive UI mode: auto, buttons, text, hybrid, or minimal."
     },
     "GITHUB_AGENT_ENABLED": {
       "value": "true"
