@@ -16,6 +16,7 @@ const replyImages=require("./lib/replyImages");
 const menu=require("./lib/menu");
 const buttons=require("./lib/buttons");
 const ui=require("./lib/uiEngine");
+const plugins=require("./lib/pluginManager");
 const i18n=require("./lib/i18n");
 const preflight=require("./lib/preflight");
 const log=require("./lib/logger");
@@ -54,6 +55,22 @@ function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0
 function normalizeUIMode(value){return ui.normalize(value);}
 async function getUIMode(jid){return ui.get(jid);}
 function normalizeJid(jid){return String(jid||"").split(":")[0];}
+function applyGlobalConfig(values={}){for(const [key,value] of Object.entries(values)){if(Object.prototype.hasOwnProperty.call(cfg,key))cfg[key]=value;}}
+function maskConfigValue(key,value){const secret=/(key|token|secret|password|uri)/i.test(String(key));if(secret&&value)return String(value).length>8?String(value).slice(0,4)+"••••"+String(value).slice(-4):"••••";return String(value??"");}
+async function pluginSend(jid,text,ctx={}){return send(activeSocket,jid,text,ctx);}
+async function installPluginFromMessage(jid,sender,msg,text){
+ if(!cfg.pluginSystemEnabled||!isOwner(sender)||!/^\\.plugin\\s+install(?:\\s|$)/i.test(text))return false;
+ const parts=text.trim().split(/\\s+/);const confirm=parts.some(x=>x.toUpperCase()==="CONFIRM");
+ if(!confirm){await send(activeSocket,jid,"🔐 Plugin installation changes the bot runtime. Owner + CONFIRM required.",{category:"security"});return true;}
+ try{
+  if(msg.documentMessage){const filename=msg.documentMessage.fileName||"plugin.js";const safe=filename.replace(/[^a-zA-Z0-9._-]/g,"_");const buf=await downloadMedia(msg.documentMessage,"document");if(buf.length>cfg.pluginInstallLimitKb*1024)throw new Error("Plugin file exceeds the configured size limit.");const tmp=path.join(TMP,"plugin-"+Date.now()+"-"+safe);fs.writeFileSync(tmp,buf);const name=parts[3]&&parts[3].toUpperCase()!=="CONFIRM"?parts[3]:path.basename(safe,".js");const result=await plugins.installFile(tmp,{name,cfg,send:pluginSend});fs.unlinkSync(tmp);await send(activeSocket,jid,"✅ Plugin installed: *"+result.name+"*\\nVersion: "+result.version+"\\nCommands: "+(result.commands||[]).join(", "),{category:"utility"});return true;}
+  const source=parts[2]||"";
+  if(/^https?:\\/\\//i.test(source)){const name=parts[3]&&parts[3].toUpperCase()!=="CONFIRM"?parts[3]:"remote-plugin";const result=await plugins.installFromUrl(source,{name,cfg,send:pluginSend});await send(activeSocket,jid,"✅ Plugin installed: *"+result.name+"*\\nVersion: "+result.version,{category:"utility"});return true;}
+  const match=text.match(/```(?:javascript|js)?\\s*([\\s\\S]*?)```/i);
+  if(match){const name=parts[2]&&parts[2].toUpperCase()!=="CONFIRM"?parts[2]:"custom-plugin";const result=await plugins.installSource({name,source:match[1],cfg,send:pluginSend});await send(activeSocket,jid,"✅ Code plugin installed: *"+result.name+"*\\nVersion: "+result.version,{category:"utility"});return true;}
+  await send(activeSocket,jid,"Usage: .plugin install <URL> <name> CONFIRM OR send a .js file with caption .plugin install <name> CONFIRM OR send JavaScript in a code block.",{category:"utility"});
+ }catch(e){await send(activeSocket,jid,"❌ Plugin install failed: "+e.message,{category:"error"});} return true;
+}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
 async function send(sock,jid,text,ctx={}){
  const category=ctx.category||null;
@@ -293,6 +310,10 @@ async function main(){
       }
       continue;
     }
+    if(await installPluginFromMessage(jid,sender,msg,text))continue;
+    const pluginRoute=router.route(text,cfg.prefix);
+    if(pluginRoute==="ai"&&text.trim().startsWith(cfg.prefix)){const command=text.trim().split(/\\s+/)[0].slice(cfg.prefix.length).toLowerCase();if(await plugins.dispatchCommand({sock,jid,sender,message:m,text,command,args:text.trim().split(/\\s+/).slice(1),send:pluginSend,cfg,db})){continue;}}
+    await plugins.dispatchMessage({sock,jid,sender,message:m,text,send:pluginSend,cfg,db});
     const lower=text.trim().toLowerCase();
     if(lower===cfg.prefix+"agent"||lower===cfg.prefix+"agent status"||lower===cfg.prefix+"health"){
       await send(sock,jid,"🧠 *TOHID-AGENT V10.0 CORE*\\n\\n"+JSON.stringify(agentCore.health(),null,2),{category:"status"});continue;
@@ -421,6 +442,35 @@ async function main(){
         await send(sock,jid,"✅ *Language changed*\n\nTOHID-AGENT will now use *"+selected+"* for system messages, menus, confirmations and AI replies in this chat.",{category:"utility"});
       }
       continue;
+    }
+    if(mode==="env"){
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      const parts=text.trim().split(/\\s+/);const sub=(parts[1]||"list").toLowerCase();
+      if(sub==="list"){const values=await db.getGlobalConfig();const keys=Object.keys(cfg).sort();await send(sock,jid,"⚙️ *GLOBAL CONFIG*\\n\\n"+keys.map(k=>k+" = "+maskConfigValue(k,Object.prototype.hasOwnProperty.call(values,k)?values[k]:cfg[k])).join("\\n")+"\\n\\nUse .config set <key> <value> CONFIRM",{category:"admin"});continue;}
+      if(sub==="get"){const key=parts[2];if(!key){await send(sock,jid,"Usage: .config get <key>");continue;}const values=await db.getGlobalConfig();const value=Object.prototype.hasOwnProperty.call(values,key)?values[key]:cfg[key];await send(sock,jid,"⚙️ "+key+" = "+maskConfigValue(key,value),{category:"admin"});continue;}
+      if(sub==="set"){if(!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Config changes require CONFIRM.",{category:"security"});continue;}const key=parts[2],value=parts.slice(3).filter(x=>x.toUpperCase()!=="CONFIRM").join(" ");if(!key||!value){await send(sock,jid,"Usage: .config set <key> <value> CONFIRM");continue;}if(!Object.prototype.hasOwnProperty.call(cfg,key)){await send(sock,jid,"❌ Unknown config key: "+key);continue;}const values=await db.getGlobalConfig();values[key]=value;await db.setGlobalConfig(values);applyGlobalConfig({[key]:value});await send(sock,jid,"✅ Config updated: "+key+" = "+maskConfigValue(key,value),{category:"admin"});continue;}
+      if(sub==="reset"){if(!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Config reset requires CONFIRM.",{category:"security"});continue;}const values=await db.getGlobalConfig();const key=parts[2];if(key){delete values[key];await db.setGlobalConfig(values);await send(sock,jid,"♻️ Runtime override removed for "+key,{category:"admin"});}else{await db.setGlobalConfig({});await send(sock,jid,"♻️ All runtime config overrides removed. Restart to restore base environment values.",{category:"admin"});}continue;}
+      await send(sock,jid,"Usage: .config list | .config get <key> | .config set <key> <value> CONFIRM | .config reset <key> CONFIRM",{category:"utility"});continue;
+    }
+    if(mode==="shell"){
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      if(!cfg.remoteShellEnabled){await send(sock,jid,"🛡️ Remote shell is disabled. Enable it with .config set remoteShellEnabled true CONFIRM",{category:"security"});continue;}
+      if(!text.toUpperCase().includes("CONFIRM")){await send(sock,jid,"🔐 Remote shell requires explicit CONFIRM for every command.",{category:"security"});continue;}
+      const command=text.trim().replace(new RegExp("^"+cfg.prefix+"shell\\s*","i"),"").replace(/\\s+CONFIRM\\s*$/i,"").trim();
+      const {execFile}=require("child_process");const allowedShell=/^(pwd|ls|cat|node --version|npm --version|git status|git log --oneline -10|df -h|free -h|uptime|pm2 (status|list|restart|reload) [a-zA-Z0-9_.-]+)$/;
+      if(!allowedShell.test(command)){await send(sock,jid,"❌ Command not allowed by the V10 safety allowlist.",{category:"security"});continue;}
+      await new Promise(resolve=>execFile("/bin/sh",["-lc",command],{timeout:30000,maxBuffer:200000},async(err,stdout,stderr)=>{const out=(err?stderr:stdout)||err?.message||"OK";await send(sock,jid,"🖥️ *SHELL RESULT*\\n\\n"+out.slice(0,12000),{category:"status"});resolve();}));continue;
+    }
+    if(mode==="plugin"){
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      const parts=text.trim().split(/\\s+/);const sub=(parts[1]||"list").toLowerCase();const name=parts[2];
+      try{if(sub==="list"){await send(sock,jid,"🧩 *PLUGINS*\\n\\n"+(plugins.list().map(x=>(x.enabled?"🟢 ":"⚪ ")+x.name+" v"+x.version+" — "+(x.commands||[]).join(", ")).join("\\n")||"No plugins installed."),{category:"utility"});continue;}
+      if(sub==="enable"){const p=await plugins.enable(name,cfg,pluginSend);await send(sock,jid,"🟢 Plugin enabled: "+p.name,{category:"utility"});continue;}
+      if(sub==="disable"){const p=plugins.disable(name);await send(sock,jid,"⚪ Plugin disabled: "+(p?.name||name),{category:"utility"});continue;}
+      if(sub==="reload"){const p=await plugins.enable(name,cfg,pluginSend);await send(sock,jid,"🔄 Plugin reloaded: "+p.name,{category:"utility"});continue;}
+      if(sub==="remove"){if(!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Plugin removal requires CONFIRM.",{category:"security"});continue;}plugins.remove(name);await send(sock,jid,"🗑️ Plugin removed: "+name,{category:"admin"});continue;}
+      await send(sock,jid,"Usage: .plugin list | .plugin install <URL> <name> CONFIRM | send .js file with caption .plugin install <name> CONFIRM | .plugin enable/disable/reload/remove <name>",{category:"utility"});
+      }catch(e){await send(sock,jid,"❌ Plugin action failed: "+e.message,{category:"error"});}continue;
     }
     if(mode==="maintenance_on"||mode==="maintenance_off"){
       if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"admin"});continue;}
