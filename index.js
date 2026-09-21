@@ -24,6 +24,9 @@ const log=require("./lib/logger");
 const mission=require("./lib/mission");
 const scheduler=require("./lib/scheduler");
 const baileysExtras=require("./lib/baileysExtras");
+const rbac=require("./lib/rbac");
+const dashboard=require("./lib/dashboard");
+const doctor=require("./lib/doctor");
 
 const AUTH=path.join(process.cwd(),"auth_info_baileys");
 const TMP=path.join(process.cwd(),"tmp");
@@ -52,7 +55,8 @@ scheduler.register("mission",async(job)=>{
   }
 });
 
-function normalizeOwnerNumber(value){return String(value||"").split("@")[0].replace(/\D/g,"");}\nfunction isPrimaryOwner(jid){return !!cfg.ownerNumber&&normalizeOwnerNumber(jid)===cfg.ownerNumber;}\nfunction isOwner(jid){const n=normalizeOwnerNumber(jid);return !!n&&(n===cfg.ownerNumber||delegatedOwners.has(n));}\nasync function loadDelegatedOwners(){try{const list=await db.getDelegatedOwners();for(const n of list)delegatedOwners.add(n);log.info("Delegated owners loaded",{count:delegatedOwners.size});}catch(e){log.warn("Delegated owners could not be loaded",{message:e?.message});}}
+function normalizeOwnerNumber(value){return String(value||"").split("@")[0].replace(/\D/g,"");}\nfunction isPrimaryOwner(jid){return !!cfg.ownerNumber&&normalizeOwnerNumber(jid)===cfg.ownerNumber;}\nfunction isOwner(jid){const n=normalizeOwnerNumber(jid);return !!n&&(n===cfg.ownerNumber||delegatedOwners.has(n));}
+async function hasPermission(jid,permission){return isOwner(jid)||await rbac.can(jid,permission,cfg,delegatedOwners);}\nasync function loadDelegatedOwners(){try{const list=await db.getDelegatedOwners();for(const n of list)delegatedOwners.add(n);log.info("Delegated owners loaded",{count:delegatedOwners.size});}catch(e){log.warn("Delegated owners could not be loaded",{message:e?.message});}}
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
 function normalizeUIMode(value){return ui.normalize(value);}
 async function getUIMode(jid){return ui.get(jid);}
@@ -317,6 +321,29 @@ async function main(){
     if(pluginRoute==="ai"&&text.trim().startsWith(cfg.prefix)){const command=text.trim().split(/\\s+/)[0].slice(cfg.prefix.length).toLowerCase();if(await plugins.dispatchCommand({sock,jid,sender,message:m,text,command,args:text.trim().split(/\\s+/).slice(1),send:pluginSend,cfg,db})){continue;}}
     await plugins.dispatchMessage({sock,jid,sender,message:m,text,send:pluginSend,cfg,db});
     const lower=text.trim().toLowerCase();
+    if(lower===cfg.prefix+"dashboard"){
+      if(!isOwner(sender)&&!(await hasPermission(sender,"bot.read"))){await send(sock,jid,"⛔ Dashboard access denied.",{category:"security"});continue;}
+      const d=await dashboard.snapshot({cfg,db,plugins,control,delegatedOwners});
+      await send(sock,jid,dashboard.format(d),{category:"stats"});continue;
+    }
+    if(lower===cfg.prefix+"roles"||lower===cfg.prefix+"role list"){
+      await send(sock,jid,"🛡️ *RBAC ROLES*\n\n"+rbac.listRoles().map(x=>"• *"+x.id+"* — "+x.label+"\n  "+x.permissions.join(", ")).join("\n"),{category:"security"});continue;
+    }
+    if(lower.startsWith(cfg.prefix+"role ")){
+      if(!isPrimaryOwner(sender)){await send(sock,jid,"⛔ Primary owner only.",{category:"security"});continue;}
+      const parts=text.trim().split(/\s+/),sub=(parts[1]||"").toLowerCase(),target=normalizeOwnerNumber(parts[2]||""),role=String(parts[3]||"").toLowerCase();
+      try{
+        if(sub==="get"&&target){const r=await rbac.getRole(target+"@s.whatsapp.net",cfg,delegatedOwners);await send(sock,jid,"🛡️ "+target+" → *"+r+"*",{category:"security"});continue;}
+        if(sub==="set"&&target&&role){if(!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Role changes require CONFIRM.",{category:"security"});continue;}await rbac.setRole(target+"@s.whatsapp.net",role);await db.audit(sender,"role:set",{target,role});await send(sock,jid,"✅ Role set: *"+target+"* → *"+role+"*",{category:"admin"});continue;}
+        await send(sock,jid,"Usage: .role list | .role get <number> | .role set <number> <developer|admin|user> CONFIRM",{category:"utility"});
+      }catch(e){await send(sock,jid,"❌ Role action failed: "+e.message,{category:"error"});}continue;
+    }
+    if(lower.startsWith(cfg.prefix+"workflow ")){
+      const request=text.trim().slice((cfg.prefix+"workflow").length).trim();
+      if(!request){await send(sock,jid,"Usage: .workflow <multi-step task>");continue;}
+      const task=await agentCore.startTask(sender,request);
+      await send(sock,jid,"🧭 *WORKFLOW CREATED*\n\n"+JSON.stringify(task.plan,null,2)+"\n\nThe agent will execute supported steps, respect confirmation gates, and verify results.",{category:"utility"});continue;
+    }
     if(lower===cfg.prefix+"agent"||lower===cfg.prefix+"agent status"||lower===cfg.prefix+"health"){
       await send(sock,jid,"🧠 *TOHID-AGENT V11.0 CORE*\\n\\n"+JSON.stringify(agentCore.health(),null,2),{category:"status"});continue;
     }
@@ -534,7 +561,7 @@ async function main(){
     }
     if(mode==="ping"){await send(sock,jid,"🏓 TOHID-AGENT V11.0: online\n👨‍💻 Developer: Tohid");continue;}
     if(mode==="status"){const s=await db.stats();await send(sock,jid,"⚡ *TOHID-AGENT V11.0*\nStatus: Online\nDeveloper: Tohid\nAI: "+(cfg.openaiKey&&cfg.geminiKey?"OpenAI → Gemini fallback":cfg.openaiKey?"OpenAI":cfg.geminiKey?"Gemini":"Not configured")+"\nMemory DB: "+(s.database?"Connected":"Not configured")+"\nGitHub: "+(cfg.githubToken?"Configured":"Not configured")+"\nBlocked users: "+(s.blocked??0));continue;}
-    if(mode==="doctor"){const checks=[["OpenAI",!!cfg.openaiKey],["Gemini",!!cfg.geminiKey],["MongoDB",!!cfg.mongoUri],["GitHub",!!cfg.githubToken],["Pairing",!!cfg.pairingNumber]];await send(sock,jid,"🩺 *TOHID-AGENT V11.0 DOCTOR*\n\n"+checks.map(x=>(x[1]?"✅ ":"❌ ")+x[0]).join("\n")+"\n\nNode: "+process.version+"\nTool loop: "+cfg.toolLoopLimit+"\nMemory limit: "+cfg.maxMemoryMessages);continue;}
+    if(mode==="doctor"){const result=await doctor.run({cfg,db,plugins});await send(sock,jid,doctor.format(result),{category:"status"});continue;}
     if(mode==="tools"){await send(sock,jid,"🧰 *V10 TOOLS*\n• GitHub agent\n• Calculator\n• System diagnostics\n• Current time\n• Web search (when enabled)\n• Vision\n• Voice STT/TTS\n• Image generation\n• Video generation\n• Memory + profiles\n• Autonomous planner + verified tool execution");continue;}
     if(mode==="plan"){const request=text.slice((cfg.prefix+"plan").length).trim();const p=planner.plan(request);await send(sock,jid,"🧭 *TOHID-AGENT V11.0 PLAN*\n\n"+JSON.stringify(p,null,2),{category:"utility"});continue;}
     if(mode==="provider"){await send(sock,jid,"🔌 *AI PROVIDERS*\nMode: "+cfg.aiProvider+"\nOpenAI: "+(cfg.openaiKey?"ready":"not configured")+"\nGemini: "+(cfg.geminiKey?"ready":"not configured")+"\nHeroku: "+(cfg.herokuToken?"configured":"not configured")+"\nFallback: "+(cfg.openaiKey&&cfg.geminiKey?"enabled":"single provider"));continue;}
