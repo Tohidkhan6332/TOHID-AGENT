@@ -343,7 +343,15 @@ async function main(){
       }catch(e){await send(sock,jid,"❌ Channel feature unavailable: "+e.message,{category:"error"});}
       continue;
     }
-    if(lower.startsWith(cfg.prefix+"groupstatus ")){\n      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}\n      if(!group){await send(sock,jid,"⚠️ `.groupstatus` can only be used inside a WhatsApp group.");continue;}\n      const statusText=text.slice((cfg.prefix+"groupstatus ").length).trim();\n      if(!statusText){await send(sock,jid,"Usage: .groupstatus <text>");continue;}\n      try{await baileysExtras.sendGroupStatus(sock,jid,{text:statusText});await send(sock,jid,"✅ Group status sent.",{category:"status"});}catch(e){await send(sock,jid,"❌ Group status is unavailable in the active Baileys build: "+e.message,{category:"error"});}\n      continue;\n    }\n    if(lower===cfg.prefix+"skills"){
+    if(lower.startsWith(cfg.prefix+"groupstatus ")){
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      if(!group){await send(sock,jid,"⚠️ `.groupstatus` can only be used inside a WhatsApp group.");continue;}
+      const statusText=text.slice((cfg.prefix+"groupstatus ").length).trim();
+      if(!statusText){await send(sock,jid,"Usage: .groupstatus <text>");continue;}
+      try{await baileysExtras.sendGroupStatus(sock,jid,{text:statusText});await send(sock,jid,"✅ Group status sent.",{category:"status"});}catch(e){await send(sock,jid,"❌ Group status is unavailable in the active Baileys build: "+e.message,{category:"error"});}
+      continue;
+    }
+    if(lower===cfg.prefix+"skills"){
       await send(sock,jid,"🧩 *ACTIVE AGENT SKILLS*\\n\\n"+skills.list().map(x=>"• *"+x.name+"* — "+x.description).join("\\n"),{category:"utility"});continue;
     }
     if(lower===cfg.prefix+"missions"){
@@ -444,7 +452,8 @@ async function main(){
     if(mode==="image"){const prompt=text.slice((cfg.prefix+"imagine ").length).trim();if(!prompt){await send(sock,jid,"Usage: .imagine <prompt>");continue;}await send(sock,jid,"🎨 Generating image...",{category:"image"});const img=await ai.image(prompt);await db.track(sender,"image");const caption=await i18n.translate("🎨 TOHID-AGENT V9.0 • Created by Tohid",await i18n.getLanguage(jid));await sock.sendMessage(jid,{image:{url:img},caption:withPromo(caption)});if(fs.existsSync(img))fs.unlinkSync(img);continue;}
 
     await sock.sendPresenceUpdate("composing",jid);
-    const language=await i18n.getLanguage(jid);\n    const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData,baileysExtras,sock,jid,language});
+    const language=await i18n.getLanguage(jid);
+    const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData,baileysExtras,sock,jid,language});
     const userSettings=await db.getSettings(sender);const voiceReply=userSettings.voice===true||(userSettings.voice===undefined&&cfg.voiceReply);if((voiceReply||inputWasVoice)&&answer){const out=path.join(TMP,"reply-"+Date.now()+".mp3");await ai.tts(answer,out);await sock.sendMessage(jid,{audio:{url:out},mimetype:"audio/mpeg",ptt:true});await send(sock,jid,promo(),{category:"utility"});if(fs.existsSync(out))fs.unlinkSync(out);}
     else await send(sock,jid,answer,{mode:"ai",sourceText:text,imageData});
     if(audioPath&&fs.existsSync(audioPath))fs.unlinkSync(audioPath);
