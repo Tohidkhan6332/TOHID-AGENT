@@ -162,6 +162,14 @@
     "MAX_PAIRING_SESSIONS": {
       "value": "10",
       "description": "Maximum concurrent web/WhatsApp pairing sessions."
+    },
+    "TELEGRAM_BOT_TOKEN": {
+      "required": false,
+      "description": "Optional Telegram bot token for WhatsApp pairing commands."
+    },
+    "TELEGRAM_PAIRING_ENABLED": {
+      "value": "true",
+      "description": "Enable Telegram /pair and /qr WhatsApp pairing interface."
     }
   }
 }
