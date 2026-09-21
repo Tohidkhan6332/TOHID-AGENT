@@ -52,7 +52,19 @@ function isOwner(jid){return !!cfg.ownerNumber&&jid.split("@")[0].replace(/\D/g,
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
 function normalizeJid(jid){return String(jid||"").split(":")[0];}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
-async function send(sock,jid,text,ctx={}){\n const category=ctx.category||null;\n const language=ctx.language||await i18n.getLanguage(jid);\n const localized=(ctx.translate===false||ctx.mode==="ai")?String(text||""):await i18n.translate(text,language);\n const visualCategories=new Set(["github","memory","vision","admin","stats","security","status","error","code","utility"]);\n const image=category&&visualCategories.has(category)?replyImages.getImage(category):null;\n if(image){\n  return sock.sendMessage(jid,{image:{url:image},caption:withPromo(localized)});\n }\n return sock.sendMessage(jid,{text:withPromo(localized)});\n}\n\nasync function mongoAuth(){
+async function send(sock,jid,text,ctx={}){
+ const category=ctx.category||null;
+ const language=ctx.language||await i18n.getLanguage(jid);
+ const localized=(ctx.translate===false||ctx.mode==="ai")?String(text||""):await i18n.translate(text,language);
+ const visualCategories=new Set(["github","memory","vision","admin","stats","security","status","error","code","utility"]);
+ const image=category&&visualCategories.has(category)?replyImages.getImage(category):null;
+ if(image){
+  return sock.sendMessage(jid,{image:{url:image},caption:withPromo(localized)});
+ }
+ return sock.sendMessage(jid,{text:withPromo(localized)});
+}
+
+async function mongoAuth(){
  const client=new MongoClient(cfg.mongoUri);await client.connect();
  const database=client.db(cfg.mongoDb),col=database.collection("baileys_auth"),doc=await col.findOne({_id:"state"});
  const creds=doc?.creds?JSON.parse(doc.creds,BufferJSON.reviver):initAuthCreds();
@@ -379,7 +391,17 @@ async function main(){
     }
     const mode=router.route(text,cfg.prefix);
 
-    if(mode==="language"){\n      const requested=text.trim().replace(new RegExp("^"+cfg.prefix+"(?:language|lang)\\\\s*","i"),"").trim();\n      if(!requested){\n        await send(sock,jid,"🌐 *Bot Language*\\n\\nCurrent language: "+await i18n.getLanguage(jid)+"\\nDefault language: "+cfg.defaultLanguage+"\\n\\nUse: "+cfg.prefix+"language <language>\\nExample: "+cfg.prefix+"language Hindi",{category:"utility"});\n      }else{\n        const selected=await i18n.setLanguage(jid,requested);\n        await send(sock,jid,"✅ *Language changed*\\n\\nTOHID-AGENT will now use *"+selected+"* for system messages, menus, confirmations and AI replies in this chat.",{category:"utility"});\n      }\n      continue;\n    }\n    if(mode==="maintenance_on"||mode==="maintenance_off"){
+    if(mode==="language"){
+      const requested=text.trim().replace(new RegExp("^"+cfg.prefix+"(?:language|lang)\\s*","i"),"").trim();
+      if(!requested){
+        await send(sock,jid,"🌐 *Bot Language*\n\nCurrent language: "+await i18n.getLanguage(jid)+"\nDefault language: "+cfg.defaultLanguage+"\n\nUse: "+cfg.prefix+"language <language>\nExample: "+cfg.prefix+"language Hindi",{category:"utility"});
+      }else{
+        const selected=await i18n.setLanguage(jid,requested);
+        await send(sock,jid,"✅ *Language changed*\n\nTOHID-AGENT will now use *"+selected+"* for system messages, menus, confirmations and AI replies in this chat.",{category:"utility"});
+      }
+      continue;
+    }
+    if(mode==="maintenance_on"||mode==="maintenance_off"){
       if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"admin"});continue;}
       maintenance=mode==="maintenance_on";await send(sock,jid,maintenance?"🛡️ Maintenance mode enabled.":"✅ Maintenance mode disabled.",{category:"admin"});continue;
     }
