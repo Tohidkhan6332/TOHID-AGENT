@@ -246,7 +246,7 @@ async function main(){
         if(action==="__TOHID_MEMORY_ON__"){await db.setSettings(sender,{memory:true});await send(sock,jid,"🧠 Memory enabled.");continue;}
         if(action==="__TOHID_MEMORY_OFF__"){await db.setSettings(sender,{memory:false});await db.clearMemory(sender);await send(sock,jid,"🧹 Memory disabled and current conversation memory cleared.",{category:"memory"});continue;}
         if(action==="__TOHID_PLAN__"){await send(sock,jid,"🧭 *Agent Planner*\n\nSend a task after `.plan`, for example:\n`.plan deploy my GitHub project to Heroku and verify it`");continue;}
-        if(action==="__TOHID_HELP_LANGUAGES__"){await buttons.sendLanguageMenu(sock,jid);continue;}
+        if(action==="__TOHID_HELP_LANGUAGES__"){await buttons.sendLanguageMenuByMode(sock,jid,ui.resolve(await getUIMode(jid),"selection"));continue;}
         const helpLangs={__TOHID_HELP_HI__:"Hindi",__TOHID_HELP_BN__:"Bengali",__TOHID_HELP_PA__:"Punjabi",__TOHID_HELP_UR__:"Urdu",__TOHID_HELP_TA__:"Tamil",__TOHID_HELP_TE__:"Telugu",__TOHID_HELP_MR__:"Marathi",__TOHID_HELP_GU__:"Gujarati",__TOHID_HELP_KN__:"Kannada",__TOHID_HELP_ML__:"Malayalam",__TOHID_HELP_AR__:"Arabic",__TOHID_HELP_ES__:"Spanish",__TOHID_HELP_FR__:"French",__TOHID_HELP_DE__:"German",__TOHID_HELP_TR__:"Turkish"};
         if(helpLangs[action]){await i18n.setLanguage(jid,helpLangs[action]);await buttons.sendHelpByMode(sock,jid,helpLangs[action],await getUIMode(jid));continue;}
         if(action==="__TOHID_HELP_OTHER__"){await send(sock,jid,"🌐 *Other language*\\n\\nUse: .language <language>\\nExample: .language Japanese");continue;}
