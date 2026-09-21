@@ -570,3 +570,17 @@ GET /healthz
 The endpoint intentionally exposes only safe operational state: version, uptime, Node version, database connectivity, provider readiness and integration availability. Secret values are never returned.
 
 If the health endpoint returns HTTP 503, inspect the application logs for the startup preflight error or runtime failure.
+
+
+## 🌐 Bot Language System
+
+TOHID-AGENT uses **English as the default language**. Language preferences are persisted per WhatsApp chat in MongoDB when available.
+
+Commands:
+- `.language` — show the current language
+- `.language Hindi` — switch the current chat to Hindi
+- `.language English` — switch back to English
+- `.language Japanese` — any language name can be requested
+- `.help <language>` — view translated help and set that language for the chat
+
+The selected language applies to system messages, confirmations, menus, help text and AI responses. Commands, URLs, code, IDs and technical identifiers remain unchanged.
