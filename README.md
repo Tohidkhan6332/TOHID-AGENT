@@ -243,6 +243,67 @@ The tool layer is intentionally separated so future tools can be added without r
 
 Normal text can be sent directly to the agent.
 
+
+## 🔗 Multi-number Pairing + Web Pairing
+
+TOHID-AGENT now supports **multiple independent WhatsApp bot sessions** from the same running deployment. The primary bot keeps its own socket; each .pair/.qr session gets a separate authentication directory and process.
+
+### WhatsApp commands
+
+~~~text
+.pair 919876543210
+.qr 919876543210
+~~~
+
+.pair requests an 8-character WhatsApp pairing code. .qr starts a QR session. The target number must be a WhatsApp account you own or are authorized to connect.
+
+### Web page
+
+When PORT is configured, open:
+
+~~~text
+https://YOUR-HOST/pair
+~~~
+
+The page supports:
+- phone number input
+- Pairing Code mode
+- QR mode
+- optional per-session ENV JSON
+- live pairing status
+
+End users do **not** need their own hosting account; the pairing server runs inside the TOHID-AGENT deployment. A public webpage still requires the TOHID-AGENT server itself to be running somewhere.
+
+### Per-session ENV
+
+Example:
+
+~~~json
+{
+  "AI_PROVIDER": "auto",
+  "OPENAI_API_KEY": "YOUR_KEY",
+  "GITHUB_TOKEN": "YOUR_TOKEN",
+  "GITHUB_OWNER": "your-github-user",
+  "VERCEL_TOKEN": "YOUR_TOKEN"
+}
+~~~
+
+Only an allowlisted set of environment variables is accepted by the pairing API. Secrets are not returned by the status endpoint. Use HTTPS in production.
+
+### URL manager
+
+Owner commands can manage runtime URLs directly from WhatsApp:
+
+~~~text
+.url add github https://github.com/Tohidkhan6332/TOHID-AGENT
+.url add deploy https://example.com
+.url switch deploy
+.url remove deploy
+.url list
+~~~
+
+With a database configured, URL state is persisted. Without MongoDB/PostgreSQL, it falls back to local runtime state.
+
 ## 💻 GitHub Agent
 
 The agent can work with:
