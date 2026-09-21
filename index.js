@@ -399,7 +399,19 @@ async function main(){
     }
     const mode=router.route(text,cfg.prefix);
 
-    if(mode==="ui"||mode==="mode"){\n      const requested=text.trim().replace(new RegExp("^"+cfg.prefix+"(?:ui|mode)\\s*","i"),"").trim().toLowerCase();\n      if(!requested){await send(sock,jid,"🎛️ *Interface Mode*\\n\\nCurrent: "+await getUIMode(jid)+"\\nAvailable: buttons, text, both\\n\\nUse: "+cfg.prefix+"mode buttons | "+cfg.prefix+"mode text | "+cfg.prefix+"mode both",{category:"utility"});}\n      else if(!["buttons","text","both"].includes(requested)){await send(sock,jid,"❌ Invalid mode. Use: buttons, text or both.",{category:"error"});}\n      else{await db.setSettings(jid,{uiMode:requested});await send(sock,jid,"✅ Interface mode changed to *"+requested+"*.",{category:"utility"});}\n      continue;\n    }\n    if(mode==="language"){
+    if(mode==="ui"||mode==="mode"){
+      const requested=text.trim().replace(new RegExp("^"+cfg.prefix+"(?:ui|mode)\\s*","i"),"").trim().toLowerCase();
+      if(!requested){await send(sock,jid,"🎛️ *Interface Mode*\
+\
+Current: "+await getUIMode(jid)+"\
+Available: buttons, text, both\
+\
+Use: "+cfg.prefix+"mode buttons | "+cfg.prefix+"mode text | "+cfg.prefix+"mode both",{category:"utility"});}
+      else if(!["buttons","text","both"].includes(requested)){await send(sock,jid,"❌ Invalid mode. Use: buttons, text or both.",{category:"error"});}
+      else{await db.setSettings(jid,{uiMode:requested});await send(sock,jid,"✅ Interface mode changed to *"+requested+"*.",{category:"utility"});}
+      continue;
+    }
+    if(mode==="language"){
       const requested=text.trim().replace(new RegExp("^"+cfg.prefix+"(?:language|lang)\\s*","i"),"").trim();
       if(!requested){
         await send(sock,jid,"🌐 *Bot Language*\n\nCurrent language: "+await i18n.getLanguage(jid)+"\nDefault language: "+cfg.defaultLanguage+"\n\nUse: "+cfg.prefix+"language <language>\nExample: "+cfg.prefix+"language Hindi",{category:"utility"});
