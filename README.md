@@ -41,7 +41,7 @@ Enabled integrations include:
 
 Protected Channel and Group Status mutations require owner authorization and explicit `CONFIRM`.
 
-# 🤖 TOHID-AGENT V10.0
+# 🤖 TOHID-AGENT V11.0
 
 **TOHID-AGENT V9.0** is the futuristic autonomous WhatsApp AI agent architecture by **Tohid**.
 
@@ -586,9 +586,9 @@ Commands:
 The selected language applies to system messages, confirmations, menus, help text and AI responses. Commands, URLs, code, IDs and technical identifiers remain unchanged.
 
 
-## 🎛️ V10 Adaptive UI Engine
+## 🎛️ V11 Adaptive UI Engine
 
-V10 replaces the fixed three-mode interface with an adaptive UI engine. The preference is stored per chat in MongoDB settings when available.
+V11 replaces the fixed three-mode interface with an adaptive UI engine. The preference is stored per chat in MongoDB settings when available.
 
 Modes:
 
@@ -601,7 +601,7 @@ Modes:
 
 For backward compatibility, `.mode both` is treated as `hybrid`.
 
-### V10 UI behavior
+### V11 UI behavior
 
 ```text
 User preference
@@ -619,9 +619,9 @@ The engine avoids adding buttons to ordinary AI/status replies when they are not
 
 The UI engine also supports per-chat language preferences and preserves the existing owner/confirmation security model.
 
-## 🧩 V10 WhatsApp-Only Control Center
+## 🧩 V11 WhatsApp-Only Control Center
 
-TOHID-AGENT V10 can be administered directly from WhatsApp by the owner. The bot can manage runtime configuration, install/reload/disable/remove trusted plugins, accept plugin JavaScript files, load raw URLs/GitHub Gists, and run a small protected remote-shell allowlist.
+TOHID-AGENT V11 can be administered directly from WhatsApp by the owner. The bot can manage runtime configuration, install/reload/disable/remove trusted plugins, accept plugin JavaScript files, load raw URLs/GitHub Gists, and run a small protected remote-shell allowlist.
 
 ### Runtime configuration
 
@@ -649,3 +649,4 @@ Plugins use a small API: `registerCommand`, `onMessage`, `send`, `db`, and `log`
 - Secrets are masked in configuration output.
 
 The control center is designed so routine bot administration can be performed from WhatsApp without opening the hosting dashboard or editing files manually. External destructive operations still retain owner/confirmation gates.
+\n\n## 🛠️ V11 WhatsApp AI Command Center\n\nThe bot can now act as its own WhatsApp-only control center for the owner.\n\n- `.admin` — live control-center status\n- `.feature list` / `.feature on <name> CONFIRM` / `.feature off <name> CONFIRM` — persistent runtime feature flags\n- `.file list [dir]` — workspace file browser\n- `.file read <path>` — read source files over WhatsApp\n- `.file backup <path>` / `.file backups [path]` — versioned local backups\n- `.file restore <backup-id> CONFIRM` — rollback with a pre-restore backup\n- `.file write <path> CONFIRM` + code block — owner-only file editing with automatic backup\n- `.plugin test <name>` / `.plugin logs <name>` / `.plugin update <name> <URL> CONFIRM` — plugin lifecycle controls\n- AI planner can continue to handle supported GitHub and hosting operations using natural-language requests.\n\n### Security model\nAll control-center operations are owner-only. File writes/restores and runtime-changing plugin/feature operations require explicit `CONFIRM`. File paths are sandboxed to the bot workspace and exclude `.git`, `node_modules`, and the control-data directory. Plugin code is trusted Node.js code and should only be installed from sources you trust.\n
