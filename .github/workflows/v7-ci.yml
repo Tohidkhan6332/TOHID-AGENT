@@ -32,4 +32,5 @@ jobs:
       - run: node --check scripts/prestart.js
       - run: node --check lib/mission.js
       - run: node --check lib/scheduler.js
+      - run: node -e "const fs=require(\"fs\"); const cp=require(\"child_process\"); const files=[]; function walk(d){for(const e of fs.readdirSync(d,{withFileTypes:true})){if([\"node_modules\",\".git\",\".tohid-control\",\".tohid-sessions\"].includes(e.name)) continue; const p=require(\"path\").join(d,e.name); if(e.isDirectory()) walk(p); else if(p.endsWith(\".js\")) files.push(p)}} walk(\".\"); for(const f of files) cp.execFileSync(process.execPath,[\"--check\",f],{stdio:\"inherit\"}); console.log(\"Checked \"+files.length+\" JavaScript files\");"
       - run: npm test
