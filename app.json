@@ -37,8 +37,8 @@
       "description": "AI provider mode: auto, openai, or gemini."
     },
     "MONGO_URI": {
-      "required": true,
-      "description": "MongoDB connection URI. Required for persistent WhatsApp auth, memory and task history."
+      "required": false,
+      "description": "Optional primary MongoDB connection. Use PostgreSQL if MongoDB is not available."
     },
     "MONGO_DB": {
       "value": "tohid-agent",
@@ -149,7 +149,7 @@
     },
     "POSTGRES_URL": {
       "required": false,
-      "description": "Optional PostgreSQL connection URL. MongoDB remains primary when both are configured; PostgreSQL is used when MongoDB is unavailable."
+      "description": "Optional PostgreSQL connection URL. MongoDB is primary when both are configured; PostgreSQL is used when MongoDB is unavailable."
     },
     "POSTGRES_SSL": {
       "value": "false",
