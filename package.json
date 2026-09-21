@@ -1,8 +1,8 @@
 {
   "name": "tohid-agent-whatsapp",
-  "version": "9.0.0",
+  "version": "10.0.0",
   "private": true,
-  "description": "TOHID-AGENT V9 — mission control, persistent scheduling and autonomous WhatsApp AI agent by Tohid",
+  "description": "TOHID-AGENT V10 — mission control, persistent scheduling and autonomous WhatsApp AI agent by Tohid",
   "main": "index.js",
   "type": "commonjs",
   "engines": {
