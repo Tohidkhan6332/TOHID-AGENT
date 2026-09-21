@@ -618,3 +618,34 @@ UI      UI      UI     text
 The engine avoids adding buttons to ordinary AI/status replies when they are not useful, while keeping interactive controls for navigation, settings and actionable workflows. If interactive rendering is unavailable, the text path remains available.
 
 The UI engine also supports per-chat language preferences and preserves the existing owner/confirmation security model.
+
+## 🧩 V10 WhatsApp-Only Control Center
+
+TOHID-AGENT V10 can be administered directly from WhatsApp by the owner. The bot can manage runtime configuration, install/reload/disable/remove trusted plugins, accept plugin JavaScript files, load raw URLs/GitHub Gists, and run a small protected remote-shell allowlist.
+
+### Runtime configuration
+
+- `.config list` — show available configuration keys with secret masking
+- `.config get <key>` — inspect one setting
+- `.config set <key> <value> CONFIRM` — persist a global runtime override
+- `.config reset <key> CONFIRM` — remove one override
+
+### Plugins
+
+- `.plugin list`
+- `.plugin install <raw-url-or-gist> <name> CONFIRM`
+- Send a JavaScript plugin file with caption: `.plugin install <name> CONFIRM`
+- `.plugin enable <name>`
+- `.plugin disable <name>`
+- `.plugin reload <name>`
+- `.plugin remove <name> CONFIRM`
+
+Plugins use a small API: `registerCommand`, `onMessage`, `send`, `db`, and `log`. They are loaded from the local `plugins/` directory. **Only install plugin code you trust**: a JavaScript plugin executes inside the bot's Node.js process and is therefore privileged code. The installer validates syntax, records a SHA-256 hash and warns when privileged runtime APIs are present.
+
+### Remote environment control
+
+- `.shell <command> CONFIRM` is owner-only and disabled by default.
+- When enabled, it is restricted to a small allowlist (`git status`, Node/npm version, disk/memory/uptime, and controlled PM2 status/restart/reload commands).
+- Secrets are masked in configuration output.
+
+The control center is designed so routine bot administration can be performed from WhatsApp without opening the hosting dashboard or editing files manually. External destructive operations still retain owner/confirmation gates.
