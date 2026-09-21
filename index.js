@@ -15,6 +15,7 @@ const router=require("./lib/router");
 const replyImages=require("./lib/replyImages");
 const menu=require("./lib/menu");
 const buttons=require("./lib/buttons");
+const ui=require("./lib/uiEngine");
 const i18n=require("./lib/i18n");
 const preflight=require("./lib/preflight");
 const log=require("./lib/logger");
@@ -50,7 +51,7 @@ scheduler.register("mission",async(job)=>{
 
 function isOwner(jid){return !!cfg.ownerNumber&&jid.split("@")[0].replace(/\D/g,"")===cfg.ownerNumber;}
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
-function normalizeUIMode(value){const m=String(value||"").toLowerCase();return ["buttons","text","both"].includes(m)?m:cfg.defaultUIMode;}\nasync function getUIMode(jid){try{const s=await db.getSettings(jid);return normalizeUIMode(s.uiMode);}catch{return normalizeUIMode(cfg.defaultUIMode);}}\nfunction normalizeJid(jid){return String(jid||"").split(":")[0];}
+function normalizeUIMode(value){return ui.normalize(value);}\nasync function getUIMode(jid){return ui.get(jid);}\nfunction normalizeJid(jid){return String(jid||"").split(":")[0];}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
 async function send(sock,jid,text,ctx={}){
  const category=ctx.category||null;
@@ -77,7 +78,7 @@ async function mongoAuth(){
 function promo(){return "📢 *TOHID TECH*\n"+cfg.channelLink;}
 function withPromo(text){const s=String(text||"");return s.includes(cfg.channelLink)?s:s+"\\n\\n"+promo();}
 function help(){
-return "🤖 *TOHID-AGENT V9.0 — COMPLETE HELP*\\n\\n"+
+return "🤖 *TOHID-AGENT V10.0 — COMPLETE HELP*\\n\\n"+
 "👨‍💻 Developer: Tohid\\n"+
 "📢 Channel: "+cfg.channelLink+"\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
@@ -136,10 +137,7 @@ return "🤖 *TOHID-AGENT V9.0 — COMPLETE HELP*\\n\\n"+
 async function sendInteractiveMenu(sock,jid,kind="main"){
   if(!cfg.interactiveButtonsEnabled)return menu.sendMenu(sock,jid,"main");
   try{
-    if(kind==="main")return await buttons.sendMenuByMode(sock,jid,"main",await getUIMode(jid));
-    if(kind==="list")return await buttons.sendMenuByMode(sock,jid,"list",await getUIMode(jid));
-    if(kind==="dev")return await buttons.sendMenuByMode(sock,jid,"dev",await getUIMode(jid));
-    if(kind==="settings")return await buttons.sendMenuByMode(sock,jid,"settings",await getUIMode(jid));
+    const mode=await getUIMode(jid);\n    const resolved=ui.resolve(mode,kind==="settings"?"settings":kind==="main"?"navigation":"actions");\n    if(kind==="main")return await buttons.sendMenuByMode(sock,jid,"main",resolved);\n    if(kind==="list")return await buttons.sendMenuByMode(sock,jid,"list",resolved);\n    if(kind==="dev")return await buttons.sendMenuByMode(sock,jid,"dev",resolved);\n    if(kind==="settings")return await buttons.sendMenuByMode(sock,jid,"settings",resolved);
   }catch(e){
     console.error("❌ Interactive UI send failed; using text fallback:",e?.stack||e?.message||e);
     if(kind==="dev")return menu.sendMenu(sock,jid,"main",{text:"👨‍💻 *Developer: Tohid*\\n\\nInteractive buttons are unavailable on this client, so text mode is active."});
@@ -401,14 +399,15 @@ async function main(){
 
     if(mode==="ui"||mode==="mode"){
       const requested=text.trim().replace(new RegExp("^"+cfg.prefix+"(?:ui|mode)\\s*","i"),"").trim().toLowerCase();
-      if(!requested){await send(sock,jid,"🎛️ *Interface Mode*\
-\
-Current: "+await getUIMode(jid)+"\
-Available: buttons, text, both\
-\
-Use: "+cfg.prefix+"mode buttons | "+cfg.prefix+"mode text | "+cfg.prefix+"mode both",{category:"utility"});}
-      else if(!["buttons","text","both"].includes(requested)){await send(sock,jid,"❌ Invalid mode. Use: buttons, text or both.",{category:"error"});}
-      else{await db.setSettings(jid,{uiMode:requested});await send(sock,jid,"✅ Interface mode changed to *"+requested+"*.",{category:"utility"});}
+      if(!requested){
+        const current=await getUIMode(jid);
+        await send(sock,jid,"🎛️ *TOHID-AGENT V10 UI*\\n\\nCurrent: "+current+"\\n\\n"+ui.description(current)+"\\n\\nModes:\\n• auto — adaptive UI (recommended)\\n• buttons — interactive controls\\n• text — text/commands only\\n• hybrid — text + buttons\\n• minimal — concise text\\n\\nUse: "+cfg.prefix+"mode <auto|buttons|text|hybrid|minimal>",{category:"utility"});
+      }else if(!ui.MODES.includes(requested) && requested!=="both"){
+        await send(sock,jid,"❌ Invalid UI mode. Use: auto, buttons, text, hybrid or minimal.",{category:"error"});
+      }else{
+        const selected=await ui.set(jid,requested==="both"?"hybrid":requested);
+        await send(sock,jid,"✅ UI mode changed to *"+selected+"*.\\n"+ui.description(selected),{category:"utility"});
+      }
       continue;
     }
     if(mode==="language"){
@@ -434,11 +433,11 @@ Use: "+cfg.prefix+"mode buttons | "+cfg.prefix+"mode text | "+cfg.prefix+"mode b
     }
     if(mode==="help"){
       const requestedLanguage=text.trim().slice((cfg.prefix+"help").length).trim();
+      const language=requestedLanguage||await i18n.getLanguage(jid);
+      if(requestedLanguage)await i18n.setLanguage(jid,requestedLanguage);
       if(cfg.interactiveButtonsEnabled){
-        try{
-          if(requestedLanguage) await buttons.sendHelp(sock,jid,requestedLanguage);
-          else await buttons.sendHelp(sock,jid,"en");
-        }catch(e){await send(sock,jid,help(),{category:"ai"});}
+        try{await buttons.sendHelpByMode(sock,jid,language,ui.resolve(await getUIMode(jid),"help"));}
+        catch(e){await send(sock,jid,help(),{category:"ai"});}
       }else await send(sock,jid,help(),{category:"ai"});
       continue;
     }
