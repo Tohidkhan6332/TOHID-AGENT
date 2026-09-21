@@ -32,7 +32,7 @@ const rate=new Map();
 let maintenance=false;
 let activeSocket=null;
 let activeCloseAuth=async()=>{};
-let shuttingDown=false;
+let shuttingDown=false;\nconst delegatedOwners=new Set(cfg.delegatedOwnerNumbers||[]);
 
 function parseDelay(value){
   const m=String(value||"").trim().match(/^(\d+)\s*(s|m|h|d)$/i);
@@ -51,7 +51,7 @@ scheduler.register("mission",async(job)=>{
   }
 });
 
-function isOwner(jid){return !!cfg.ownerNumber&&jid.split("@")[0].replace(/\D/g,"")===cfg.ownerNumber;}
+function normalizeOwnerNumber(value){return String(value||"").split("@")[0].replace(/\D/g,"");}\nfunction isPrimaryOwner(jid){return !!cfg.ownerNumber&&normalizeOwnerNumber(jid)===cfg.ownerNumber;}\nfunction isOwner(jid){const n=normalizeOwnerNumber(jid);return !!n&&(n===cfg.ownerNumber||delegatedOwners.has(n));}\nasync function loadDelegatedOwners(){try{const list=await db.getDelegatedOwners();for(const n of list)delegatedOwners.add(n);log.info("Delegated owners loaded",{count:delegatedOwners.size});}catch(e){log.warn("Delegated owners could not be loaded",{message:e?.message});}}
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
 function normalizeUIMode(value){return ui.normalize(value);}
 async function getUIMode(jid){return ui.get(jid);}
@@ -97,7 +97,7 @@ async function mongoAuth(){
 
 function promo(){return "📢 *TOHID TECH*\n"+cfg.channelLink;}
 function withPromo(text){const s=String(text||"");return s.includes(cfg.channelLink)?s:s+"\\n\\n"+promo();}
-function adminHelp(){return "🛠️ *TOHID AI CONTROL CENTER V11*\n\n🧩 .plugin list/install/enable/disable/reload/remove/test/logs\n⚙️ .feature list/on/off <name>\n📁 .file list/read/backup/backups/restore/write\n📊 .admin status\n🤖 Send natural-language tasks for the AI planner\n\n🔐 File writes/restores and plugin runtime changes require owner authorization + CONFIRM.";}\nfunction help(){
+function adminHelp(){return "🛠️ *TOHID AI CONTROL CENTER V11*\n\n👑 .owner list/add/remove/revokeall\n🧩 .plugin list/install/enable/disable/reload/remove/test/logs\n⚙️ .feature list/on/off <name>\n📁 .file list/read/backup/backups/restore/write\n📊 .admin status\n🤖 Send natural-language tasks for the AI planner\n\n🔐 Delegated owners get full owner-level bot control. Only the primary OWNER_NUMBER can add/remove delegated owners.";}\nfunction help(){
 return "🤖 *TOHID-AGENT V11.0 — COMPLETE HELP*\\n\\n"+
 "👨‍💻 Developer: Tohid\\n"+
 "📢 Channel: "+cfg.channelLink+"\\n\\n"+
@@ -172,7 +172,7 @@ async function main(){
  check.warnings.forEach(x=>log.warn(x));
  log.info("Starting TOHID-AGENT V11.0",preflight.safeSummary());
  let auth,closeAuth=async()=>{};
- if(cfg.mongoUri){auth=await mongoAuth();closeAuth=auth.close;await db.connect();const globalConfig=await db.getGlobalConfig();applyGlobalConfig(globalConfig);applyFeatureState();console.log("☁️ MongoDB auth + memory enabled.");}
+ if(cfg.mongoUri){auth=await mongoAuth();closeAuth=auth.close;await db.connect();const globalConfig=await db.getGlobalConfig();applyGlobalConfig(globalConfig);applyFeatureState();await loadDelegatedOwners();console.log("☁️ MongoDB auth + memory enabled.");}
  else{auth=await useMultiFileAuthState(AUTH);console.log("⚠️ Local auth enabled; set MONGO_URI for persistent auth.");}
  const{state,saveCreds}=auth;
  const{version}=await fetchLatestBaileysVersion();
@@ -461,6 +461,17 @@ async function main(){
       const {execFile}=require("child_process");const allowedShell=/^(pwd|ls|cat|node --version|npm --version|git status|git log --oneline -10|df -h|free -h|uptime|pm2 (status|list|restart|reload) [a-zA-Z0-9_.-]+)$/;
       if(!allowedShell.test(command)){await send(sock,jid,"❌ Command not allowed by the V10 safety allowlist.",{category:"security"});continue;}
       await new Promise(resolve=>execFile("/bin/sh",["-lc",command],{timeout:30000,maxBuffer:200000},async(err,stdout,stderr)=>{const out=(err?stderr:stdout)||err?.message||"OK";await send(sock,jid,"🖥️ *SHELL RESULT*\\n\\n"+out.slice(0,12000),{category:"status"});resolve();}));continue;
+    }
+    if(mode==="owner"){
+      if(!isPrimaryOwner(sender)){await send(sock,jid,"⛔ Primary owner only. Delegated owners cannot transfer or revoke ownership.",{category:"security"});continue;}
+      const parts=text.trim().split(/\\s+/);const sub=(parts[1]||"list").toLowerCase();const target=normalizeOwnerNumber(parts[2]||"");
+      try{
+        if(sub==="list"){const all=Array.from(delegatedOwners);await send(sock,jid,"👑 *OWNER ACCESS*\\n\\nPrimary: "+cfg.ownerNumber+"\\nDelegated: "+(all.length?all.map((n,i)=>(i+1)+". "+n).join("\\n"):"None"),{category:"admin"});continue;}
+        if(sub==="add"){if(!target||target.length<10||target.length>15){await send(sock,jid,"Usage: .owner add <country-code+number> CONFIRM",{category:"utility"});continue;}if(target===cfg.ownerNumber){await send(sock,jid,"ℹ️ That number is already the primary owner.",{category:"admin"});continue;}if(!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Adding a delegated owner requires CONFIRM.",{category:"security"});continue;}if(!cfg.mongoUri){await send(sock,jid,"❌ Delegated owners require MongoDB persistence. Set MONGO_URI first.",{category:"error"});continue;}await db.addDelegatedOwner(target,sender);delegatedOwners.add(target);await db.audit(sender,"owner:add",{target});await send(sock,jid,"✅ Delegated owner added: *"+target+"*\\nThey now have full owner-level bot control except owner transfer/revocation.",{category:"admin"});continue;}
+        if(sub==="remove"){if(!target){await send(sock,jid,"Usage: .owner remove <number> CONFIRM",{category:"utility"});continue;}if(!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Removing a delegated owner requires CONFIRM.",{category:"security"});continue;}await db.removeDelegatedOwner(target);delegatedOwners.delete(target);await db.audit(sender,"owner:remove",{target});await send(sock,jid,"✅ Delegated owner removed: *"+target+"*",{category:"admin"});continue;}
+        if(sub==="revokeall"){if(!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Revoking all delegated owners requires CONFIRM.",{category:"security"});continue;}const count=await db.clearDelegatedOwners();delegatedOwners.clear();await db.audit(sender,"owner:revokeall",{count});await send(sock,jid,"🧹 Revoked "+count+" delegated owner(s).",{category:"admin"});continue;}
+        await send(sock,jid,"Usage: .owner list | .owner add <number> CONFIRM | .owner remove <number> CONFIRM | .owner revokeall CONFIRM",{category:"utility"});
+      }catch(e){await send(sock,jid,"❌ Owner access action failed: "+e.message,{category:"error"});}continue;
     }
     if(mode==="admin"){
       if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
