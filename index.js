@@ -15,6 +15,7 @@ const router=require("./lib/router");
 const replyImages=require("./lib/replyImages");
 const menu=require("./lib/menu");
 const buttons=require("./lib/buttons");
+const i18n=require("./lib/i18n");
 const preflight=require("./lib/preflight");
 const log=require("./lib/logger");
 const mission=require("./lib/mission");
@@ -51,18 +52,7 @@ function isOwner(jid){return !!cfg.ownerNumber&&jid.split("@")[0].replace(/\D/g,
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
 function normalizeJid(jid){return String(jid||"").split(":")[0];}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
-async function send(sock,jid,text,ctx={}){
- const category=ctx.category||null;
- // Keep normal AI replies fast. Use a visual only for richer/system responses.
- const visualCategories=new Set(["github","memory","vision","admin","stats","security","status","error","code","utility"]);
- const image=category&&visualCategories.has(category)?replyImages.getImage(category):null;
- if(image){
-  return sock.sendMessage(jid,{image:{url:image},caption:withPromo(text)});
- }
- return sock.sendMessage(jid,{text:withPromo(text)});
-}
-
-async function mongoAuth(){
+async function send(sock,jid,text,ctx={}){\n const category=ctx.category||null;\n const language=ctx.language||await i18n.getLanguage(jid);\n const localized=ctx.translate===false?String(text||""):await i18n.translate(text,language);\n const visualCategories=new Set(["github","memory","vision","admin","stats","security","status","error","code","utility"]);\n const image=category&&visualCategories.has(category)?replyImages.getImage(category):null;\n if(image){\n  return sock.sendMessage(jid,{image:{url:image},caption:withPromo(localized)});\n }\n return sock.sendMessage(jid,{text:withPromo(localized)});\n}\n\nasync function mongoAuth(){
  const client=new MongoClient(cfg.mongoUri);await client.connect();
  const database=client.db(cfg.mongoDb),col=database.collection("baileys_auth"),doc=await col.findOne({_id:"state"});
  const creds=doc?.creds?JSON.parse(doc.creds,BufferJSON.reviver):initAuthCreds();
@@ -248,10 +238,10 @@ async function main(){
         if(action==="__TOHID_PLAN__"){await send(sock,jid,"🧭 *Agent Planner*\n\nSend a task after `.plan`, for example:\n`.plan deploy my GitHub project to Heroku and verify it`");continue;}
         if(action==="__TOHID_HELP_LANGUAGES__"){await buttons.sendLanguageMenu(sock,jid);continue;}
         const helpLangs={__TOHID_HELP_HI__:"Hindi",__TOHID_HELP_BN__:"Bengali",__TOHID_HELP_PA__:"Punjabi",__TOHID_HELP_UR__:"Urdu",__TOHID_HELP_TA__:"Tamil",__TOHID_HELP_TE__:"Telugu",__TOHID_HELP_MR__:"Marathi",__TOHID_HELP_GU__:"Gujarati",__TOHID_HELP_KN__:"Kannada",__TOHID_HELP_ML__:"Malayalam",__TOHID_HELP_AR__:"Arabic",__TOHID_HELP_ES__:"Spanish",__TOHID_HELP_FR__:"French",__TOHID_HELP_DE__:"German",__TOHID_HELP_TR__:"Turkish"};
-        if(helpLangs[action]){await buttons.sendHelp(sock,jid,helpLangs[action]);continue;}
-        if(action==="__TOHID_HELP_OTHER__"){await send(sock,jid,"🌐 *Other language*\\n\\nUse: .help <language>\\nExample: .help Japanese");continue;}
+        if(helpLangs[action]){await i18n.setLanguage(jid,helpLangs[action]);await buttons.sendHelp(sock,jid,helpLangs[action]);continue;}
+        if(action==="__TOHID_HELP_OTHER__"){await send(sock,jid,"🌐 *Other language*\\n\\nUse: .language <language>\\nExample: .language Japanese");continue;}
         if(action==="__TOHID_HELP_HI__"){await buttons.sendHelp(sock,jid,"Hindi");continue;}
-        if(action==="__TOHID_HELP_EN__"){await buttons.sendHelp(sock,jid,"en");continue;}
+        if(action==="__TOHID_HELP_EN__"){await i18n.setLanguage(jid,"English");await buttons.sendHelp(sock,jid,"en");continue;}
         if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
@@ -389,7 +379,7 @@ async function main(){
     }
     const mode=router.route(text,cfg.prefix);
 
-    if(mode==="maintenance_on"||mode==="maintenance_off"){
+    if(mode==="language"){\n      const requested=text.trim().replace(new RegExp("^"+cfg.prefix+"(?:language|lang)\\\\s*","i"),"").trim();\n      if(!requested){\n        await send(sock,jid,"🌐 *Bot Language*\\n\\nCurrent language: "+await i18n.getLanguage(jid)+"\\nDefault language: "+cfg.defaultLanguage+"\\n\\nUse: "+cfg.prefix+"language <language>\\nExample: "+cfg.prefix+"language Hindi",{category:"utility"});\n      }else{\n        const selected=await i18n.setLanguage(jid,requested);\n        await send(sock,jid,"✅ *Language changed*\\n\\nTOHID-AGENT will now use *"+selected+"* for system messages, menus, confirmations and AI replies in this chat.",{category:"utility"});\n      }\n      continue;\n    }\n    if(mode==="maintenance_on"||mode==="maintenance_off"){
       if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"admin"});continue;}
       maintenance=mode==="maintenance_on";await send(sock,jid,maintenance?"🛡️ Maintenance mode enabled.":"✅ Maintenance mode disabled.",{category:"admin"});continue;
     }
@@ -432,7 +422,7 @@ async function main(){
     if(mode==="image"){const prompt=text.slice((cfg.prefix+"imagine ").length).trim();if(!prompt){await send(sock,jid,"Usage: .imagine <prompt>");continue;}await send(sock,jid,"🎨 Generating image...",{category:"image"});const img=await ai.image(prompt);await db.track(sender,"image");await sock.sendMessage(jid,{image:{url:img},caption:withPromo("🎨 TOHID-AGENT V9.0 • Created by Tohid")});if(fs.existsSync(img))fs.unlinkSync(img);continue;}
 
     await sock.sendPresenceUpdate("composing",jid);
-    const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData,baileysExtras,sock,jid});
+    const language=await i18n.getLanguage(jid);\n    const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData,baileysExtras,sock,jid,language});
     const userSettings=await db.getSettings(sender);const voiceReply=userSettings.voice===true||(userSettings.voice===undefined&&cfg.voiceReply);if((voiceReply||inputWasVoice)&&answer){const out=path.join(TMP,"reply-"+Date.now()+".mp3");await ai.tts(answer,out);await sock.sendMessage(jid,{audio:{url:out},mimetype:"audio/mpeg",ptt:true});await send(sock,jid,promo(),{category:"utility"});if(fs.existsSync(out))fs.unlinkSync(out);}
     else await send(sock,jid,answer,{mode:"ai",sourceText:text,imageData});
     if(audioPath&&fs.existsSync(audioPath))fs.unlinkSync(audioPath);
