@@ -31,6 +31,7 @@ const dmRelay=require("./lib/dmRelay");
 const urlManager=require("./lib/urlManager");
 const pairingManager=require("./lib/pairingManager");
 const pairingWeb=require("./lib/pairingWeb");
+const telegramPairing=require("./lib/telegramPairing");
 
 const AUTH=path.resolve(process.env.AUTH_DIR||path.join(process.cwd(),"auth_info_baileys"));
 const TMP=path.join(process.cwd(),"tmp");
@@ -188,6 +189,7 @@ async function main(){
  const check=preflight.validate();
  if(!check.ok){check.errors.forEach(x=>log.error(x));throw new Error("Production preflight failed: "+check.errors.join(" | "));}
  check.warnings.forEach(x=>log.warn(x));
+ if(cfg.telegramPairingEnabled&&cfg.telegramBotToken&&process.env.TOHID_PAIRING_CHILD!=="1")telegramPairing.start(pairingManager,cfg.telegramBotToken);
  log.info("Starting TOHID-AGENT V11.0",preflight.safeSummary());
  let auth,closeAuth=async()=>{};
  if((cfg.mongoUri||cfg.postgresUrl)&&process.env.LOCAL_AUTH_ONLY!=="1"){auth=await databaseAuth();closeAuth=auth.close;await db.connect();if(process.env.TOHID_PAIRING_CHILD!=="1"){const globalConfig=await db.getGlobalConfig();applyGlobalConfig(globalConfig);applyFeatureState();await loadDelegatedOwners();}console.log("☁️ Database-backed auth + memory enabled ("+(cfg.mongoUri?"MongoDB primary":"PostgreSQL primary")+").");}
@@ -670,6 +672,7 @@ const shutdown=async(signal)=>{
   log.info("Graceful shutdown requested",{signal});
   try{if(activeSocket)activeSocket.end(undefined);}catch{}
   try{await activeCloseAuth();}catch(e){log.warn("Auth close failed",{message:e?.message});}
+  try{await telegramPairing.stop();}catch(e){log.warn("Telegram bot stop failed",{message:e?.message});}
   try{await db.close();}catch(e){log.warn("Database close failed",{message:e?.message});}
   process.exit(0);
 };
