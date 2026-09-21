@@ -286,7 +286,7 @@ async function main(){
     console.log("📨 Incoming WhatsApp message from "+sender+" in "+jid+": "+String(text||"[media]").slice(0,120));
     if(text.trim().toLowerCase()===cfg.prefix+"ping"){
       try{
-        await sock.sendMessage(jid,{text:withPromo("🏓 TOHID-AGENT V9.0: online\\n👨‍💻 Developer: Tohid")});
+        await send(sock,jid,"🏓 TOHID-AGENT V9.0: online\\n👨‍💻 Developer: Tohid");
         console.log("📤 .ping reply sent to "+jid);
       }catch(pingError){
         console.error("❌ .ping send failed:",pingError?.stack||pingError?.message||pingError);
