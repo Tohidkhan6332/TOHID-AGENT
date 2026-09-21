@@ -4,6 +4,7 @@ module.exports={
   developer:"Tohid",
   brand:"TOHID-AGENT",
   version:"9.0.0",
+  defaultLanguage:process.env.BOT_LANGUAGE||"English",
   openaiKey:process.env.OPENAI_API_KEY||"",
   openaiModel:process.env.OPENAI_MODEL||"gpt-5.6-luna",
   model:process.env.OPENAI_MODEL||"gpt-5.6-luna",
