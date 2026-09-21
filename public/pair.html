@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TOHID-AGENT • Pairing</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:#070b12;color:#f5f7fb;min-height:100vh;display:grid;place-items:center;padding:20px}
+.card{width:min(720px,100%);background:#0e1522;border:1px solid #263246;border-radius:24px;padding:28px;box-shadow:0 20px 70px #0008}.brand{font-size:28px;font-weight:800}.muted{color:#9ca9bc}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:650px){.grid{grid-template-columns:1fr}}
+input,select,textarea{width:100%;padding:13px 14px;border-radius:12px;border:1px solid #334155;background:#0a111c;color:#fff;outline:none}textarea{min-height:140px;font-family:ui-monospace,monospace;font-size:12px}
+button{width:100%;padding:14px;border:0;border-radius:12px;background:#25d366;color:#06130a;font-weight:800;cursor:pointer;margin-top:12px}.secondary{background:#1d293b;color:#fff}.status{margin-top:18px;padding:16px;border-radius:14px;background:#09111c;border:1px solid #263246;white-space:pre-wrap}
+.code{font-size:34px;letter-spacing:8px;text-align:center;font-weight:900;padding:20px}.qr{display:block;max-width:300px;width:100%;margin:16px auto;border-radius:16px;background:#fff;padding:10px}.hidden{display:none}.warn{font-size:12px;color:#fbbf24;margin-top:12px;line-height:1.5}
+</style></head><body><main class="card">
+<div class="brand">TOHID-AGENT</div><p class="muted">Pair your WhatsApp number with Pairing Code or QR. Your environment values are applied only to this bot session.</p>
+<div class="grid">
+<label>Phone number<input id="phone" inputmode="numeric" placeholder="919876543210"></label>
+<label>Method<select id="mode"><option value="pairing">8-character Pairing Code</option><option value="qr">QR Code</option></select></label>
+</div>
+<label style="display:block;margin-top:12px">Agent ENV (optional JSON)<textarea id="env" placeholder='{"OPENAI_API_KEY":"...","GITHUB_TOKEN":"...","AI_PROVIDER":"auto"}'></textarea></label>
+<button id="start">Start Pairing</button>
+<div id="result" class="status hidden"></div>
+<div class="warn">Use HTTPS in production. Never paste a secret into a public page you do not trust. Pair only a WhatsApp account you control or are authorized to connect.</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);let id="";
+function show(s){$("result").classList.remove("hidden");$("result").textContent=s}
+$("start").onclick=async()=>{
+ $("start").disabled=true;show("Starting…");
+ let env={};try{env=$("env").value.trim()?JSON.parse($("env").value):{}}catch(e){show("Invalid ENV JSON");$("start").disabled=false;return}
+ const r=await fetch("/pair",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({phone:$("phone").value,mode:$("mode").value,env})});
+ const d=await r.json();if(!r.ok){show(d.error||"Pairing failed");$("start").disabled=false;return}
+ id=d.id;show("Session: "+id+"\nWaiting for WhatsApp…");poll();
+};
+async function poll(){if(!id)return;const r=await fetch("/pair/status/"+id);const d=await r.json();if(d.code){$("result").innerHTML="<div>Enter this code in WhatsApp → Linked Devices → Link with phone number</div><div class='code'>"+d.code+"</div>";}
+else if(d.qr){$("result").innerHTML="<div>WhatsApp → Linked Devices → Link a Device → scan this QR</div><img class='qr' src='data:image/png;base64,"+d.qr+"'>";}
+else show("Status: "+d.status);
+if(d.connected){show("✅ WhatsApp connected successfully. Session: "+d.id);return}
+if(["stopped","error"].includes(d.status))return;setTimeout(poll,1200)}
+</script></body></html>
