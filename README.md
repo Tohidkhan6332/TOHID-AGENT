@@ -41,7 +41,7 @@ Enabled integrations include:
 
 Protected Channel and Group Status mutations require owner authorization and explicit `CONFIRM`.
 
-# 🤖 TOHID-AGENT V9.0
+# 🤖 TOHID-AGENT V10.0
 
 **TOHID-AGENT V9.0** is the futuristic autonomous WhatsApp AI agent architecture by **Tohid**.
 
@@ -586,13 +586,35 @@ Commands:
 The selected language applies to system messages, confirmations, menus, help text and AI responses. Commands, URLs, code, IDs and technical identifiers remain unchanged.
 
 
-## 🎛️ Interface Modes
+## 🎛️ V10 Adaptive UI Engine
 
-The WhatsApp interface supports three per-chat modes:
+V10 replaces the fixed three-mode interface with an adaptive UI engine. The preference is stored per chat in MongoDB settings when available.
 
-- `.mode buttons` — buttons/interactive UI only
-- `.mode text` — text/command UI only
-- `.mode both` — buttons + text/command UI together
-- `.mode` — show the current mode
+Modes:
 
-The default is **both**. The selected mode is stored per chat in settings. Natural-language AI interaction remains available in every mode.
+- `.mode auto` — adaptive UI; chooses the least noisy interface from the current context (**default**).
+- `.mode buttons` — interactive controls for navigation and actions.
+- `.mode text` — text/commands only.
+- `.mode hybrid` — text + interactive controls together.
+- `.mode minimal` — concise text with only essential controls.
+- `.mode` — show the current UI mode.
+
+For backward compatibility, `.mode both` is treated as `hybrid`.
+
+### V10 UI behavior
+
+```text
+User preference
+      ↓
+Adaptive UI Engine
+      ↓
+Current context
+ ┌────┼────────┐
+help navigation actions result
+ ↓       ↓       ↓      ↓
+UI      UI      UI     text
+```
+
+The engine avoids adding buttons to ordinary AI/status replies when they are not useful, while keeping interactive controls for navigation, settings and actionable workflows. If interactive rendering is unavailable, the text path remains available.
+
+The UI engine also supports per-chat language preferences and preserves the existing owner/confirmation security model.
