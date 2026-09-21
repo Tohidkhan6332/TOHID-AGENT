@@ -157,7 +157,10 @@ return "🤖 *TOHID-AGENT V11.0 — COMPLETE HELP*\\n\\n"+
 "• .provider → AI provider status\\n"+
 "• .status → bot status\\n"+
 "• .ping → health check\\n"+
-"• .stats → owner statistics\\n\\n"+
+"• .stats → owner statistics\\n"+
+"• .pair <number> → start an 8-character pairing session\\n"+
+"• .qr <number> → start a QR pairing session\\n"+
+"• .url list/add/switch/remove → manage URLs from WhatsApp\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
 "⚙️ *MENU / SETTINGS*\\n"+
 "• .menu → interactive menu\\n"+
