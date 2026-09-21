@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports={
   developer:"Tohid",
   brand:"TOHID-AGENT",
-  version:"9.0.0",
+  version:"10.0.0",
   defaultLanguage:process.env.BOT_LANGUAGE||"English",
   openaiKey:process.env.OPENAI_API_KEY||"",
   openaiModel:process.env.OPENAI_MODEL||"gpt-5.6-luna",
@@ -57,7 +57,7 @@ module.exports={
   taskVerification:process.env.AGENT_TASK_VERIFICATION!=="false",
   channelLink:process.env.CHANNEL_LINK||"https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T",
   interactiveButtonsEnabled:process.env.INTERACTIVE_BUTTONS_ENABLED!=="false",
-  defaultUIMode:(process.env.BOT_UI_MODE||"both").toLowerCase(),
+  defaultUIMode:(process.env.BOT_UI_MODE||"auto").toLowerCase(),
   baileysExtrasEnabled:process.env.BAILEYS_EXTRAS_ENABLED!=="false",
   debug:process.env.DEBUG==="true",
   githubEnabled:process.env.GITHUB_AGENT_ENABLED!=="false",
