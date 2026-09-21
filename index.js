@@ -55,7 +55,7 @@ function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0
 function normalizeUIMode(value){return ui.normalize(value);}
 async function getUIMode(jid){return ui.get(jid);}
 function normalizeJid(jid){return String(jid||"").split(":")[0];}
-function applyGlobalConfig(values={}){for(const [key,value] of Object.entries(values)){if(Object.prototype.hasOwnProperty.call(cfg,key))cfg[key]=value;}}
+function applyGlobalConfig(values={}){for(const [key,value] of Object.entries(values)){if(!Object.prototype.hasOwnProperty.call(cfg,key))continue;const current=cfg[key];if(typeof current==="boolean")cfg[key]=String(value).toLowerCase()==="true";else if(typeof current==="number")cfg[key]=Number(value);else cfg[key]=value;}}
 function maskConfigValue(key,value){const secret=/(key|token|secret|password|uri)/i.test(String(key));if(secret&&value)return String(value).length>8?String(value).slice(0,4)+"••••"+String(value).slice(-4):"••••";return String(value??"");}
 async function pluginSend(jid,text,ctx={}){return send(activeSocket,jid,text,ctx);}
 async function installPluginFromMessage(jid,sender,msg,text){
