@@ -33,6 +33,7 @@ const pairingManager=require("./lib/pairingManager");
 const pairingWeb=require("./lib/pairingWeb");
 const telegramPairing=require("./lib/telegramPairing");
 const groupGuard=require("./lib/groupGuard");
+const commandCatalog=require("./lib/commandCatalog");
 
 const AUTH=path.resolve(process.env.AUTH_DIR||path.join(process.cwd(),"auth_info_baileys"));
 const TMP=path.join(process.cwd(),"tmp");
@@ -120,82 +121,17 @@ function promo(){return "📢 *TOHID TECH*\n"+cfg.channelLink;}
 function withPromo(text){const s=String(text||"");return s.includes(cfg.channelLink)?s:s+"\\n\\n"+promo();}
 function adminHelp(){return "🛠️ *TOHID AI CONTROL CENTER V11*\n\n👑 .owner list/add/remove/revokeall\n🧩 .plugin list/install/enable/disable/reload/remove/test/logs\n⚙️ .feature list/on/off <name>\n📁 .file list/read/backup/backups/restore/write\n📊 .admin status\n🤖 Send natural-language tasks for the AI planner\n\n🔐 Delegated owners get full owner-level bot control. Only the primary OWNER_NUMBER can add/remove delegated owners.";}
 function help(){
-return "🤖 *TOHID-AGENT V11.0 — COMPLETE HELP*\\n\\n"+
-"👨‍💻 Developer: Tohid\\n"+
-"📢 Channel: "+cfg.channelLink+"\\n\\n"+
-"━━━━━━━━━━━━━━━━━━\\n"+
-"💬 *AI / CHAT*\\n"+
-"• Send any message → AI chat\\n"+
-"• Send an image + caption → image analysis\\n"+
-"• Send a voice note → speech-to-text + AI reply\\n"+
-"• .imagine <prompt> → generate an image\\n"+
-"• .video <prompt> → generate a video\\n"+
-"• .newchat / .reset → clear conversation memory\\n"+
-"• .memory → view memory count\\n"+
-"• .memory on/off → enable or disable memory\\n"+
-"• .voice on/off → enable or disable voice replies\\n\\n"+
-"━━━━━━━━━━━━━━━━━━\\n"+
-"🐙 *GITHUB AGENT*\\n"+
-"Ask naturally to list/search repositories, read files, inspect commits/issues, create branches/issues/PRs, create or edit files, and upload projects.\\n"+
-"Examples:\\n"+
-"• \"Show my GitHub repositories\"\\n"+
-"• \"Read index.js from TOHID-AGENT\"\\n"+
-"• \"Create a GitHub portfolio repository\"\\n"+
-"• \"Upload this project to GitHub\"\\n"+
-"🔐 GitHub write actions require owner authorization + CONFIRM.\\n\\n"+
-"━━━━━━━━━━━━━━━━━━\\n"+
-"🚀 *HOSTING / DEPLOYMENT*\\n"+
-"Supported: *Vercel • Render • Koyeb • Heroku*\\n"+
-"• Show my Vercel projects\\n"+
-"• Show Render services\\n"+
-"• Show Koyeb apps\\n"+
-"• Show Heroku apps\\n"+
-"• Deploy a GitHub project to Vercel\\n"+
-"• Redeploy Render, Koyeb or Heroku projects\\n"+
-"• Check deployment, service, build and release status\\n"+
-"• Manage supported lifecycle actions such as restart, start, stop, scale, pause, resume, rollback and maintenance\\n"+
-"• Delete supported projects, services or apps\\n"+
-"⚠️ Protected hosting changes require owner authorization + CONFIRM.\\n\\n"+
-"━━━━━━━━━━━━━━━━━━\\n"+
-"🧭 *PLANNER / TOOLS*\\n"+
-"• .plan <task> → preview an execution plan\\n"+
-"• .tools → available tools\\n"+
-"• .doctor → configuration diagnostics\\n"+
-"• .provider → AI provider status\\n"+
-"• .status → bot status\\n"+
-"• .ping → health check\\n"+
-"• .stats → owner statistics\\n"+
-"• .pair <number> → start an 8-digit pairing session\\n"+
-"• .qr → start a QR pairing session (no phone number)\\n"+
-"• .url list/add/switch/remove → manage URLs from WhatsApp\\n\\n"+
-"🛡️ *GROUP PROTECTION*\\n"+
-"• .antilink on/off/delete/warn/kick → block links\\n"+
-"• .antilink allow/disallow <number/@mention> or reply → bypass AntiLink for a member\\n"+
-"• .antistatus on/off/delete/warn/kick → block status mentions in groups\\n"+
-"• .antistatus allow/disallow <number/@mention> or reply → bypass AntiStatus for a member\\n"+
-"• .antitag on/off/delete/warn/kick → block member mentions\\n"+
-"• .antitag allow/disallow <number/@mention> or reply → bypass AntiTag for a member\\n"+
-"• .antitagall on/off/delete/warn/kick → block mass/@all mentions\\n"+
-"• .antitagall allow/disallow <number/@mention> or reply → bypass AntiTagAll for a member\\n"+
-"• .antibot on/off/delete/warn/kick → protect against configured bots\\n"+
-"• .antibot add/remove <number> | list | clear → manage bot list\\n"+
-"• .antibot allow/disallow <number/@mention> or reply → bypass AntiBot for a member\\n"+
-"• .antipdm on/off → protect admin promotion/demotion actions\\n"+
-"• .antipdm allow/disallow <number/@mention> or reply → bypass AntiPDM for a member\\n"+
-"• .antibad on/off/delete/warn/kick → block configured bad words\\n"+
-"• .antibad add/remove <word> | list | clear → manage custom AntiBad words\\n"+
-"• .welcome on/off → welcome new group members\\n"+
-"• .goodbye on/off → goodbye when members leave\\n"+
-"• .antibad allow/disallow <number/@mention> or reply → bypass AntiBad for a member\\n\\n"+
-"━━━━━━━━━━━━━━━━━━\\n"+
-"⚙️ *MENU / SETTINGS*\\n"+
-"• .menu → interactive menu\\n"+
-"• .settings → voice and memory settings\\n"+
-"• .profile → profile settings\\n"+
-"• .help → show this complete help\\n\\n"+
-"🔐 *SECURITY*\\n"+
-"API keys, tokens and secret values are never revealed. Missing provider credentials are reported without exposing their values.\\n\\n"+
-"💡 Use natural-language requests; exact command syntax is not required.";
+ return commandCatalog.menuText()+"\\n\\n🧭 *HOW TO USE*\\n\\n"+
+ "• Type any command directly in WhatsApp.\\n"+
+ "• Group protection, welcome and goodbye settings require group admin access.\\n"+
+ "• Allowlist: use a number, @mention, or reply to the member's message.\\n"+
+ "• Protected owner/developer actions may require CONFIRM.\\n\\n"+
+ "Examples:\\n"+
+ "• .antilink allow 919876543210\\n"+
+ "• .antibad add example\\n"+
+ "• .welcome add Welcome @member! | https://example.com/welcome.jpg\\n"+
+ "• .goodbye list\\n"+
+ "• .mode both";
 }
 
 async function sendInteractiveMenu(sock,jid,kind="main"){
@@ -342,7 +278,7 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
         if(action==="__TOHID_HELP_OTHER__"){await send(sock,jid,"🌐 *Other language*\\n\\nUse: .language <language>\\nExample: .language Japanese");continue;}
         if(action==="__TOHID_HELP_HI__"){await buttons.sendHelp(sock,jid,"Hindi");continue;}
         if(action==="__TOHID_HELP_EN__"){await i18n.setLanguage(jid,"English");await buttons.sendHelpByMode(sock,jid,"en",await getUIMode(jid));continue;}
-        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}
+        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}\n        if(action.startsWith("__TOHID_CMD__")){text=action.slice("__TOHID_CMD__".length);}\n
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
