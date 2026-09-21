@@ -27,6 +27,7 @@ const baileysExtras=require("./lib/baileysExtras");
 const rbac=require("./lib/rbac");
 const dashboard=require("./lib/dashboard");
 const doctor=require("./lib/doctor");
+const dmRelay=require("./lib/dmRelay");
 
 const AUTH=path.join(process.cwd(),"auth_info_baileys");
 const TMP=path.join(process.cwd(),"tmp");
@@ -317,6 +318,7 @@ async function main(){
       continue;
     }
     if(await installPluginFromMessage(jid,sender,msg,text))continue;
+    if(group&&await dmRelay.relay({sock,msg,text,downloadMedia,send})){continue;}
     const pluginRoute=router.route(text,cfg.prefix);
     if(pluginRoute==="ai"&&text.trim().startsWith(cfg.prefix)){const command=text.trim().split(/\\s+/)[0].slice(cfg.prefix.length).toLowerCase();if(await plugins.dispatchCommand({sock,jid,sender,message:m,text,command,args:text.trim().split(/\\s+/).slice(1),send:pluginSend,cfg,db})){continue;}}
     await plugins.dispatchMessage({sock,jid,sender,message:m,text,send:pluginSend,cfg,db});
