@@ -312,7 +312,7 @@ When voice mode is enabled, normal AI responses are returned as voice.
 
 ## 🧠 Memory
 
-MongoDB stores:
+MongoDB/PostgreSQL stores:
 
 - conversation memory
 - user profiles
@@ -324,6 +324,8 @@ MongoDB stores:
 - WhatsApp authentication state
 
 Use `.memory clear` when you want to reset the current conversation memory.
+
+If neither `MONGO_URI` nor `POSTGRES_URL` is configured, the bot can still deploy, start, connect to WhatsApp and run stateless features. Commands that require persistent storage return a clear database-required error instead of silently failing.
 
 ## 🩺 Diagnostics
 
@@ -357,7 +359,7 @@ Vercel can host the lightweight API/health layer, but the long-running Baileys w
 
 V8.1 adds deployment-focused safeguards so a Heroku deployment fails early with a useful message instead of starting in a broken state.
 
-- 🔎 **Startup preflight** — validates Node 22, AI provider, owner number and production MongoDB configuration.
+- 🔎 **Startup preflight** — validates Node 22, AI provider, owner number and production MongoDB or PostgreSQL configuration.
 - 🩺 **Real health endpoints** — `/health` and `/healthz` report WhatsApp, MongoDB, AI-provider and optional-integration readiness without exposing secrets.
 - 🧹 **Graceful shutdown** — closes WhatsApp authentication and MongoDB connections during Heroku dyno termination.
 - 📝 **Structured logs** — timestamped INFO/WARN/ERROR runtime logs.
@@ -374,7 +376,8 @@ Use the button below to open Heroku's deployment flow directly from this reposit
 The repository includes a production-ready `app.json`. Heroku reads that file automatically and pre-creates the application's Config Vars, so you **do not need to manually add the variable names one by one**.
 
 **You only need to enter your own secret/account values when Heroku asks for them**, such as:
-- `MONGO_URI` — optional primary MongoDB connection.\n- `POSTGRES_URL` — optional PostgreSQL connection; use this when MongoDB is unavailable or as a secondary database.
+- `MONGO_URI` — optional primary MongoDB connection.
+- `POSTGRES_URL` — optional PostgreSQL connection; use this when MongoDB is unavailable or as a secondary database.
 - `OWNER_NUMBER` — your WhatsApp owner number.
 - `OPENAI_API_KEY` **or** `GEMINI_API_KEY` — at least one AI provider key.
 - `PAIRING_NUMBER` — if using pairing login.
