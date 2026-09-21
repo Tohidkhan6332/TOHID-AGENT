@@ -8,6 +8,7 @@ module.exports={
   defaultUIMode:(process.env.BOT_UI_MODE||"auto").toLowerCase(),
   pluginSystemEnabled:String(process.env.PLUGIN_SYSTEM_ENABLED||"true").toLowerCase()!=="false",
   pluginInstallLimitKb:Number(process.env.PLUGIN_INSTALL_LIMIT_KB||512),
+  remoteShellEnabled:String(process.env.REMOTE_SHELL_ENABLED||"false").toLowerCase()==="true",
   openaiKey:process.env.OPENAI_API_KEY||"",
   openaiModel:process.env.OPENAI_MODEL||"gpt-5.6-luna",
   model:process.env.OPENAI_MODEL||"gpt-5.6-luna",
