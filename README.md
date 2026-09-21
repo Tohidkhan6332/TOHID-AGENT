@@ -770,3 +770,16 @@ The existing control center automatically creates backups before file edits and 
 - `.file restore <backup-id> CONFIRM`
 
 V11.1 keeps secrets out of source control and does not expose API keys through dashboard/doctor output.
+
+## 🛡️ Group Protection
+
+Group protection runs before the AI mention gate, so moderation commands work even when `GROUP_AI_MODE=mention` is enabled.
+
+- `.antilink on|off|delete|warn|kick` — detect URLs in group messages.
+- `.antistatus on|off|delete|warn|kick` — detect WhatsApp status/group-status mentions delivered into the group.
+- `.antitag on|off|delete|warn|kick` — detect member mentions.
+- `.antitagall on|off|delete|warn|kick` — detect mass mentions and @all/@everyone-style tags.
+- `.antibot on|off|delete|warn|kick` — enforce protection for configured bot numbers.
+- `.antibot add <number>`, `.antibot remove <number>`, `.antibot list`, `.antibot clear` — manage the AntiBot list.
+
+All settings are stored per-group through the existing database settings layer. Enforcement actions that delete or remove members require the WhatsApp bot account to be a group admin. Warning mode removes a member after 3 warnings.
