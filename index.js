@@ -507,7 +507,7 @@ async function main(){
       await send(sock,jid,"🛠️ *TOHID AI CONTROL CENTER V11*\n\nWorkspace: "+st.workspace+"\nFeatures: "+st.enabledFeatures+"/"+st.features+" enabled\nBackups: "+st.backups+"\nPlugins: "+plugins.list().length+"\n\n"+adminHelp(),{category:"admin"});continue;
     }
     if(mode==="feature"){
-      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      if(!(await hasPermission(sender,"bot.write"))){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
       const parts=text.trim().split(/\s+/),sub=(parts[1]||"list").toLowerCase(),name=parts[2];
       if(sub==="list"){const f=control.featureList();await send(sock,jid,"⚙️ *FEATURES*\n\n"+(Object.keys(f).length?Object.entries(f).map(([k,v])=>(v?"🟢 ":"⚪ ")+k).join("\n"):"No runtime feature overrides."),{category:"admin"});continue;}
       if(!name||!["on","off"].includes(sub)){await send(sock,jid,"Usage: .feature list | .feature on <name> CONFIRM | .feature off <name> CONFIRM",{category:"utility"});continue;}
@@ -515,7 +515,7 @@ async function main(){
       const value=control.featureSet(name,sub==="on");applyFeatureState();control.audit(sender,"feature:"+sub,{name});await send(sock,jid,"✅ Feature *"+name+"* is now "+(value?"ON":"OFF")+".",{category:"admin"});continue;
     }
     if(mode==="file"){
-      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      if(!(await hasPermission(sender,"files.read"))){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
       const parts=text.trim().split(/\s+/),sub=(parts[1]||"list").toLowerCase(),file=parts[2];
       try{
         if(sub==="list"){const files=control.listFiles(file||"",120);await send(sock,jid,"📁 *WORKSPACE FILES*\n\n"+(files.join("\n")||"No files found."),{category:"admin"});continue;}
@@ -528,9 +528,9 @@ async function main(){
       }catch(e){await send(sock,jid,"❌ File action failed: "+e.message,{category:"error"});}continue;
     }
     if(mode==="plugin"){
-      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      if(!(await hasPermission(sender,"plugins.read"))){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
       const parts=text.trim().split(/\\s+/);const sub=(parts[1]||"list").toLowerCase();const name=parts[2];
-      try{if(sub==="list"){await send(sock,jid,"🧩 *PLUGINS*\\n\\n"+(plugins.list().map(x=>(x.enabled?"🟢 ":"⚪ ")+x.name+" v"+x.version+" — "+(x.commands||[]).join(", ")).join("\\n")||"No plugins installed."),{category:"utility"});continue;}
+      try{if(sub==="search"){const q=parts.slice(2).filter(x=>x.toUpperCase()!=="CONFIRM").join(" ");if(!q){await send(sock,jid,"Usage: .plugin search <query>");continue;}const results=await plugins.searchMarketplace(q);await send(sock,jid,"🔎 *PLUGIN MARKETPLACE*\n\n"+(results.length?results.map((x,i)=>(i+1)+". *"+x.name+"* ⭐ "+x.stars+"\n"+x.description+"\n"+x.url).join("\n\n"):"No matching public plugins found."),{category:"utility"});continue;}if(sub==="list"){await send(sock,jid,"🧩 *PLUGINS*\\n\\n"+(plugins.list().map(x=>(x.enabled?"🟢 ":"⚪ ")+x.name+" v"+x.version+" — "+(x.commands||[]).join(", ")).join("\\n")||"No plugins installed."),{category:"utility"});continue;}
       if(sub==="enable"){const p=await plugins.enable(name,cfg,pluginSend);await send(sock,jid,"🟢 Plugin enabled: "+p.name,{category:"utility"});continue;}
       if(sub==="disable"){const p=plugins.disable(name);await send(sock,jid,"⚪ Plugin disabled: "+(p?.name||name),{category:"utility"});continue;}
       if(sub==="reload"){const p=await plugins.enable(name,cfg,pluginSend);await send(sock,jid,"🔄 Plugin reloaded: "+p.name,{category:"utility"});continue;}\n      if(sub==="test"){const dir=String(name||"").replace(/[^a-z0-9_-]/gi,"-");const source=fs.readFileSync(path.join(plugins.ROOT,dir,"index.js"),"utf8");const t=plugins.testSource(source);await send(sock,jid,"🧪 Plugin test: "+(t.ok?"PASS":"FAIL")+"\n"+(t.warning?"⚠️ "+t.warning:"No privileged API pattern detected."),{category:"utility"});continue;}\n      if(sub==="logs"){await send(sock,jid,"📜 *PLUGIN LOGS*\n\n"+(plugins.logs(name).map(x=>x.at+" — "+x.message).join("\n")||"No logs."),{category:"utility"});continue;}\n      if(sub==="update"){if(!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Plugin update requires CONFIRM.",{category:"security"});continue;}const url=parts[3];if(!name||!url){await send(sock,jid,"Usage: .plugin update <name> <URL> CONFIRM");continue;}const p=await plugins.installFromUrl(url,{name,cfg,send:pluginSend});await send(sock,jid,"⬆️ Plugin updated: *"+p.name+"* v"+p.version,{category:"admin"});continue;}
