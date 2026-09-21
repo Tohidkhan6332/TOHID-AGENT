@@ -784,4 +784,31 @@ Group protection runs before the AI mention gate, so moderation commands work ev
 - `.antipdm on|off` — AntiPDM protection: admin promoting a member causes both the promoting admin and promoted member to lose admin role; admin demoting another admin causes the acting admin to lose admin role while the target remains admin.
 - `.antibad on|off|delete|warn|kick` — detect common English/Hinglish abusive words and enforce the selected action. Admins are exempt.
 
+### 👤 Per-member allowlist
+
+Every anti-protection has its own allowlist. Group admins can manage it directly from WhatsApp; the allowed member does not need to be an admin.
+
+Use the same pattern with any protection name:
+
+```
+.<anti> allow <number>
+.<anti> allow @mention
+Reply to a member's message: .<anti> allow
+
+.<anti> disallow <number>
+.<anti> disallow @mention
+Reply to a member's message: .<anti> disallow
+
+.<anti> allowed
+```
+
+Examples:
+
+```
+.antilink allow 919876543210
+.antistatus allow @919876543210
+.antibad allow
+```
+
+The allowlist is independent for each protection, so allowing a member for AntiLink does not automatically bypass AntiBad, AntiTag, AntiStatus, AntiTagAll, AntiBot or AntiPDM. Group admins are always exempt from these anti-message rules.
 All settings are stored per-group through the existing database settings layer. Enforcement actions that delete or remove members require the WhatsApp bot account to be a group admin. Warning mode removes a member after 3 warnings.
