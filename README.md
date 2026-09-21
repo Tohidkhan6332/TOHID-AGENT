@@ -495,7 +495,9 @@ TOHID-AGENT/
 **Developer: Tohid**  
 **GitHub: Tohidkhan6332**
 
-**Official WhatsApp Channel: TOHID TECH** — https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T
+**Official WhatsApp Channel: TOHID TECH**
+
+<a href="https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T"><img src="https://img.shields.io/badge/Join%20TOHID%20TECH%20WhatsApp%20Channel-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="Join TOHID TECH WhatsApp Channel"></a>
 
 > V7 is structured as an extensible agent core so future integrations can be added as tools instead of tightly coupling new features to the WhatsApp listener.
 
@@ -504,7 +506,7 @@ TOHID-AGENT/
 
 Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANNEL_LINK` to change it.
 
-`https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T`
+<a href="https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T"><img src="https://img.shields.io/badge/Join%20TOHID%20TECH%20WhatsApp%20Channel-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="Join TOHID TECH WhatsApp Channel"></a>
 
 
 ## V7.6 Interactive Buttons
