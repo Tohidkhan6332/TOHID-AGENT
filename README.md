@@ -255,7 +255,20 @@ TOHID-AGENT now supports **multiple independent WhatsApp bot sessions** from the
 .qr 919876543210
 ~~~
 
-.pair requests an 8-character WhatsApp pairing code. .qr starts a QR session. The target number must be a WhatsApp account you own or are authorized to connect.
+.pair requests an 8-digit WhatsApp pairing code. .qr starts a QR session. The target number must be a WhatsApp account you own or are authorized to connect.
+
+### Telegram pairing
+
+Set `TELEGRAM_BOT_TOKEN` in the deployment environment. The Telegram bot then supports:
+
+~~~text
+/pair 919876543210
+/qr 919876543210
+/status
+/stop SESSION_ID
+~~~
+
+`/pair` sends the 8-digit WhatsApp pairing code to Telegram. `/qr` sends the WhatsApp QR image. Telegram uses the same `pairingManager` as the web and WhatsApp interfaces, so no extra WhatsApp socket is created. Pair only WhatsApp accounts you own or are authorized to connect.
 
 ### Web page
 
