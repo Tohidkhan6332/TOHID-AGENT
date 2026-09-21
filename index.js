@@ -278,7 +278,9 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
         if(action==="__TOHID_HELP_OTHER__"){await send(sock,jid,"🌐 *Other language*\\n\\nUse: .language <language>\\nExample: .language Japanese");continue;}
         if(action==="__TOHID_HELP_HI__"){await buttons.sendHelp(sock,jid,"Hindi");continue;}
         if(action==="__TOHID_HELP_EN__"){await i18n.setLanguage(jid,"English");await buttons.sendHelpByMode(sock,jid,"en",await getUIMode(jid));continue;}
-        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}\n        if(action.startsWith("__TOHID_CMD__")){text=action.slice("__TOHID_CMD__".length);}\n
+        if(action==="__TOHID_MENU__"){await sendInteractiveMenu(sock,jid,"main");continue;}
+        if(action.startsWith("__TOHID_CMD__")){text=action.slice("__TOHID_CMD__".length);}
+
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
