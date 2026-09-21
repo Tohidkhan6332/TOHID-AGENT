@@ -44,7 +44,7 @@ scheduler.register("mission",async(job)=>{
   const created=await mission.create(job.jid,p.request||"Scheduled mission",{scheduled:true});
   if(activeSocket){
     const msg="⏰ *Scheduled Mission Started*\\n\\n🆔 "+(created.id||"local")+"\\n🧭 "+(created.request||"")+"\\n📊 Status: "+created.status;
-    await activeSocket.sendMessage(job.jid,{text:withPromo(msg)});
+    await send(activeSocket,job.jid,msg,{category:"utility"});
   }
 });
 
