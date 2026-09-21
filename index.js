@@ -435,7 +435,7 @@ async function main(){
       if(parts.length===1){const p=await db.getProfile(sender);await send(sock,jid,"👤 *TOHID-AGENT V9.0 PROFILE*\\nName: "+(p.name||"Not set")+"\\nBio: "+(p.bio||"Not set")+"\\nLanguage: "+(p.language||"Auto")+"\\n\\nSet: .profile name <name>\\n.profile bio <text>\\n.profile language <language>");continue;}
       const key=parts[1]?.toLowerCase();const value=parts.slice(2).join(" ").trim();
       if(!["name","bio","language"].includes(key)||!value){await send(sock,jid,"Usage: .profile name <name> | .profile bio <text> | .profile language <language>",{category:"utility"});continue;}
-      await db.setProfile(sender,{[key]:value});await send(sock,jid,"✅ Profile "+key+" updated.");continue;
+      await db.setProfile(sender,{[key]:value});if(key==="language")await i18n.setLanguage(jid,value);await send(sock,jid,"✅ Profile "+key+" updated.");continue;
     }
     if(mode==="reset"){await ai.clearMemory(sender);await send(sock,jid,"🧹 Your TOHID-AGENT conversation memory has been cleared.",{category:"memory"});continue;}
     if(mode==="menu"){await sendInteractiveMenu(sock,jid,"main");continue;}
