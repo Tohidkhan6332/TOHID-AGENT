@@ -781,5 +781,6 @@ Group protection runs before the AI mention gate, so moderation commands work ev
 - `.antitagall on|off|delete|warn|kick` — detect mass mentions and @all/@everyone-style tags.
 - `.antibot on|off|delete|warn|kick` — enforce protection for configured bot numbers.
 - `.antibot add <number>`, `.antibot remove <number>`, `.antibot list`, `.antibot clear` — manage the AntiBot list.
+- `.antipdm on|off` — AntiPDM protection: admin promoting a member causes both the promoting admin and promoted member to lose admin role; admin demoting another admin causes the acting admin to lose admin role while the target remains admin.
 
 All settings are stored per-group through the existing database settings layer. Enforcement actions that delete or remove members require the WhatsApp bot account to be a group admin. Warning mode removes a member after 3 warnings.
