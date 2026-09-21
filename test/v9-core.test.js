@@ -28,4 +28,9 @@ assert.strictEqual(validation.warning,null);
 assert.throws(()=>plugins.validateSource("module.exports={"),/Unexpected token|Unexpected end/);
 assert.ok(Array.isArray(plugins.list()));
 console.log("V10 plugin manager tests passed.");
-\nconst controlStatus=control.status();\nassert.strictEqual(controlStatus.controlVersion,"11.0");\nassert.ok(Array.isArray(control.listFiles(".")));\nassert.ok(typeof control.featureEnabled("missing-feature",true)==="boolean");\nconsole.log("V11 control center tests passed.");\n
+
+const controlStatus=control.status();
+assert.strictEqual(controlStatus.controlVersion,"11.0");
+assert.ok(Array.isArray(control.listFiles(".")));
+assert.ok(typeof control.featureEnabled("missing-feature",true)==="boolean");
+console.log("V11 control center tests passed.");\n
