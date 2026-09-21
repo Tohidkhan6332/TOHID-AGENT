@@ -270,7 +270,24 @@ async function main(){
   }
  });
 
- sock.ev.on("group-participants.update",async(update)=>{\n  try{await groupGuard.handleParticipantUpdate({sock,id:update.id,participants:update.participants,action:update.action,author:update.author,authorPn:update.authorPn,db,send});}\n  catch(e){log.warn("Group protection participant handler failed",{message:e?.message});}\n });\n\n sock.ev.on("messages.upsert",async({messages,type})=>{
+ sock.ev.on("group-participants.update",async(update)=>{
+  try{
+    await groupGuard.handleParticipantUpdate({
+      sock,
+      id:update.id,
+      participants:update.participants,
+      action:update.action,
+      author:update.author,
+      authorPn:update.authorPn,
+      db,
+      send
+    });
+  }catch(e){
+    log.warn("Group protection participant handler failed",{message:e?.message});
+  }
+});
+
+sock.ev.on("messages.upsert",async({messages,type})=>{
   if(type!=="notify"&&type!=="append")return;
   console.log("📩 WhatsApp messages.upsert: type="+type+" count="+messages.length);
   for(const m of messages){
