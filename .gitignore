@@ -7,3 +7,6 @@ auth_info_baileys/
 tmp/
 tmp-*
 .DS_Store
+
+.tohid-sessions/
+.tohid-control/urls.json
