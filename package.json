@@ -1,6 +1,6 @@
 {
   "name": "tohid-agent-whatsapp",
-  "version": "11.0.0",
+  "version": "11.2.0",
   "private": true,
   "description": "TOHID-AGENT V11 — WhatsApp AI Command Center, plugins, files, backups and autonomous agent by Tohid",
   "main": "index.js",
@@ -25,6 +25,7 @@
     "pino": "^9.13.0",
     "qrcode-terminal": "^0.12.0",
     "gifted-btns": "1.0.2",
-    "@whiskeysockets/baileys": "7.2.0-rc14"
+    "@whiskeysockets/baileys": "7.2.0-rc14",
+    "pg": "^8.16.3"
   }
 }
