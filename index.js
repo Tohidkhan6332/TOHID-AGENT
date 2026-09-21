@@ -17,6 +17,7 @@ const menu=require("./lib/menu");
 const buttons=require("./lib/buttons");
 const ui=require("./lib/uiEngine");
 const plugins=require("./lib/pluginManager");
+const control=require("./lib/controlCenter");
 const i18n=require("./lib/i18n");
 const preflight=require("./lib/preflight");
 const log=require("./lib/logger");
@@ -96,7 +97,7 @@ async function mongoAuth(){
 
 function promo(){return "📢 *TOHID TECH*\n"+cfg.channelLink;}
 function withPromo(text){const s=String(text||"");return s.includes(cfg.channelLink)?s:s+"\\n\\n"+promo();}
-function help(){
+function adminHelp(){return "🛠️ *TOHID AI CONTROL CENTER V11*\n\n🧩 .plugin list/install/enable/disable/reload/remove/test/logs\n⚙️ .feature list/on/off <name>\n📁 .file list/read/backup/backups/restore/write\n📊 .admin status\n🤖 Send natural-language tasks for the AI planner\n\n🔐 File writes/restores and plugin runtime changes require owner authorization + CONFIRM.";}\nfunction help(){
 return "🤖 *TOHID-AGENT V10.0 — COMPLETE HELP*\\n\\n"+
 "👨‍💻 Developer: Tohid\\n"+
 "📢 Channel: "+cfg.channelLink+"\\n\\n"+
@@ -461,13 +462,39 @@ async function main(){
       if(!allowedShell.test(command)){await send(sock,jid,"❌ Command not allowed by the V10 safety allowlist.",{category:"security"});continue;}
       await new Promise(resolve=>execFile("/bin/sh",["-lc",command],{timeout:30000,maxBuffer:200000},async(err,stdout,stderr)=>{const out=(err?stderr:stdout)||err?.message||"OK";await send(sock,jid,"🖥️ *SHELL RESULT*\\n\\n"+out.slice(0,12000),{category:"status"});resolve();}));continue;
     }
+    if(mode==="admin"){
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      const st=control.status();
+      await send(sock,jid,"🛠️ *TOHID AI CONTROL CENTER V11*\n\nWorkspace: "+st.workspace+"\nFeatures: "+st.enabledFeatures+"/"+st.features+" enabled\nBackups: "+st.backups+"\nPlugins: "+plugins.list().length+"\n\n"+adminHelp(),{category:"admin"});continue;
+    }
+    if(mode==="feature"){
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      const parts=text.trim().split(/\s+/),sub=(parts[1]||"list").toLowerCase(),name=parts[2];
+      if(sub==="list"){const f=control.featureList();await send(sock,jid,"⚙️ *FEATURES*\n\n"+(Object.keys(f).length?Object.entries(f).map(([k,v])=>(v?"🟢 ":"⚪ ")+k).join("\n"):"No runtime feature overrides."),{category:"admin"});continue;}
+      if(!name||!["on","off"].includes(sub)){await send(sock,jid,"Usage: .feature list | .feature on <name> CONFIRM | .feature off <name> CONFIRM",{category:"utility"});continue;}
+      if(!text.toUpperCase().includes("CONFIRM")){await send(sock,jid,"🔐 Feature changes require CONFIRM.",{category:"security"});continue;}
+      const value=control.featureSet(name,sub==="on");control.audit(sender,"feature:"+sub,{name});await send(sock,jid,"✅ Feature *"+name+"* is now "+(value?"ON":"OFF")+".",{category:"admin"});continue;
+    }
+    if(mode==="file"){
+      if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
+      const parts=text.trim().split(/\s+/),sub=(parts[1]||"list").toLowerCase(),file=parts[2];
+      try{
+        if(sub==="list"){const files=control.listFiles(file||"",120);await send(sock,jid,"📁 *WORKSPACE FILES*\n\n"+(files.join("\n")||"No files found."),{category:"admin"});continue;}
+        if(sub==="read"){if(!file){await send(sock,jid,"Usage: .file read <path>");continue;}const q=control.readFile(file,1,220);await send(sock,jid,"📄 *"+q.file+"*\n\n```\n"+q.text.slice(0,10000)+"\n```",{category:"code"});continue;}
+        if(sub==="backup"){if(!file){await send(sock,jid,"Usage: .file backup <path>");continue;}const b=control.backupFile(file,"manual");control.audit(sender,"file:backup",{file});await send(sock,jid,"💾 Backup created: *"+b.id+"*",{category:"admin"});continue;}
+        if(sub==="backups"){const list=control.listBackups(file);await send(sock,jid,"💾 *BACKUPS*\n\n"+(list.map(x=>x.id+" — "+x.file+" — "+x.createdAt).join("\n")||"No backups."),{category:"admin"});continue;}
+        if(sub==="restore"){const id=parts[2];if(!id||!text.toUpperCase().includes("CONFIRM")){await send(sock,jid,"🔐 Usage: .file restore <backup-id> CONFIRM",{category:"security"});continue;}const restored=control.restoreBackup(id,true);control.audit(sender,"file:restore",{id,restored});await send(sock,jid,"♻️ Restored: *"+restored+"*",{category:"admin"});continue;}
+        if(sub==="write"){if(!file||!text.toUpperCase().includes("CONFIRM")){await send(sock,jid,"🔐 Usage: .file write <path> CONFIRM followed by a code block.",{category:"security"});continue;}const m=text.match(/```(?:javascript|js|json|text)?\s*([\s\S]*?)```/i);if(!m){await send(sock,jid,"❌ Put the new file content inside a code block.");continue;}const written=control.writeFile(file,m[1],true);control.audit(sender,"file:write",{file:written});await send(sock,jid,"✅ File updated: *"+written+"*\n💾 Previous version was backed up automatically.",{category:"admin"});continue;}
+        await send(sock,jid,"Usage: .file list [dir] | .file read <path> | .file backup <path> | .file backups [path] | .file restore <id> CONFIRM | .file write <path> CONFIRM",{category:"utility"});
+      }catch(e){await send(sock,jid,"❌ File action failed: "+e.message,{category:"error"});}continue;
+    }
     if(mode==="plugin"){
       if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only.",{category:"security"});continue;}
       const parts=text.trim().split(/\\s+/);const sub=(parts[1]||"list").toLowerCase();const name=parts[2];
       try{if(sub==="list"){await send(sock,jid,"🧩 *PLUGINS*\\n\\n"+(plugins.list().map(x=>(x.enabled?"🟢 ":"⚪ ")+x.name+" v"+x.version+" — "+(x.commands||[]).join(", ")).join("\\n")||"No plugins installed."),{category:"utility"});continue;}
       if(sub==="enable"){const p=await plugins.enable(name,cfg,pluginSend);await send(sock,jid,"🟢 Plugin enabled: "+p.name,{category:"utility"});continue;}
       if(sub==="disable"){const p=plugins.disable(name);await send(sock,jid,"⚪ Plugin disabled: "+(p?.name||name),{category:"utility"});continue;}
-      if(sub==="reload"){const p=await plugins.enable(name,cfg,pluginSend);await send(sock,jid,"🔄 Plugin reloaded: "+p.name,{category:"utility"});continue;}
+      if(sub==="reload"){const p=await plugins.enable(name,cfg,pluginSend);await send(sock,jid,"🔄 Plugin reloaded: "+p.name,{category:"utility"});continue;}\n      if(sub==="test"){const dir=String(name||"").replace(/[^a-z0-9_-]/gi,"-");const source=fs.readFileSync(path.join(plugins.ROOT,dir,"index.js"),"utf8");const t=plugins.testSource(source);await send(sock,jid,"🧪 Plugin test: "+(t.ok?"PASS":"FAIL")+"\n"+(t.warning?"⚠️ "+t.warning:"No privileged API pattern detected."),{category:"utility"});continue;}\n      if(sub==="logs"){await send(sock,jid,"📜 *PLUGIN LOGS*\n\n"+(plugins.logs(name).map(x=>x.at+" — "+x.message).join("\n")||"No logs."),{category:"utility"});continue;}
       if(sub==="remove"){if(!parts.some(x=>x.toUpperCase()==="CONFIRM")){await send(sock,jid,"🔐 Plugin removal requires CONFIRM.",{category:"security"});continue;}plugins.remove(name);await send(sock,jid,"🗑️ Plugin removed: "+name,{category:"admin"});continue;}
       await send(sock,jid,"Usage: .plugin list | .plugin install <URL> <name> CONFIRM | send .js file with caption .plugin install <name> CONFIRM | .plugin enable/disable/reload/remove <name>",{category:"utility"});
       }catch(e){await send(sock,jid,"❌ Plugin action failed: "+e.message,{category:"error"});}continue;
