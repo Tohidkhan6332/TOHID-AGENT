@@ -52,7 +52,8 @@ scheduler.register("mission",async(job)=>{
 function isOwner(jid){return !!cfg.ownerNumber&&jid.split("@")[0].replace(/\D/g,"")===cfg.ownerNumber;}
 function allowed(jid){const now=Date.now(),bucket=rate.get(jid)||{at:now,count:0};if(now-bucket.at>60000){bucket.at=now;bucket.count=0;}bucket.count++;rate.set(jid,bucket);return bucket.count<=cfg.rateLimitPerMinute;}
 function normalizeUIMode(value){return ui.normalize(value);}
-async function getUIMode(jid){return ui.get(jid);}\nfunction normalizeJid(jid){return String(jid||"").split(":")[0];}
+async function getUIMode(jid){return ui.get(jid);}
+function normalizeJid(jid){return String(jid||"").split(":")[0];}
 async function downloadMedia(message,type){const stream=await downloadContentFromMessage(message,type);const chunks=[];for await(const c of stream)chunks.push(c);return Buffer.concat(chunks);}
 async function send(sock,jid,text,ctx={}){
  const category=ctx.category||null;
