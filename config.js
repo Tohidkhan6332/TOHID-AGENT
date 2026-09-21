@@ -72,5 +72,7 @@ module.exports={
   hostingEnabled:process.env.HOSTING_AGENT_ENABLED!=="false",
   strictProduction:process.env.STRICT_PRODUCTION!=="false",
   missionSchedulerEnabled:process.env.MISSION_SCHEDULER_ENABLED!=="false",
-  missionPollIntervalMs:Number(process.env.MISSION_POLL_INTERVAL_MS||60000)
+  missionPollIntervalMs:Number(process.env.MISSION_POLL_INTERVAL_MS||60000),
+  telegramBotToken:process.env.TELEGRAM_BOT_TOKEN||"",
+  telegramPairingEnabled:String(process.env.TELEGRAM_PAIRING_ENABLED||"true").toLowerCase()!=="false"
 };
