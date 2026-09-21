@@ -32,6 +32,7 @@ const urlManager=require("./lib/urlManager");
 const pairingManager=require("./lib/pairingManager");
 const pairingWeb=require("./lib/pairingWeb");
 const telegramPairing=require("./lib/telegramPairing");
+const groupGuard=require("./lib/groupGuard");
 
 const AUTH=path.resolve(process.env.AUTH_DIR||path.join(process.cwd(),"auth_info_baileys"));
 const TMP=path.join(process.cwd(),"tmp");
@@ -309,6 +310,10 @@ async function main(){
       }
     }
     const group=jid.endsWith("@g.us");
+    if(group){
+      if(await groupGuard.handleCommand({sock,msg:m,jid,sender,text,db,send}))continue;
+      if(await groupGuard.inspect({sock,msg:m,jid,sender,text,db,send}))continue;
+    }
     if(group&&cfg.groupMode==="mention"){
       const mentioned=msg.extendedTextMessage?.contextInfo?.mentionedJid||msg.imageMessage?.contextInfo?.mentionedJid||[];
       const botId=normalizeJid(sock.user?.id);
