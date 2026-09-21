@@ -32,7 +32,8 @@ const rate=new Map();
 let maintenance=false;
 let activeSocket=null;
 let activeCloseAuth=async()=>{};
-let shuttingDown=false;\nconst delegatedOwners=new Set(cfg.delegatedOwnerNumbers||[]);
+let shuttingDown=false;
+const delegatedOwners=new Set(cfg.delegatedOwnerNumbers||[]);
 
 function parseDelay(value){
   const m=String(value||"").trim().match(/^(\d+)\s*(s|m|h|d)$/i);
