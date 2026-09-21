@@ -461,16 +461,16 @@ async function main(){
     if(mode==="pair"||mode==="qr"){
       if(!isOwner(sender)){await send(sock,jid,"⛔ Owner only. Use the pairing website for your own account.",{category:"security"});continue;}
       const parts=text.trim().split(/\s+/);const number=parts[1]||"";const method=mode==="qr"?"qr":"pairing";
-      if(!number){await send(sock,jid,"Usage: "+cfg.prefix+mode+" <country-code-number>\nExample: "+cfg.prefix+mode+" 919876543210",{category:"utility"});continue;}
+      if(!number){await send(sock,jid,"Usage: "+cfg.prefix+mode+" <country-code-number>\\nExample: "+cfg.prefix+mode+" 919876543210",{category:"utility"});continue;}
       try{
         const session=pairingManager.create({phone:number,mode,env:{}});
-        await send(sock,jid,"🔗 *TOHID-AGENT "+method.toUpperCase()+" SESSION*\n\n📱 Number: "+session.phone+"\n🆔 Session: "+session.id+"\n⏳ Waiting for WhatsApp…\n\nThe pairing code/QR will appear here when ready.",{category:"utility"});
+        await send(sock,jid,"🔗 *TOHID-AGENT "+method.toUpperCase()+" SESSION*\\n\\n📱 Number: "+session.phone+"\\n🆔 Session: "+session.id+"\\n⏳ Waiting for WhatsApp…\\n\\nThe pairing code/QR will appear here when ready.",{category:"utility"});
         const waitUntil=Date.now()+120000;
         while(Date.now()<waitUntil){
           await new Promise(r=>setTimeout(r,1000));const current=pairingManager.get(session.id);if(!current)break;
-          if(current.code){await send(sock,jid,"🔐 *PAIRING CODE*\n\n"+current.code+"\n\nWhatsApp → Linked Devices → Link with phone number → enter the 8-character code.",{category:"security"});break;}
-          if(current.qr&&method==="qr"){await send(sock,jid,"📱 *QR READY*\n\nOpen WhatsApp → Linked Devices → Link a device and scan the QR shown at the web pairing page.\n\nWeb: /pair",{category:"utility"});break;}
-          if(current.connected){await send(sock,jid,"✅ *Bot connected successfully*\n\nNumber: "+current.phone,{category:"utility"});break;}
+          if(current.code){await send(sock,jid,"🔐 *PAIRING CODE*\\n\\n"+current.code+"\\n\\nWhatsApp → Linked Devices → Link with phone number → enter the 8-character code.",{category:"security"});break;}
+          if(current.qr&&method==="qr"){await send(sock,jid,"📱 *QR READY*\\n\\nOpen WhatsApp → Linked Devices → Link a device and scan the QR shown at the web pairing page.\\n\\nWeb: /pair",{category:"utility"});break;}
+          if(current.connected){await send(sock,jid,"✅ *Bot connected successfully*\\n\\nNumber: "+current.phone,{category:"utility"});break;}
           if(["stopped","error"].includes(current.status))break;
         }
       }catch(e){await send(sock,jid,"❌ Pairing failed: "+e.message,{category:"error"});}
@@ -483,12 +483,12 @@ async function main(){
       try{
         if(sub==="list"){
           const data=await urlManager.list(db);const rows=Object.entries(data.items||{}).map(([k,v])=>(k===data.active?"• ":"  ")+k+" → "+v);
-          await send(sock,jid,"🔗 *URL MANAGER*\n\n"+(rows.join("\n")||"No URLs configured.")+"\n\nActive: "+(data.active||"none")+"\n\nUse .url add <name> <url>\n.url switch <name>\n.url remove <name>",{category:"admin"});continue;
+          await send(sock,jid,"🔗 *URL MANAGER*\\n\\n"+(rows.join("\\n")||"No URLs configured.")+"\\n\\nActive: "+(data.active||"none")+"\\n\\nUse .url add <name> <url>\\n.url switch <name>\\n.url remove <name>",{category:"admin"});continue;
         }
         if(sub==="add"||sub==="set"||sub==="switch"){
-          if(sub==="switch"){const result=await urlManager.switchUrl(db,parts[2]);await send(sock,jid,"✅ Active URL switched to *"+result.key+"*\n"+result.url,{category:"admin"});continue;}
+          if(sub==="switch"){const result=await urlManager.switchUrl(db,parts[2]);await send(sock,jid,"✅ Active URL switched to *"+result.key+"*\\n"+result.url,{category:"admin"});continue;}
           const key=parts[2],value=parts[3];if(!key||!value){await send(sock,jid,"Usage: .url "+sub+" <name> <https-url>",{category:"utility"});continue;}
-          const result=await urlManager.add(db,key,value);await send(sock,jid,"✅ URL saved: *"+result.key+"*\n"+result.url+"\nStorage: "+(result.persistent?"persistent":"runtime/local"),{category:"admin"});continue;
+          const result=await urlManager.add(db,key,value);await send(sock,jid,"✅ URL saved: *"+result.key+"*\\n"+result.url+"\\nStorage: "+(result.persistent?"persistent":"runtime/local"),{category:"admin"});continue;
         }
         if(sub==="remove"||sub==="delete"){
           const ok=await urlManager.remove(db,parts[2]);await send(sock,jid,ok?"🗑️ URL removed.":"❌ URL not found.",{category:"admin"});continue;
