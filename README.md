@@ -51,7 +51,7 @@ V8.1 moves TOHID-AGENT toward a modular personal-agent platform instead of a com
 
 - 🧠 **Autonomous Agent Core** — structured task planning, risk classification and verification gates.
 - 🧩 **Modular Skill Registry** — core, memory, GitHub, DevOps, vision, voice, media, planner and security skills.
-- 📋 **Tracked Agent Tasks** — MongoDB-backed task history and audit events.
+- 📋 **Tracked Agent Tasks** — database-backed task history and audit events.
 - 🛡️ **Safety Engine** — read/write/deploy/delete/config risk classification with confirmation for external side effects.
 - 🩺 **Agent Health** — provider, integration, planner and safety capability status.
 - 🌍 **AI Language Layer** — English master help with on-demand AI translation for other languages.
@@ -127,7 +127,7 @@ Commands:
 - `.schedules` — list scheduled missions.
 - `.schedule cancel <id>` — cancel a scheduled mission.
 
-The V9 scheduler is MongoDB-backed and uses bounded polling. Scheduled jobs do not bypass the existing permission model: protected GitHub, hosting, configuration and destructive actions still require the normal authorization and confirmation gates.
+The V9 scheduler is database-backed and uses bounded polling. Scheduled jobs do not bypass the existing permission model: protected GitHub, hosting, configuration and destructive actions still require the normal authorization and confirmation gates.
 
 ### V9 architecture
 
@@ -374,7 +374,7 @@ Use the button below to open Heroku's deployment flow directly from this reposit
 The repository includes a production-ready `app.json`. Heroku reads that file automatically and pre-creates the application's Config Vars, so you **do not need to manually add the variable names one by one**.
 
 **You only need to enter your own secret/account values when Heroku asks for them**, such as:
-- `MONGO_URI` — required for persistent MongoDB auth, memory and task history.
+- `MONGO_URI` — optional primary MongoDB connection.\n- `POSTGRES_URL` — optional PostgreSQL connection; use this when MongoDB is unavailable or as a secondary database.
 - `OWNER_NUMBER` — your WhatsApp owner number.
 - `OPENAI_API_KEY` **or** `GEMINI_API_KEY` — at least one AI provider key.
 - `PAIRING_NUMBER` — if using pairing login.
