@@ -117,7 +117,8 @@ async function databaseAuth(){
 
 function promo(){return "📢 *TOHID TECH*\n"+cfg.channelLink;}
 function withPromo(text){const s=String(text||"");return s.includes(cfg.channelLink)?s:s+"\\n\\n"+promo();}
-function adminHelp(){return "🛠️ *TOHID AI CONTROL CENTER V11*\n\n👑 .owner list/add/remove/revokeall\n🧩 .plugin list/install/enable/disable/reload/remove/test/logs\n⚙️ .feature list/on/off <name>\n📁 .file list/read/backup/backups/restore/write\n📊 .admin status\n🤖 Send natural-language tasks for the AI planner\n\n🔐 Delegated owners get full owner-level bot control. Only the primary OWNER_NUMBER can add/remove delegated owners.";}\nfunction help(){
+function adminHelp(){return "🛠️ *TOHID AI CONTROL CENTER V11*\n\n👑 .owner list/add/remove/revokeall\n🧩 .plugin list/install/enable/disable/reload/remove/test/logs\n⚙️ .feature list/on/off <name>\n📁 .file list/read/backup/backups/restore/write\n📊 .admin status\n🤖 Send natural-language tasks for the AI planner\n\n🔐 Delegated owners get full owner-level bot control. Only the primary OWNER_NUMBER can add/remove delegated owners.";}
+function help(){
 return "🤖 *TOHID-AGENT V11.0 — COMPLETE HELP*\\n\\n"+
 "👨‍💻 Developer: Tohid\\n"+
 "📢 Channel: "+cfg.channelLink+"\\n\\n"+
