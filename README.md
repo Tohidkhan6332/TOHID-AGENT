@@ -263,7 +263,7 @@ Set `TELEGRAM_BOT_TOKEN` in the deployment environment. The Telegram bot then su
 
 ~~~text
 /pair 919876543210
-/qr 919876543210
+/qr
 /status
 /stop SESSION_ID
 ~~~
@@ -279,8 +279,8 @@ https://YOUR-HOST/pair
 ~~~
 
 The page supports:
-- phone number input
-- Pairing Code mode
+- phone number input for Pairing Code mode
+- QR mode without a phone number
 - QR mode
 - optional per-session ENV JSON
 - live pairing status
