@@ -3,7 +3,7 @@ require("dotenv").config();
 module.exports={
   developer:"Tohid",
   brand:"TOHID-AGENT",
-  version:"11.1.0",
+  version:"11.2.0",
   defaultLanguage:process.env.BOT_LANGUAGE||"English",
   defaultUIMode:(process.env.BOT_UI_MODE||"auto").toLowerCase(),
   pluginSystemEnabled:String(process.env.PLUGIN_SYSTEM_ENABLED||"true").toLowerCase()!=="false",
