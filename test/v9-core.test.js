@@ -33,7 +33,8 @@ const controlStatus=control.status();
 assert.strictEqual(controlStatus.controlVersion,"11.0");
 assert.ok(Array.isArray(control.listFiles(".")));
 assert.ok(typeof control.featureEnabled("missing-feature",true)==="boolean");
-console.log("V11 control center tests passed.");\n
+console.log("V11 control center tests passed.");
+
 const pairing=require("../lib/pairingManager");
 assert.throws(()=>pairing.create({mode:"pairing"}),/Phone number/);
 assert.throws(()=>pairing.create({mode:"qr",phone:"919876543210"}),/does not require/);
