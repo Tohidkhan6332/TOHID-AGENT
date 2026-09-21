@@ -219,7 +219,7 @@ async function main(){
       for(let attempt=1;attempt<=3&&!state.creds.registered;attempt++){
         try{
           await new Promise(r=>setTimeout(r,1000));
-          const code=await sock.requestPairingCode(number);
+          const code=await sock.requestPairingCode(number,process.env.PAIRING_CODE||undefined);
           try{if(process.send)process.send({type:"pairing-code",code:String(code)});}catch{}
           console.log("\n🔐 WHATSAPP PAIRING CODE: "+code);
           console.log("📱 WhatsApp → Settings → Linked Devices → Link a Device → Link with phone number");
