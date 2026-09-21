@@ -138,10 +138,10 @@ return "🤖 *TOHID-AGENT V11.0 — COMPLETE HELP*\\n\\n"+
 "🐙 *GITHUB AGENT*\\n"+
 "Ask naturally to list/search repositories, read files, inspect commits/issues, create branches/issues/PRs, create or edit files, and upload projects.\\n"+
 "Examples:\\n"+
-"• \\"Show my GitHub repositories\\"\\n"+
-"• \\"Read index.js from TOHID-AGENT\\"\\n"+
-"• \\"Create a GitHub portfolio repository\\"\\n"+
-"• \\"Upload this project to GitHub\\"\\n"+
+"• \"Show my GitHub repositories\"\\n"+
+"• \"Read index.js from TOHID-AGENT\"\\n"+
+"• \"Create a GitHub portfolio repository\"\\n"+
+"• \"Upload this project to GitHub\"\\n"+
 "🔐 GitHub write actions require owner authorization + CONFIRM.\\n\\n"+
 "━━━━━━━━━━━━━━━━━━\\n"+
 "🚀 *HOSTING / DEPLOYMENT*\\n"+
