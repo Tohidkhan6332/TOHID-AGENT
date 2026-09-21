@@ -172,7 +172,7 @@ async function main(){
  check.warnings.forEach(x=>log.warn(x));
  log.info("Starting TOHID-AGENT V10.0",preflight.safeSummary());
  let auth,closeAuth=async()=>{};
- if(cfg.mongoUri){auth=await mongoAuth();closeAuth=auth.close;await db.connect();console.log("☁️ MongoDB auth + memory enabled.");}
+ if(cfg.mongoUri){auth=await mongoAuth();closeAuth=auth.close;await db.connect();const globalConfig=await db.getGlobalConfig();applyGlobalConfig(globalConfig);applyFeatureState();console.log("☁️ MongoDB auth + memory enabled.");}
  else{auth=await useMultiFileAuthState(AUTH);console.log("⚠️ Local auth enabled; set MONGO_URI for persistent auth.");}
  const{state,saveCreds}=auth;
  const{version}=await fetchLatestBaileysVersion();
