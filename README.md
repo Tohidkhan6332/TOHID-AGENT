@@ -871,31 +871,48 @@ All settings are stored per-group through the existing database settings layer. 
 
 ## 🚀 Group AI Security OS
 
-TOHID-AGENT now includes an advanced WhatsApp-native Group AI/Security layer. It works alongside the existing Group Policy Engine and keeps moderation controls group-scoped.
+TOHID-AGENT includes an advanced WhatsApp-native Group AI/Security layer.
+
+### Group mute vs member message mute
+
+- `.mute [duration]` — **mutes the entire group**. Members cannot send messages while the group is muted; admins remain allowed. Without a duration, the group mute stays until `.unmute`.
+- `.unmute` — **unmutes the entire group** and restores normal messaging.
+- `.msgmute @member <duration> [reason]` — **mutes only one member's messages**. The bot deletes that member's messages while the mute is active; other members are unaffected.
+- `.msgunmute @member` — removes that member's message mute.
+- `.msgmuted` — lists active per-member message mutes.
+
+Examples:
+```
+.mute 10m
+.unmute
+
+.msgmute @member 10m spam
+.msgunmute @member
+.msgmuted
+```
+
+> WhatsApp does not expose an individual per-member "send messages" permission. Therefore `.msgmute` is enforced by the bot deleting that member's messages while the mute is active. The group-level `.mute` uses the group's all-content lock.
 
 ### Anti-spam & moderation
 - `.antispam on|off|delete|warn|mute|kick` — flood/repeat-message protection.
 - `.antispam 6 8s` — configure the spam threshold/window.
-- `.mute @member 10m` / `.unmute @member` / `.muted` — temporary member mute.
 - `.raid on|off|status` — raid detection for rapid joins.
 - `.raid lockdown 10` / `.raid unlock` — emergency lockdown.
 
 ### Verification
-- `.verification on|off|status` — new-member verification mode.
-- `.verify` — member completes verification after joining.
+- `.verification on|off|status` — new-member verification.
+- `.verify` — member completes verification.
 
 ### Scheduled group policy
 - `.schedule lock links 23:00` — schedule a group lock.
 - `.schedule unlock links 07:00` — schedule an unlock.
-- Scheduled rules are persisted per group and applied when group activity reaches the scheduled time.
 
 ### Analytics
-- `.activity` — message/moderation/join activity counters.
-- `.topchatters` — top active members from tracked group activity.
-- `.modstats` — moderation event breakdown.
-- `.groupstats` — group membership/security overview.
+- `.activity` — group activity analytics.
+- `.topchatters` — top active members.
+- `.modstats` — moderation analytics.
 
 ### Expanded locks
 The Group Control Center supports links, media, images, video, audio, voice, documents, stickers, forwards, polls, contacts, locations, new members, mentions and all-content lockdown.
 
-All of these commands are included in the interactive/text command catalog, so `.menu` and `.help` show the command plus a usage example. Dangerous moderation actions remain dependent on the bot being a group admin.
+All of these commands are included in the interactive/text command catalog, so `.menu` and `.help` show the command plus a usage example.
