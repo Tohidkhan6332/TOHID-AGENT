@@ -916,3 +916,30 @@ Examples:
 The Group Control Center supports links, media, images, video, audio, voice, documents, stickers, forwards, polls, contacts, locations, new members, mentions and all-content lockdown.
 
 All of these commands are included in the interactive/text command catalog, so `.menu` and `.help` show the command plus a usage example.
+
+
+## 🧠 V11.2 Natural Command + Agent Control
+
+TOHID-AGENT now accepts routine bot controls as normal WhatsApp messages — the command prefix is optional for common operations.
+
+Examples:
+- `menu` / `show my menu`
+- `turn on antilink`
+- `disable anti spam`
+- `mute the whole group for 10m`
+- `unmute the group`
+- `mute @member for 10m` → per-member `msgmute`
+- `unmute @member` → per-member `msgunmute`
+- `show muted members`
+- `lock links`
+- `set group security strict`
+- `show dashboard`
+- `change language to Hindi`
+
+The deterministic command bridge handles clear, supported intents first. Complex requests continue to the AI agent, which can use the existing GitHub, hosting, WhatsApp and planner tools. Protected external actions keep the existing owner/CONFIRM security gates.
+
+### 🔘 Next-level confirmation UX
+
+When a protected AI action is prepared, TOHID-AGENT can show native **Confirm** and **Cancel** buttons. The buttons execute the same existing confirmation flow; they do not bypass authorization or confirmation checks.
+
+Text commands remain fully supported, so the new control layer is backward compatible.
