@@ -867,3 +867,35 @@ Examples:
 
 The allowlist is independent for each protection, so allowing a member for AntiLink does not automatically bypass AntiBad, AntiTag, AntiStatus, AntiTagAll, AntiBot or AntiPDM. Group admins are always exempt from these anti-message rules.
 All settings are stored per-group through the existing database settings layer. Enforcement actions that delete or remove members require the WhatsApp bot account to be a group admin. Warning mode removes a member after 3 warnings.
+
+
+## 🚀 Group AI Security OS
+
+TOHID-AGENT now includes an advanced WhatsApp-native Group AI/Security layer. It works alongside the existing Group Policy Engine and keeps moderation controls group-scoped.
+
+### Anti-spam & moderation
+- `.antispam on|off|delete|warn|mute|kick` — flood/repeat-message protection.
+- `.antispam 6 8s` — configure the spam threshold/window.
+- `.mute @member 10m` / `.unmute @member` / `.muted` — temporary member mute.
+- `.raid on|off|status` — raid detection for rapid joins.
+- `.raid lockdown 10` / `.raid unlock` — emergency lockdown.
+
+### Verification
+- `.verification on|off|status` — new-member verification mode.
+- `.verify` — member completes verification after joining.
+
+### Scheduled group policy
+- `.schedule lock links 23:00` — schedule a group lock.
+- `.schedule unlock links 07:00` — schedule an unlock.
+- Scheduled rules are persisted per group and applied when group activity reaches the scheduled time.
+
+### Analytics
+- `.activity` — message/moderation/join activity counters.
+- `.topchatters` — top active members from tracked group activity.
+- `.modstats` — moderation event breakdown.
+- `.groupstats` — group membership/security overview.
+
+### Expanded locks
+The Group Control Center supports links, media, images, video, audio, voice, documents, stickers, forwards, polls, contacts, locations, new members, mentions and all-content lockdown.
+
+All of these commands are included in the interactive/text command catalog, so `.menu` and `.help` show the command plus a usage example. Dangerous moderation actions remain dependent on the bot being a group admin.
