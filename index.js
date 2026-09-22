@@ -287,7 +287,15 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
         if(action==="__TOHID_CHANNEL__"){await send(sock,jid,"📢 *TOHID TECH*\n"+cfg.channelLink,{category:"utility"});continue;}
-        if(action==="__TOHID_CONFIRM__"){text="CONFIRM";}else if(action==="__TOHID_CANCEL__"){text="CANCEL";}else{text=action;}
+        if(action==="__TOHID_CONFIRM__"||action==="__TOHID_CANCEL__"){
+          const controlText=action==="__TOHID_CONFIRM__"?"CONFIRM":"CANCEL";
+          try{
+            const result=await ai.ask(sender,controlText,{isOwner:isOwner(sender),baileysExtras,sock,jid,language:await i18n.getLanguage(jid)});
+            await send(sock,jid,result,{category:"admin"});
+          }catch(e){await send(sock,jid,"❌ Confirmation action failed: "+e.message,{category:"error"});}
+          continue;
+        }
+        text=action;
       }
     }
     // Natural command bridge: routine bot controls can be written without a prefix.
