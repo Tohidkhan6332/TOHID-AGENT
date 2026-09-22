@@ -317,6 +317,61 @@ Owner commands can manage runtime URLs directly from WhatsApp:
 
 With a database configured, URL state is persisted. Without MongoDB/PostgreSQL, it falls back to local runtime state.
 
+## 🛡️ Group Policy Engine 2.0
+
+TOHID-AGENT now has a centralized **Group Policy Engine** for security, moderation, member reputation, temporary locks and group-policy backups.
+
+### Group Control Center
+
+```text
+.group status
+.group backup
+.group backups
+.group restore <id>
+```
+
+### Security presets
+
+```text
+.security status
+.security strict
+.security normal
+.security relaxed
+.security off
+```
+
+Presets configure AntiLink, AntiStatus/Group Status, AntiTag, AntiTagAll, AntiBot, AntiPDM and AntiBad together.
+
+### Temporary locks
+
+```text
+.lock links 30
+.lock media
+.lock stickers
+.lock forwards
+.lock newmembers
+.lock all
+.unlock links
+```
+
+A duration in minutes makes the lock temporary. Expired temporary rules are ignored automatically.
+
+### Moderation intelligence
+
+```text
+.groupstats
+.member @member
+.warn @member
+.warnings @member
+.resetwarn @member
+.warnlimit 3
+.modlog
+```
+
+Warnings use the configured limit and moderation activity contributes to a lightweight per-member reputation record.
+
+The engine keeps the existing admin-only controls and member allowlists. It does not create a second WhatsApp socket.
+
 ## 💻 GitHub Agent
 
 The agent can work with:
