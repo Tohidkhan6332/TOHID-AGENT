@@ -36,6 +36,7 @@ const telegramPairing=require("./lib/telegramPairing");
 const groupGuard=require("./lib/groupGuard");
 const commandCatalog=require("./lib/commandCatalog");
 const universalCommands=require("./lib/universalCommandRegistry");
+const universalExecutor=require("./lib/universalExecutor");
 
 const AUTH=path.resolve(process.env.AUTH_DIR||path.join(process.cwd(),"auth_info_baileys"));
 const TMP=path.join(process.cwd(),"tmp");
@@ -351,12 +352,12 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
     if(universal){
       const existing = new Set(["video","imagine","menu","help","ping","status","doctor","pair","qr","url","tools","provider","plan","newchat","reset","stats","memory","profile","language","lang","mode","ui","plugin","admin","feature","file","owner","role","roles","dashboard","workflow","env","config","shell","settings","maintenance","block","unblock","mission","missions","task","tasks","schedule","schedules","antilink","antistatus","antigroupstatus","antibot","antitag","antitagall","antipdm","antibad","anti","welcome","goodbye","security","warn","warnings","resetwarn","warnlimit","modlog","group","lock","unlock","groupstats","member","mute","unmute","msgmute","msgunmute","msgmuted","antispam","raid","verification","verify","activity","topchatters","modstats","channel","baileys","skills","health"]);
       if(!existing.has(universal.command.name)){
-        const missing=universalCommands.missingEnv(universal.command);
-        if(missing.length){
-          await send(sock,jid,"🧩 *"+universal.command.name+"* is registered.\\n\\n🔑 Missing integration/API key:\\n• "+missing.join("\\n• ")+"\\n\\nAdd the key to .env later; the command contract and button are already registered.",{category:"utility"});
-        }else{
-          await send(sock,jid,"🧩 *"+universal.command.name+"* is registered in TOHID-AGENT.\\n\\n⚙️ Executor adapter is ready to be connected; no API key is required for this command.",{category:"utility"});
-        }
+        const result=await universalExecutor.execute({
+          command:universal.command,args:universal.args,sock,jid,sender,msg:m,
+          send,isOwner,hasPermission
+        });
+        if(result?.sendMessage)await sock.sendMessage(jid,result.sendMessage);
+        else if(result?.text)await send(sock,jid,result.text,{category:"utility"});
         continue;
       }
     }
