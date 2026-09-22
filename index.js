@@ -12,6 +12,7 @@ const skills=require("./lib/skills");
 const ai=require("./lib/openai");
 const db=require("./lib/database");
 const router=require("./lib/router");
+const naturalCommand=require("./lib/naturalCommand");
 const replyImages=require("./lib/replyImages");
 const menu=require("./lib/menu");
 const buttons=require("./lib/buttons");
@@ -286,8 +287,14 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
         if(action==="__TOHID_CHANNEL__"){await send(sock,jid,"📢 *TOHID TECH*\n"+cfg.channelLink,{category:"utility"});continue;}
-        text=action;
+        if(action==="__TOHID_CONFIRM__"){text="CONFIRM";}else if(action==="__TOHID_CANCEL__"){text="CANCEL";}else{text=action;}
       }
+    }
+    // Natural command bridge: routine bot controls can be written without a prefix.
+    // Complex/ambiguous requests continue to the AI agent.
+    if(text){
+      const normalized=naturalCommand.normalizeForRouter(text,cfg.prefix);
+      if(normalized.changed){console.log("🧠 Natural command: "+text+" -> "+normalized.text);text=normalized.text;}
     }
     const group=jid.endsWith("@g.us");
     if(group){
@@ -306,6 +313,8 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
       const buf=await downloadMedia(msg.audioMessage,"audio");
       audioPath=path.join(TMP,"voice-"+Date.now()+".ogg");fs.writeFileSync(audioPath,buf);
       text=await ai.transcribe(audioPath);await db.track(sender,"voice");
+      const normalizedVoice=naturalCommand.normalizeForRouter(text,cfg.prefix);
+      if(normalizedVoice.changed)text=normalizedVoice.text;
     }
     if(msg.imageMessage){
       const buf=await downloadMedia(msg.imageMessage,"image");
@@ -642,7 +651,11 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
     const language=await i18n.getLanguage(jid);
     const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData,baileysExtras,sock,jid,language});
     const userSettings=await db.getSettings(sender);const voiceReply=userSettings.voice===true||(userSettings.voice===undefined&&cfg.voiceReply);if((voiceReply||inputWasVoice)&&answer){const out=path.join(TMP,"reply-"+Date.now()+".mp3");await ai.tts(answer,out);await sock.sendMessage(jid,{audio:{url:out},mimetype:"audio/mpeg",ptt:true});await send(sock,jid,promo(),{category:"utility"});if(fs.existsSync(out))fs.unlinkSync(out);}
-    else await send(sock,jid,answer,{mode:"ai",sourceText:text,imageData});
+    else {
+      const protectedAction=/Protected action prepared|CONFIRM to execute|explicit CONFIRM/i.test(String(answer||""));
+      if(protectedAction&&isOwner(sender)&&cfg.interactiveButtonsEnabled){try{await buttons.sendActionConfirmation(sock,jid,answer);}catch{await send(sock,jid,answer,{mode:"ai",sourceText:text,imageData});}}
+      else await send(sock,jid,answer,{mode:"ai",sourceText:text,imageData});
+    }
     if(audioPath&&fs.existsSync(audioPath))fs.unlinkSync(audioPath);
    }catch(e){console.error(e);try{await send(sock,m.key.remoteJid,"❌ TOHID-AGENT: "+(e.response?.data?.error?.message||e.message),{category:"error"});}catch{}}
   }
