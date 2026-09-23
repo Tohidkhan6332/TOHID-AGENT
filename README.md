@@ -599,7 +599,7 @@ Everything else has safe defaults in `app.json`. See `.env.example` for the full
 
 ```
 TOHID-AGENT/
-├── index.js
+├── MrTohid.js
 ├── config.js
 ├── lib/
 │   ├── agentTools.js
