@@ -19,7 +19,31 @@ module.exports={
     bg:{baseUrl:"http://bochil.ddns.net",apiKey:""},
     fgmods:{baseUrl:"https://api-fgmods.ddns.net",apiKey:""},
     discard:{baseUrl:"https://discardapi.dpdns.org",apiKey:"guru"},
-    qasimdev:{baseUrl:"https://api.qasimdev.dpdns.org",apiKey:"qasim-dev"}
+    qasimdev:{baseUrl:"https://api.qasimdev.dpdns.org",apiKey:""}
+  }),
+
+  // Other built-in integrations. Keep these out of deployment ENV.
+  apiKeys:Object.freeze({
+    weather:"",
+    urlShortener:"",
+    youtube:"",
+    facebook:"",
+    instagram:"",
+    tiktok:"",
+    twitter:"",
+    pinterest:"",
+    spotify:"",
+    mediafire:"",
+    apk:"",
+    search:""
+  }),
+  mediaApi:Object.freeze({
+    baseUrl:"https://discardapi.dpdns.org/api/dl/vidsplay",
+    apiKey:"guru"
+  }),
+  discardApi:Object.freeze({
+    baseUrl:"https://discardapi.dpdns.org",
+    apiKey:"guru"
   }),
 
   defaultLanguage:process.env.BOT_LANGUAGE||"English",
