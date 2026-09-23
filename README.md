@@ -776,6 +776,67 @@ Read-only status queries can run immediately. Deployments, lifecycle changes, co
 Example messages: `Vercel projects dikhao`, `Render project redeploy karo`, `Koyeb service pause karo`, `Heroku app delete karo`.
 
 
+## 🔐 Portable SESSION_ID Login
+
+TOHID-AGENT can generate a portable WhatsApp session from the built-in pairing webpage.
+
+### 1. Generate a session
+
+Open:
+
+```
+https://YOUR-DEPLOYMENT-DOMAIN/pair
+```
+
+Choose either **8-digit Pairing Code** or **QR Code**. After WhatsApp connects, the page generates a `SESSION_ID` that can be copied.
+
+### 2. Deploy using the session
+
+Set these Config Vars:
+
+```env
+SESSION_ID=TOHID-AGENT~...
+PAIRING_NUMBER=
+```
+
+`SESSION_ID` takes priority. On startup the bot restores the Baileys auth files from the session and does **not** request an 8-digit pairing code or display a QR.
+
+### 3. Pairing/QR without SESSION_ID
+
+8-digit pairing mode:
+
+```env
+SESSION_ID=
+PAIRING_NUMBER=919XXXXXXXXX
+```
+
+Normal QR mode:
+
+```env
+SESSION_ID=
+PAIRING_NUMBER=
+```
+
+So the login selection is:
+
+```
+SESSION_ID present
+      ↓
+Restore session
+      ↓
+No QR / no pairing code
+
+SESSION_ID empty + PAIRING_NUMBER present
+      ↓
+8-digit pairing code
+
+Both empty
+      ↓
+Normal QR
+```
+
+> **Security:** Treat `SESSION_ID` like a WhatsApp credential. Do not post it in GitHub, screenshots, public chats, logs, or client-side source code. If a session is exposed, unlink that WhatsApp device and generate a fresh session.
+
 ## 🩺 Production Health
 
 Heroku and other hosts can use:
