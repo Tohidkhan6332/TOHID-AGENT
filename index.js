@@ -271,6 +271,8 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
         if(action==="__TOHID_LIST__"){await sendInteractiveMenu(sock,jid,"list");continue;}
         if(action==="__TOHID_DEV__"){await sendInteractiveMenu(sock,jid,"dev");continue;}
         if(action==="__TOHID_SETTINGS__"){await sendInteractiveMenu(sock,jid,"settings");continue;}
+        if(action==="__TOHID_CONTACT__"){await buttons.sendContactMenu(sock,jid);continue;}
+        if(action==="__TOHID_WEB__"){await buttons.sendWebMenu(sock,jid);continue;}
         if(action==="__TOHID_VOICE_ON__"){await db.setSettings(sender,{voice:true});await send(sock,jid,"🎙️ Voice replies enabled.");continue;}
         if(action==="__TOHID_VOICE_OFF__"){await db.setSettings(sender,{voice:false});await send(sock,jid,"🔇 Voice replies disabled.");continue;}
         if(action==="__TOHID_MEMORY_ON__"){await db.setSettings(sender,{memory:true});await send(sock,jid,"🧠 Memory enabled.");continue;}
@@ -286,6 +288,16 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
         if(action.startsWith("__TOHID_CATEGORY__")){await buttons.sendCommandMenu(sock,jid,ui.resolve(await getUIMode(jid),"selection"),Number(action.slice("__TOHID_CATEGORY__".length)));continue;}
         if(action.startsWith("__TOHID_CMD__")){text=action.slice("__TOHID_CMD__".length);}
 
+        const webLinks={
+          __TOHID_WEB_CONTACT__:"https://tg-contact-form.vercel.app",
+          __TOHID_WEB_BIO__:"https://tohid-link-bio.vercel.app",
+          __TOHID_WEB_BOTINFO__:"https://bot-info-website.vercel.app",
+          __TOHID_WEB_KHAN__:"https://tohid-khan-web.vercel.app",
+          __TOHID_WEB_TOHID__:"https://tohid-web.vercel.app",
+          __TOHID_WEB_AI__:"https://tohidai.vercel.app",
+          __TOHID_WEB_GAME__:"https://tohidgame.vercel.app"
+        };
+        if(webLinks[action]){await sock.sendMessage(jid,{text:"🌍 *WEB RESOURCE*\n"+webLinks[action]});continue;}
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
