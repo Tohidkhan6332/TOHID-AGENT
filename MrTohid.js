@@ -681,7 +681,7 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
     await sock.sendPresenceUpdate("composing",jid);
     const language=await i18n.getLanguage(jid);
     const answer=await ai.ask(sender,text,{isOwner:isOwner(sender),imageData,baileysExtras,sock,jid,language});
-    const userSettings=await db.getSettings(sender);const voiceReply=userSettings.voice===true||(userSettings.voice===undefined&&cfg.voiceReply);if((voiceReply||inputWasVoice)&&answer){const out=path.join(TMP,"reply-"+Date.now()+".mp3");await ai.tts(answer,out);await sock.sendMessage(jid,{audio:{url:out},mimetype:"audio/mpeg",ptt:true});await send(sock,jid,promo(),{category:"utility"});if(fs.existsSync(out))fs.unlinkSync(out);}
+    const userSettings=await db.getSettings(sender);const voiceReply=userSettings.voice===true||(userSettings.voice===undefined&&cfg.voiceReply);if((voiceReply||inputWasVoice)&&answer){const out=path.join(TMP,"reply-"+Date.now()+".mp3");await ai.tts(answer,out);await sock.sendMessage(jid,{audio:{url:out},mimetype:"audio/mpeg",ptt:true});if(fs.existsSync(out))fs.unlinkSync(out);}
     else {
       const protectedAction=/Protected action prepared|CONFIRM to execute|explicit CONFIRM/i.test(String(answer||""));
       if(protectedAction&&isOwner(sender)&&cfg.interactiveButtonsEnabled){try{await buttons.sendActionConfirmation(sock,jid,answer);}catch{await send(sock,jid,answer,{mode:"ai",sourceText:text,imageData});}}
