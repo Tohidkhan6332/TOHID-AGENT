@@ -408,9 +408,12 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
     if(pluginRoute==="ai"&&text.trim().startsWith(cfg.prefix)){const command=text.trim().split(/\\s+/)[0].slice(cfg.prefix.length).toLowerCase();if(await plugins.dispatchCommand({sock,jid,sender,message:m,text,command,args:text.trim().split(/\\s+/).slice(1),send:pluginSend,cfg,db})){continue;}}
     await plugins.dispatchMessage({sock,jid,sender,message:m,text,send:pluginSend,cfg,db});
     const lower=text.trim().toLowerCase();
-    if(lower===cfg.prefix+"sessionpair"){
-      const s=pairingManager.create({phone:normalizeOwnerNumber(sender),mode:"pairing",ownerId:normalizeOwnerNumber(sender)});
-      await send(sock,jid,"⏳ *SESSION PAIRING STARTED*\\n\\n📱 Number: "+normalizeOwnerNumber(sender)+"\\n🔐 Waiting for your 8-digit WhatsApp pairing code…",{category:"utility"});
+    if(lower===cfg.prefix+"sessionpair"||lower.startsWith(cfg.prefix+"sessionpair ")){
+      const requested=normalizeOwnerNumber(text.trim().slice((cfg.prefix+"sessionpair").length).trim());
+      const target=requested||normalizeOwnerNumber(sender);
+      if(requested&&requested!==normalizeOwnerNumber(sender)&&!isOwner(sender)){await send(sock,jid,"⛔ Owner only when pairing another number.",{category:"security"});continue;}
+      const s=pairingManager.create({phone:target,mode:"pairing",ownerId:normalizeOwnerNumber(sender)});
+      await send(sock,jid,"⏳ *SESSION PAIRING STARTED*\\n\\n📱 Number: "+target+"\\n🔐 Waiting for your 8-digit WhatsApp pairing code…",{category:"utility"});
       (async()=>{const started=Date.now();while(Date.now()-started<Number(process.env.PAIRING_TIMEOUT_MS||180000)){await new Promise(r=>setTimeout(r,900));const x=pairingManager.get(s.id);if(!x)break;if(x.code){await send(sock,jid,"🔐 *PAIRING CODE*\\n\\n"+x.code+"\\n\\nWhatsApp → Linked Devices → Link with phone number → enter this code.");break;}if(x.status==="error"||x.status==="stopped")return;}const final=pairingManager.get(s.id);if(final?.sessionId)await send(sock,jid,"✅ *SESSION_ID GENERATED*\\n\\n🔐 "+final.sessionId+"\\n\\nKeep it private. Use this SESSION_ID + SESSION_STORE_SECRET on your own hosting.");else if(final?.status!=="ready")await send(sock,jid,"❌ Session pairing expired or failed: "+(final?.sessionError||final?.status||"timeout"));})().catch(e=>send(sock,jid,"❌ Session pairing failed: "+e.message,{category:"error"}));
       continue;
     }
