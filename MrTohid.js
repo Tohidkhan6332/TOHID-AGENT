@@ -722,7 +722,7 @@ if(process.env.PORT)http.createServer(async(req,res)=>{
     if(req.url==="/health"||req.url==="/healthz"){
       const s=await db.stats();const p=preflight.safeSummary();
       const body={name:"TOHID-AGENT",version:cfg.version,developer:"Tohid",status:activeSocket?"online":"starting",uptime:log.uptime(),node:process.version,database:s.database,providers:p.providers,integrations:{github:!!cfg.githubToken,heroku:!!cfg.herokuToken,vercel:!!cfg.vercelToken,render:!!cfg.renderApiKey,koyeb:!!cfg.koyebToken},whatsapp:!!activeSocket};
-      res.writeHead(body.status==="online"?200:503,{"content-type":"application/json"});return res.end(JSON.stringify(body,null,2));
+      res.writeHead(200,{"content-type":"application/json"});return res.end(JSON.stringify(body,null,2));
     }
     if(req.url==="/admin"&&cfg.adminPanelEnabled){
       const token=req.headers["x-admin-token"]||"";
