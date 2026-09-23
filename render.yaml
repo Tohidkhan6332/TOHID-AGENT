@@ -1,14 +1,17 @@
 services:
-  - type: worker
+  - type: web
     name: tohid-agent
     runtime: node
     plan: starter
     buildCommand: npm install
     startCommand: npm start
+    healthCheckPath: /healthz
     autoDeployTrigger: commit
     envVars:
       - key: NODE_VERSION
         value: "22"
+      - key: NODE_ENV
+        value: production
       - key: OPENAI_API_KEY
         sync: false
       - key: GEMINI_API_KEY
