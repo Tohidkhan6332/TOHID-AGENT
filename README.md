@@ -1,3 +1,75 @@
+# 🤖 TOHID-AGENT V11.2.0
+
+**Portable deployment is now supported across Node.js hosts, containers and common cloud platforms.**
+
+## 🚀 One-Click / Quick Deployment
+
+### Heroku
+<a href="https://heroku.com/deploy?template=https://github.com/Tohidkhan6332/TOHID-AGENT"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku"></a>
+
+### Render
+<a href="https://render.com/deploy?repo=https://github.com/Tohidkhan6332/TOHID-AGENT"><img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render"></a>
+
+### Railway
+<a href="https://railway.com/new"><img src="https://railway.com/button.svg" alt="Deploy on Railway"></a>
+
+### Replit
+<a href="https://replit.com/github/Tohidkhan6332/TOHID-AGENT"><img src="https://replit.com/badge/github/Tohidkhan6332/TOHID-AGENT" alt="Run on Replit"></a>
+
+### Docker
+```bash
+docker build -t tohid-agent .
+docker run --env-file .env -p 3000:3000 tohid-agent
+```
+
+### Vercel
+Vercel deployment is provided for the lightweight HTTP/API surface in `api/index.js`. **Do not use Vercel as the primary WhatsApp worker host**, because the Baileys socket is a long-running process. Use Heroku, Render, Railway, Replit, Docker or another persistent Node.js host for the WhatsApp agent.
+
+## 🧩 Deployment entrypoint
+
+All supported Node.js hosts now use the same startup path:
+
+```text
+npm start
+   ↓
+app.js
+   ↓
+MrTohid.js
+   ↓
+WhatsApp + pairing/health server
+```
+
+`app.js` validates/normalizes `PORT`, defaults to `3000` for local use, and then starts the real agent. In hosted environments the platform-provided `PORT` is used.
+
+### Required production configuration
+
+At minimum, configure:
+
+```env
+OWNER_NUMBER=
+MONGO_URI=
+OPENAI_API_KEY=
+# or
+GEMINI_API_KEY=
+```
+
+Optional PostgreSQL can be used with `POSTGRES_URL`.
+
+The downloader/media provider URLs and built-in API configuration are centralized in `config.js`; the downloader API URL/key variables are no longer required in `.env`.
+
+### Health endpoints
+
+Once the host provides a `PORT`, these endpoints are available:
+
+- `/health`
+- `/healthz`
+- `/pair`
+- `/admin-ui`
+
+Render is configured to use `/healthz` as its health check.
+
+---
+
 ## Baileys / WhatsApp UI
 
 TOHID-AGENT keeps **official `@whiskeysockets/baileys` as the primary WhatsApp runtime and the only live socket**.
