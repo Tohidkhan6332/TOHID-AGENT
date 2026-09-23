@@ -63,7 +63,7 @@ module.exports={
   autonomousTasks:process.env.AUTONOMOUS_TASKS!=="false",
   taskHistoryLimit:Number(process.env.AGENT_TASK_HISTORY_LIMIT||20),
   taskVerification:process.env.AGENT_TASK_VERIFICATION!=="false",
-  channelLink:process.env.CHANNEL_LINK||"https://chat.whatsapp.com/ITblBs2YNMqBYh9klfDLud",
+  channelLink:process.env.CHANNEL_LINK||"https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T",
   channelLink2:process.env.CHANNEL_LINK_2||"https://chat.whatsapp.com/ITblBs2YNMqBYh9klfDLud",
   interactiveButtonsEnabled:process.env.INTERACTIVE_BUTTONS_ENABLED!=="false",
   defaultUIMode:(process.env.BOT_UI_MODE||"auto").toLowerCase(),
