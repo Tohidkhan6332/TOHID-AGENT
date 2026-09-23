@@ -6,7 +6,6 @@ const pino=require("pino");
 const {MongoClient}=require("mongodb");
 const {default:makeWASocket,useMultiFileAuthState,initAuthCreds,BufferJSON,DisconnectReason,downloadContentFromMessage,fetchLatestBaileysVersion,makeCacheableSignalKeyStore,Browsers}=require("@whiskeysockets/baileys");
 const cfg=require("./config");
-const promotion=require("./lib/promotion");
 const planner=require("./lib/agentPlanner");
 const agentCore=require("./lib/agentCore");
 const skills=require("./lib/skills");
@@ -121,8 +120,6 @@ async function databaseAuth(){
  return{state:{creds,keys:makeCacheableSignalKeyStore(keyStore,pino({level:"silent"}))},saveCreds,close:async()=>{}};
 }
 
-function promo(){return "📢 *TOHID TECH*\n"+promotion.channel;}
-function withPromo(text){const s=String(text||"");return s.includes(promotion.channel)?s:s+"\\n\\n"+promo();}
 function adminHelp(){return "🛠️ *TOHID AI CONTROL CENTER V11*\n\n👑 .owner list/add/remove/revokeall\n🧩 .plugin list/install/enable/disable/reload/remove/test/logs\n⚙️ .feature list/on/off <name>\n📁 .file list/read/backup/backups/restore/write\n📊 .admin status\n🤖 Send natural-language tasks for the AI planner\n\n🔐 Delegated owners get full owner-level bot control. Only the primary OWNER_NUMBER can add/remove delegated owners.";}
 function help(){
  return commandCatalog.menuText()+"\\n\\n🧭 *HOW TO USE*\\n\\n"+
@@ -675,7 +672,7 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
     if(mode==="reset"){await ai.clearMemory(sender);await send(sock,jid,"🧹 Your TOHID-AGENT conversation memory has been cleared.",{category:"memory"});continue;}
     if(mode==="menu"){await sendInteractiveMenu(sock,jid,"main");continue;}
     if(mode==="settings"){const parts=text.trim().split(/\s+/);const key=parts[0].replace(cfg.prefix,"").toLowerCase();const value=parts[1]?.toLowerCase();if(!value){await send(sock,jid,"⚙️ *TOHID-AGENT V11.0 SETTINGS*\n\n🎙️ Voice: use .voice on/off\n🧠 Memory: use .memory on/off\n📊 Status: .status\n\nUse .menu to view the text menu.");continue;}if((key==="voice"||key==="memory")&&["on","off"].includes(value)){await db.setSettings(sender,{[key]:value==="on"});if(key==="memory"&&value==="off")await db.clearMemory(sender);await send(sock,jid,(key==="voice"?"🎙️ Voice reply ":"🧠 Memory ")+(value==="on"?"enabled":"disabled")+".",{category:key==="voice"?"voice":"memory"});continue;}await send(sock,jid,"Use .voice on/off or .memory on/off",{category:"admin"});continue;}
-    if(mode==="video"){const prompt=text.slice((cfg.prefix+"video ").length).trim();if(!prompt){await send(sock,jid,"Usage: .video <prompt>");continue;}await send(sock,jid,"🎬 Generating video...",{category:"video"});const vid=await ai.video(prompt);await db.track(sender,"video");const caption=await i18n.translate("🎬 TOHID-AGENT V11.0 • Tohid",await i18n.getLanguage(jid));await sock.sendMessage(jid,{video:{url:vid},caption:withPromo(caption)});if(fs.existsSync(vid))fs.unlinkSync(vid);continue;}
+    if(mode==="video"){const prompt=text.slice((cfg.prefix+"video ").length).trim();if(!prompt){await send(sock,jid,"Usage: .video <prompt>");continue;}await send(sock,jid,"🎬 Generating video...",{category:"video"});const vid=await ai.video(prompt);await db.track(sender,"video");const caption=await i18n.translate("🎬 TOHID-AGENT V11.0 • Tohid",await i18n.getLanguage(jid));await sock.sendMessage(jid,{video:{url:vid},caption});if(fs.existsSync(vid))fs.unlinkSync(vid);continue;}
     if(mode==="image"){const prompt=text.slice((cfg.prefix+"imagine ").length).trim();if(!prompt){await send(sock,jid,"Usage: .imagine <prompt>");continue;}await send(sock,jid,"🎨 Generating image...",{category:"image"});const img=await ai.image(prompt);await db.track(sender,"image");const caption=await i18n.translate("🎨 TOHID-AGENT V11.0 • Created by Tohid",await i18n.getLanguage(jid));await sock.sendMessage(jid,{image:{url:img},caption:withPromo(caption)});if(fs.existsSync(img))fs.unlinkSync(img);continue;}
 
     await sock.sendPresenceUpdate("composing",jid);
