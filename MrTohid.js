@@ -32,6 +32,7 @@ const dmRelay=require("./lib/dmRelay");
 const urlManager=require("./lib/urlManager");
 const pairingManager=require("./lib/pairingManager");
 const pairingWeb=require("./lib/pairingWeb");
+const freeDeploy=require("./lib/freeDeploymentManager");
 const telegramPairing=require("./lib/telegramPairing");
 const groupGuard=require("./lib/groupGuard");
 const commandCatalog=require("./lib/commandCatalog");
@@ -221,7 +222,7 @@ async function main(){
 
     // Pairing-web child processes only generate the portable session. They do not
     // run normal bot onboarding or scheduler work.
-    if(process.env.TOHID_PAIRING_CHILD==="1"){
+    if(process.env.TOHID_PAIRING_CHILD==="1"&&process.env.TOHID_FREE_DEPLOYMENT!=="1"){
       return;
     }
 
@@ -753,6 +754,7 @@ const shutdown=async(signal)=>{
   try{if(activeSocket)activeSocket.end(undefined);}catch{}
   try{await activeCloseAuth();}catch(e){log.warn("Auth close failed",{message:e?.message});}
   try{await telegramPairing.stop();}catch(e){log.warn("Telegram bot stop failed",{message:e?.message});}
+  try{await freeDeploy.shutdown();}catch(e){log.warn("Free deployments stop failed",{message:e?.message});}
   try{await db.close();}catch(e){log.warn("Database close failed",{message:e?.message});}
   process.exit(0);
 };
