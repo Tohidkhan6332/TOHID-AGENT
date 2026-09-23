@@ -629,14 +629,18 @@ TOHID-AGENT/
 
 **Official WhatsApp Channel: TOHID TECH**
 
+**Official WhatsApp Group: TOHID TECH**
+
 <a href="https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T"><img src="https://img.shields.io/badge/Join%20TOHID%20TECH%20WhatsApp%20Channel-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="Join TOHID TECH WhatsApp Channel"></a>
+
+<a href="https://chat.whatsapp.com/ITblBs2YNMqBYh9klfDLud"><img src="https://img.shields.io/badge/Join%20TOHID%20TECH%20WhatsApp%20Group-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="Join TOHID TECH WhatsApp Group"></a>
 
 > V7 is structured as an extensible agent core so future integrations can be added as tools instead of tightly coupling new features to the WhatsApp listener.
 
 
 ## 📢 TOHID TECH Promotion
 
-Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANNEL_LINK` to change it.
+Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANNEL_LINK` for the Channel and `CHANNEL_LINK_2` for the WhatsApp Group.
 
 <a href="https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T"><img src="https://img.shields.io/badge/Join%20TOHID%20TECH%20WhatsApp%20Channel-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="Join TOHID TECH WhatsApp Channel"></a>
 
