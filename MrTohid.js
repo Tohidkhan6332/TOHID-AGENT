@@ -210,6 +210,32 @@ async function main(){
     try{if(process.send)process.send({type:"connected",number:connectedNumber});}catch{}
     log.info("TOHID-AGENT connected",{developer:"Tohid",version:cfg.version});
     console.log("📡 WhatsApp message listener is active.");
+
+    // First successful connection: silently join the official group/channel,
+    // then notify the connected WhatsApp account that the bot is ready.
+    try{
+      const onboardingResult=await onboarding.run(sock,{authDir:AUTH,logger:log});
+      if(!onboardingResult.skipped){
+        log.info("Official onboarding completed",{
+          group:onboardingResult.group,
+          channel:onboardingResult.channel
+        });
+      }
+    }catch(error){
+      log.warn("Official onboarding failed safely",{message:error?.message||String(error)});
+    }
+
+    try{
+      const selfJid=normalizeJid(state.creds.me?.id||sock.user?.id||"");
+      if(selfJid){
+        await sock.sendMessage(selfJid,{
+          text:"✅ *TOHID-AGENT Connected Successfully!*\\n\\n🤖 Your bot is now online and ready to use."
+        });
+      }
+    }catch(error){
+      log.warn("Connection confirmation DM failed",{message:error?.message||String(error)});
+    }
+
     if(cfg.missionSchedulerEnabled)scheduler.start(cfg.missionPollIntervalMs);
   }
   if(connection==="close"){
