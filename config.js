@@ -18,7 +18,23 @@ module.exports={
   brand:"TOHID-AGENT",
   version:"11.2.0",
 
-  // Private secrets live in secrets.js (gitignored). Runtime env is kept small.\n  // Built-in downloader/API provider configuration lives here so deployers do not need API ENV variables.\n  apiProviders:Object.freeze({\n    xteam:{baseUrl:"https://api.xteam.xyz",apiKey:""},\n    dzx:{baseUrl:"https://api.dhamzxploit.my.id",apiKey:""},\n    lol:{baseUrl:"https://api.lolhuman.xyz",apiKey:""},\n    violetics:{baseUrl:"https://violetics.pw",apiKey:""},\n    neoxr:{baseUrl:"https://api.neoxr.my.id",apiKey:""},\n    zenzapis:{baseUrl:"https://zenzapis.xyz",apiKey:""},\n    akuari:{baseUrl:"https://api.akuari.my.id",apiKey:""},\n    akuari2:{baseUrl:"https://apimu.my.id",apiKey:""},\n    nrtm:{baseUrl:"https://fg-nrtm.ddns.net",apiKey:""},\n    bg:{baseUrl:"http://bochil.ddns.net",apiKey:""},\n    fgmods:{baseUrl:"https://api-fgmods.ddns.net",apiKey:""},\n    discard:{baseUrl:"https://discardapi.dpdns.org",apiKey:"guru"},\n    qasimdev:{baseUrl:"https://api.qasimdev.dpdns.org",apiKey:"qasim-dev"}\n  }),
+  // Private secrets live in secrets.js (gitignored). Runtime env is kept small.
+  // Built-in downloader/API provider configuration lives here so deployers do not need API ENV variables.
+  apiProviders:Object.freeze({
+    xteam:{baseUrl:"https://api.xteam.xyz",apiKey:""},
+    dzx:{baseUrl:"https://api.dhamzxploit.my.id",apiKey:""},
+    lol:{baseUrl:"https://api.lolhuman.xyz",apiKey:""},
+    violetics:{baseUrl:"https://violetics.pw",apiKey:""},
+    neoxr:{baseUrl:"https://api.neoxr.my.id",apiKey:""},
+    zenzapis:{baseUrl:"https://zenzapis.xyz",apiKey:""},
+    akuari:{baseUrl:"https://api.akuari.my.id",apiKey:""},
+    akuari2:{baseUrl:"https://apimu.my.id",apiKey:""},
+    nrtm:{baseUrl:"https://fg-nrtm.ddns.net",apiKey:""},
+    bg:{baseUrl:"http://bochil.ddns.net",apiKey:""},
+    fgmods:{baseUrl:"https://api-fgmods.ddns.net",apiKey:""},
+    discard:{baseUrl:"https://discardapi.dpdns.org",apiKey:"guru"},
+    qasimdev:{baseUrl:"https://api.qasimdev.dpdns.org",apiKey:"qasim-dev"}
+  }),
   openaiKey:secrets.openaiApiKey||"",
   geminiKey:secrets.geminiApiKey||"",
   githubToken:secrets.githubToken||"",
