@@ -1,3 +1,3 @@
 run = "npm start"
-entrypoint = "MrTohid.js"
+entrypoint = "app.js"
 modules = ["nodejs-22"]
