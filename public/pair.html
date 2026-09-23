@@ -6,7 +6,7 @@
 .card{width:min(720px,100%);background:#0e1522;border:1px solid #263246;border-radius:24px;padding:28px;box-shadow:0 20px 70px #0008}.brand{font-size:28px;font-weight:800}.muted{color:#9ca9bc}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:650px){.grid{grid-template-columns:1fr}}
 input,select,textarea{width:100%;padding:13px 14px;border-radius:12px;border:1px solid #334155;background:#0a111c;color:#fff;outline:none}textarea{min-height:140px;font-family:ui-monospace,monospace;font-size:12px}
 button{width:100%;padding:14px;border:0;border-radius:12px;background:#25d366;color:#06130a;font-weight:800;cursor:pointer;margin-top:12px}.secondary{background:#1d293b;color:#fff}.status{margin-top:18px;padding:16px;border-radius:14px;background:#09111c;border:1px solid #263246;white-space:pre-wrap}
-.code{font-size:34px;letter-spacing:8px;text-align:center;font-weight:900;padding:20px}.qr{display:block;max-width:300px;width:100%;margin:16px auto;border-radius:16px;background:#fff;padding:10px}.hidden{display:none}.warn{font-size:12px;color:#fbbf24;margin-top:12px;line-height:1.5}
+.code{font-size:34px;letter-spacing:8px;text-align:center;font-weight:900;padding:20px}.qr{display:block;max-width:300px;width:100%;margin:16px auto;border-radius:16px;background:#fff;padding:10px}.hidden{display:none}.session{margin-top:14px;padding:14px;border:1px solid #2f855a;background:#07170d;border-radius:14px}.session textarea{min-height:110px}.copy{background:#1d293b;color:#fff}
 </style></head><body><main class="card">
 <div class="brand">TOHID-AGENT</div><p class="muted">Pair your WhatsApp with an 8-digit Pairing Code or QR. Phone number is required only for Pairing Code; QR mode needs no number. Your environment values are applied only to this bot session.</p>
 <div class="grid">
@@ -15,7 +15,7 @@ button{width:100%;padding:14px;border:0;border-radius:12px;background:#25d366;co
 </div>
 <label style="display:block;margin-top:12px">Agent ENV (optional JSON)<textarea id="env" placeholder='{"OPENAI_API_KEY":"...","GITHUB_TOKEN":"...","AI_PROVIDER":"auto"}'></textarea></label>
 <button id="start">Start Pairing</button>
-<div id="result" class="status hidden"></div>
+<div id="result" class="status hidden"></div><div id="sessionBox" class="session hidden"><b>🔐 SESSION_ID</b><p class="muted">Copy this value to your hosting Config Vars as <b>SESSION_ID</b>. Keep it private like a WhatsApp credential.</p><textarea id="sessionId" readonly></textarea><button class="copy" id="copySession">Copy SESSION_ID</button></div>
 <div class="warn">Use HTTPS in production. Never paste a secret into a public page you do not trust. Pair only a WhatsApp account you control or are authorized to connect.</div>
 </main>
 <script>
@@ -26,11 +26,19 @@ $("start").onclick=async()=>{
  let env={};try{env=$("env").value.trim()?JSON.parse($("env").value):{}}catch(e){show("Invalid ENV JSON");$("start").disabled=false;return}
  const mode=$("mode").value;const r=await fetch("/pair",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({phone:mode==="qr"?"":$("phone").value,mode,env})});
  const d=await r.json();if(!r.ok){show(d.error||"Pairing failed");$("start").disabled=false;return}
- id=d.id;show("Session: "+id+"\nWaiting for WhatsApp…");poll();
+ id=d.id;show("Pairing session: "+id+"\nWaiting for WhatsApp…");poll();
 };
 async function poll(){if(!id)return;const r=await fetch("/pair/status/"+id);const d=await r.json();if(d.code){$("result").innerHTML="<div>Enter this code in WhatsApp → Linked Devices → Link with phone number</div><div class='code'>"+d.code+"</div>";}
 else if(d.qr){$("result").innerHTML="<div>WhatsApp → Linked Devices → Link a Device → scan this QR</div><img class='qr' src='data:image/png;base64,"+d.qr+"'>";}
 else show("Status: "+d.status);
-if(d.connected){show("✅ WhatsApp connected successfully. Session: "+d.id);return}
+if(d.connected&&d.sessionId){
+  show("✅ WhatsApp connected successfully.\n\nYour portable SESSION_ID is ready below.");
+  $("sessionId").value=d.sessionId;
+  $("sessionBox").classList.remove("hidden");
+  $("start").disabled=false;
+  return;
+}
+if(d.connected){show("✅ WhatsApp connected successfully. Generating SESSION_ID…");setTimeout(poll,500);return}
 if(["stopped","error"].includes(d.status))return;setTimeout(poll,1200)}
+$("copySession").onclick=async()=>{try{await navigator.clipboard.writeText($("sessionId").value);$("copySession").textContent="Copied ✓";setTimeout(()=>$("copySession").textContent="Copy SESSION_ID",1600)}catch{$("sessionId").select();document.execCommand("copy");}};
 </script></body></html>
