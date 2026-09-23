@@ -5,7 +5,9 @@
 ## 🚀 One-Click / Quick Deployment
 
 ### Heroku
-<a href="https://heroku.com/deploy?template=https://github.com/Tohidkhan6332/TOHID-AGENT"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku"></a>
+<a href="https://www.heroku.com/deploy?template=https://github.com/Tohidkhan6332/TOHID-AGENT"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku"></a>
+
+Heroku uses the root `app.json` manifest for the Deploy Button and `Procfile`/`npm start` for the runtime. `app.js` is the shared runtime launcher; `app.json` is **not** the Node.js entrypoint.
 
 ### Render
 <a href="https://render.com/deploy?repo=https://github.com/Tohidkhan6332/TOHID-AGENT"><img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render"></a>
@@ -45,7 +47,7 @@ MrTohid.js
 WhatsApp + pairing/health server
 ```
 
-`app.js` validates/normalizes `PORT`, defaults to `3000` for local use, and then starts the real agent. In hosted environments the platform-provided `PORT` is used.
+`app.js` validates/normalizes `PORT`, defaults to `3000` for local use, and then starts the real agent. In hosted environments the platform-provided `PORT` is used. The root `app.json` is the Heroku deployment manifest used by the Deploy Button.
 
 ### Required production configuration
 
