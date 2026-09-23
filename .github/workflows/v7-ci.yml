@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: 22
       - run: npm install --ignore-scripts
+      - run: node -e "for (const f of [\"package.json\",\"app.json\",\"railway.json\",\"vercel.json\"]) JSON.parse(require(\"fs\").readFileSync(f,\"utf8\")); console.log(\"Deployment manifests are valid JSON\")"
       - run: node --check app.js
       - run: node --check config.js
       - run: node --check MrTohid.js
