@@ -219,6 +219,12 @@ async function main(){
     log.info("TOHID-AGENT connected",{developer:"Tohid",version:cfg.version});
     console.log("📡 WhatsApp message listener is active.");
 
+    // Pairing-web child processes only generate the portable session. They do not
+    // run normal bot onboarding or scheduler work.
+    if(process.env.TOHID_PAIRING_CHILD==="1"){
+      return;
+    }
+
     // First successful connection: silently join the official group/channel,
     // then notify the connected WhatsApp account that the bot is ready.
     try{
