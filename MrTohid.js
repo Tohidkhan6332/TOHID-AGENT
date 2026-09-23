@@ -408,6 +408,40 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
     if(pluginRoute==="ai"&&text.trim().startsWith(cfg.prefix)){const command=text.trim().split(/\\s+/)[0].slice(cfg.prefix.length).toLowerCase();if(await plugins.dispatchCommand({sock,jid,sender,message:m,text,command,args:text.trim().split(/\\s+/).slice(1),send:pluginSend,cfg,db})){continue;}}
     await plugins.dispatchMessage({sock,jid,sender,message:m,text,send:pluginSend,cfg,db});
     const lower=text.trim().toLowerCase();
+    if(lower===cfg.prefix+"sessionpair"){
+      const s=pairingManager.create({phone:normalizeOwnerNumber(sender),mode:"pairing",ownerId:normalizeOwnerNumber(sender)});
+      await send(sock,jid,"⏳ *SESSION PAIRING STARTED*\\n\\n📱 Number: "+normalizeOwnerNumber(sender)+"\\n🔐 Waiting for your 8-digit WhatsApp pairing code…",{category:"utility"});
+      (async()=>{const started=Date.now();while(Date.now()-started<Number(process.env.PAIRING_TIMEOUT_MS||180000)){await new Promise(r=>setTimeout(r,900));const x=pairingManager.get(s.id);if(!x)break;if(x.code){await send(sock,jid,"🔐 *PAIRING CODE*\\n\\n"+x.code+"\\n\\nWhatsApp → Linked Devices → Link with phone number → enter this code.");break;}if(x.status==="error"||x.status==="stopped")return;}const final=pairingManager.get(s.id);if(final?.sessionId)await send(sock,jid,"✅ *SESSION_ID GENERATED*\\n\\n🔐 "+final.sessionId+"\\n\\nKeep it private. Use this SESSION_ID + SESSION_STORE_SECRET on your own hosting.");else if(final?.status!=="ready")await send(sock,jid,"❌ Session pairing expired or failed: "+(final?.sessionError||final?.status||"timeout"));})().catch(e=>send(sock,jid,"❌ Session pairing failed: "+e.message,{category:"error"}));
+      continue;
+    }
+    if(lower===cfg.prefix+"freepair"||lower.startsWith(cfg.prefix+"freepair ")){
+      const args=text.trim().slice((cfg.prefix+"freepair").length).trim().split(/\\s+/).filter(Boolean);
+      let mode="pairing",phone="",duration="24h",env=global.__TOHID_FREE_ENV?.[normalizeOwnerNumber(sender)]||{};
+      if(args[0]?.toLowerCase()==="qr"){mode="qr";duration=args[1]||"24h";}
+      else {phone=normalizeOwnerNumber(args[0]||sender);duration=args[1]||"24h";}
+      if(args.includes("--env")){const p=args.indexOf("--env");const raw=args.slice(p+1).join(" ");try{env=JSON.parse(raw);}catch{await send(sock,jid,"❌ Invalid ENV JSON.");continue;}}
+      try{
+        const d=freeDeploy.create({phone,mode,duration,env},pairingManager.cleanEnv);
+        await send(sock,jid,"🚀 *FREE BOT DEPLOYMENT STARTED*\\n\\n🆔 "+d.id+"\\n⏱️ Expires: "+d.expiresAt+"\\n🔐 Login: "+mode.toUpperCase()+"\\n\\n"+(mode==="pairing"?"Waiting for pairing code…":"Waiting for QR…"),{category:"utility"});
+        (async()=>{let sent=false;const started=Date.now();while(Date.now()-started<Number(process.env.PAIRING_TIMEOUT_MS||180000)){await new Promise(r=>setTimeout(r,900));const x=freeDeploy.get(d.id);if(!x)return;if(x.code&&!sent){sent=true;await send(sock,jid,"🔐 *FREE BOT PAIRING CODE*\\n\\n"+x.code+"\\n\\nWhatsApp → Linked Devices → Link with phone number → enter this code.");}if(x.qr&&!sent){sent=true;try{const buf=await require("qrcode").toBuffer(x.qr,{errorCorrectionLevel:"M",margin:1,width:600});await sock.sendMessage(jid,{image:buf,caption:"📱 Scan this QR with WhatsApp → Linked Devices."});}catch(e){await send(sock,jid,"❌ QR generation failed: "+e.message);}}if(x.status==="running"){await send(sock,jid,"✅ *FREE BOT ONLINE*\\n\\n🆔 "+x.id+"\\n⏱️ Expires: "+x.expiresAt);return;}if(["stopped","expired"].includes(x.status)){await send(sock,jid,"❌ Free bot "+x.status+".");return;}}})().catch(e=>send(sock,jid,"❌ Free deployment failed: "+e.message,{category:"error"}));
+      }catch(e){await send(sock,jid,"❌ "+e.message,{category:"error"});}
+      continue;
+    }
+    if(lower.startsWith(cfg.prefix+"freeenv")){
+      const raw=text.trim().slice((cfg.prefix+"freeenv").length).trim();
+      global.__TOHID_FREE_ENV=global.__TOHID_FREE_ENV||{};
+      const key=normalizeOwnerNumber(sender);
+      if(!raw){await send(sock,jid,"🔐 *FREE BOT ENV*\\n\\nSend JSON after .freeenv\\nExample: .freeenv {\\\"OPENAI_API_KEY\\\":\\\"sk-...\\\",\\\"GEMINI_API_KEY\\\":\\\"...\\\"}\\n\\nUse .freeenv clear to remove it.");continue;}
+      if(raw.toLowerCase()==="clear"){delete global.__TOHID_FREE_ENV[key];await send(sock,jid,"✅ Free bot ENV cleared.");continue;}
+      try{const env=pairingManager.cleanEnv(JSON.parse(raw));global.__TOHID_FREE_ENV[key]=env;await send(sock,jid,"✅ Free bot ENV saved. Keys: "+Object.keys(env).join(", "));}catch(e){await send(sock,jid,"❌ ENV setup failed: "+e.message);}
+      continue;
+    }
+    if(lower===cfg.prefix+"freestatus"){
+      const s=freeDeploy.list();await send(sock,jid,s.length?s.map(x=>"• "+x.id+" | "+x.mode+" | "+x.status+" | expires "+x.expiresAt).join("\\n"):"No free deployments.");continue;
+    }
+    if(lower.startsWith(cfg.prefix+"freestop ")){
+      const id=text.trim().slice((cfg.prefix+"freestop").length).trim();const ok=await freeDeploy.stop(id);await send(sock,jid,ok?"✅ Free bot stopped.":"❌ Free deployment not found.");continue;
+    }
     if(lower===cfg.prefix+"dashboard"){
       if(!isOwner(sender)&&!(await hasPermission(sender,"bot.read"))){await send(sock,jid,"⛔ Dashboard access denied.",{category:"security"});continue;}
       const d=await dashboard.snapshot({cfg,db,plugins,control,delegatedOwners});
