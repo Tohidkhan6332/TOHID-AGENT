@@ -1027,3 +1027,48 @@ The deterministic command bridge handles clear, supported intents first. Complex
 When a protected AI action is prepared, TOHID-AGENT can show native **Confirm** and **Cancel** buttons. The buttons execute the same existing confirmation flow; they do not bypass authorization or confirmation checks.
 
 Text commands remain fully supported, so the new control layer is backward compatible.
+
+
+## 🚀 V11.2 Production Agent Toolkit
+
+The runtime now includes a stronger engineering/operations layer:
+
+- **Autonomous planner** with explicit risk classification and verification steps.
+- **Protected tool registry** aligned with every write/deploy/delete action.
+- **Multi-provider AI fallback** with OpenAI/Gemini selection.
+- **Persistent memory, profiles, scheduled missions and audit logs** through the database layer.
+- **Plugin system** with install, enable/disable, reload, testing and logs.
+- **Self-diagnostics** via `doctor`.
+- **Static deployment validation** via `validate`.
+- **Graceful shutdown** for database, WhatsApp and Telegram resources.
+- **Portable deployment entrypoint**: `app.js → MrTohid.js`.
+
+### Local checks
+
+```bash
+npm run validate
+npm run doctor
+npm test
+```
+
+`npm run validate` checks JavaScript syntax and deployment manifests without requiring external services. `npm run doctor` checks runtime, database/provider configuration, plugin storage and network reachability.
+
+### Agent safety model
+
+```
+User request
+    ↓
+Planner
+    ↓
+Risk classification
+    ↓
+Read-only work ───────────────→ Execute → Verify
+    ↓
+Protected write/deploy/delete
+    ↓
+Owner authorization + explicit CONFIRM
+    ↓
+Execute → Verify → Audit
+```
+
+The agent must not report an external action as successful unless the underlying tool returns a successful result.
