@@ -16,8 +16,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm install --ignore-scripts
-      - run: node --check index.js
+      - run: node --check app.js
       - run: node --check config.js
+      - run: node --check MrTohid.js
       - run: node --check lib/openai.js
       - run: node --check lib/agentTools.js
       - run: node --check lib/agentPlanner.js
