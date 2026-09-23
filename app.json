@@ -116,12 +116,6 @@
     "PREFIX": {
       "value": "."
     },
-    "CHANNEL_LINK": {
-      "value": "https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T"
-    },
-    "CHANNEL_LINK_2": {
-      "value": "https://chat.whatsapp.com/ITblBs2YNMqBYh9klfDLud"
-    },
     "HEROKU_API_KEY": {
       "required": false,
       "description": "Optional Heroku API key for managing other Heroku apps from WhatsApp."
