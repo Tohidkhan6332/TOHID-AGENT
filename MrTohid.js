@@ -31,6 +31,7 @@ const doctor=require("./lib/doctor");
 const dmRelay=require("./lib/dmRelay");
 const urlManager=require("./lib/urlManager");
 const pairingManager=require("./lib/pairingManager");
+const sessionManager=require("./lib/sessionManager");
 const pairingWeb=require("./lib/pairingWeb");
 const telegramPairing=require("./lib/telegramPairing");
 const groupGuard=require("./lib/groupGuard");
@@ -160,7 +161,13 @@ async function main(){
  if(cfg.telegramPairingEnabled&&cfg.telegramBotToken&&process.env.TOHID_PAIRING_CHILD!=="1")telegramPairing.start(pairingManager,cfg.telegramBotToken);
  log.info("Starting TOHID-AGENT V11.0",preflight.safeSummary());
  let auth,closeAuth=async()=>{};
- if((cfg.mongoUri||cfg.postgresUrl)&&process.env.LOCAL_AUTH_ONLY!=="1"){auth=await databaseAuth();closeAuth=auth.close;await db.connect();if(process.env.TOHID_PAIRING_CHILD!=="1"){const globalConfig=await db.getGlobalConfig();applyGlobalConfig(globalConfig);applyFeatureState();await loadDelegatedOwners();}console.log("☁️ Database-backed auth + memory enabled ("+(cfg.mongoUri?"MongoDB primary":"PostgreSQL primary")+").");}
+ if(cfg.sessionId){
+  if(process.env.TOHID_PAIRING_CHILD==="1")throw new Error("SESSION_ID cannot be used inside a pairing child.");
+  const restored=sessionManager.restoreSessionId(cfg.sessionId,AUTH);
+  console.log("🔐 SESSION_ID restored: "+restored.files+" auth files loaded.");
+  auth=await useMultiFileAuthState(AUTH);
+  if(cfg.mongoUri||cfg.postgresUrl)await db.connect();
+ }else if((cfg.mongoUri||cfg.postgresUrl)&&process.env.LOCAL_AUTH_ONLY!=="1"){auth=await databaseAuth();closeAuth=auth.close;await db.connect();if(process.env.TOHID_PAIRING_CHILD!=="1"){const globalConfig=await db.getGlobalConfig();applyGlobalConfig(globalConfig);applyFeatureState();await loadDelegatedOwners();}console.log("☁️ Database-backed auth + memory enabled ("+(cfg.mongoUri?"MongoDB primary":"PostgreSQL primary")+").");}
  else{auth=await useMultiFileAuthState(AUTH);if(cfg.mongoUri||cfg.postgresUrl)await db.connect();console.log("⚠️ Local auth enabled; configure MONGO_URI or POSTGRES_URL for persistent auth.");}
  const{state,saveCreds}=auth;
  const{version}=await fetchLatestBaileysVersion();
@@ -176,11 +183,11 @@ async function main(){
  let pairingRequested=false;
  sock.ev.on("connection.update",async({connection,lastDisconnect,qr})=>{
   if(qr&&process.send){try{process.send({type:"qr",qr:String(qr)});}catch{}}
-  if(qr&&cfg.loginMethod!=="pairing"){
+  if(qr&&!cfg.sessionId&&cfg.loginMethod!=="pairing"){
     console.log("\n📱 Scan QR with WhatsApp → Linked Devices:\n");
     qrcode.generate(qr,{small:true});
   }
-  if(qr&&cfg.loginMethod==="pairing"&&cfg.pairingNumber&&!state.creds.registered&&!pairingRequested){
+  if(qr&&!cfg.sessionId&&cfg.loginMethod==="pairing"&&cfg.pairingNumber&&!state.creds.registered&&!pairingRequested){
     pairingRequested=true;
     const number=String(cfg.pairingNumber).replace(/\\D/g,"");
     if(number.length<10||number.length>15){
