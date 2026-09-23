@@ -96,6 +96,7 @@ module.exports={
   maxMessageChars:Number(process.env.AI_MAX_MESSAGE_CHARS||12000),
   maxMemoryMessages:Number(process.env.AI_MAX_MEMORY_MESSAGES||50),
   sessionId:String(process.env.SESSION_ID||"").trim(),
+  sessionStoreSecret:String(process.env.SESSION_STORE_SECRET||"").trim(),
   loginMethod:(process.env.SESSION_ID?"session":(process.env.LOGIN_METHOD||"pairing")).toLowerCase(),
   pairingNumber:String(process.env.SESSION_ID?"":(process.env.PAIRING_NUMBER||"")).replace(/\D/g,""),
   toolLoopLimit:Number(process.env.AI_TOOL_LOOP_LIMIT||8),
