@@ -34,7 +34,7 @@ const pairingManager=require("./lib/pairingManager");
 const pairingWeb=require("./lib/pairingWeb");
 const telegramPairing=require("./lib/telegramPairing");
 const groupGuard=require("./lib/groupGuard");
-const commandCatalog=require("./lib/commandCatalog");
+const commandCatalog=require("./lib/commandCatalog");\nconst onboarding=require("./lib/onboarding");
 const universalCommands=require("./lib/universalCommandRegistry");
 const universalExecutor=require("./lib/universalExecutor");
 
