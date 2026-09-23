@@ -288,16 +288,8 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
         if(action.startsWith("__TOHID_CATEGORY__")){await buttons.sendCommandMenu(sock,jid,ui.resolve(await getUIMode(jid),"selection"),Number(action.slice("__TOHID_CATEGORY__".length)));continue;}
         if(action.startsWith("__TOHID_CMD__")){text=action.slice("__TOHID_CMD__".length);}
 
-        const webLinks={
-          __TOHID_WEB_CONTACT__:"https://tg-contact-form.vercel.app",
-          __TOHID_WEB_BIO__:"https://tohid-link-bio.vercel.app",
-          __TOHID_WEB_BOTINFO__:"https://bot-info-website.vercel.app",
-          __TOHID_WEB_KHAN__:"https://tohid-khan-web.vercel.app",
-          __TOHID_WEB_TOHID__:"https://tohid-web.vercel.app",
-          __TOHID_WEB_AI__:"https://tohidai.vercel.app",
-          __TOHID_WEB_GAME__:"https://tohidgame.vercel.app"
-        };
-        if(webLinks[action]){await sock.sendMessage(jid,{text:"🌍 *WEB RESOURCE*\n"+webLinks[action]});continue;}
+        const webActions={__TOHID_WEB_CONTACT__:"contact",__TOHID_WEB_BIO__:"bio",__TOHID_WEB_BOTINFO__:"botinfo",__TOHID_WEB_KHAN__:"khan",__TOHID_WEB_TOHID__:"tohid",__TOHID_WEB_AI__:"ai",__TOHID_WEB_GAME__:"game"};
+        if(webActions[action]){await buttons.sendWebResource(sock,jid,webActions[action]);continue;}
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
