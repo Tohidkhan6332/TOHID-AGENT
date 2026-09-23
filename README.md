@@ -778,9 +778,9 @@ Example messages: `Vercel projects dikhao`, `Render project redeploy karo`, `Koy
 
 ## 🔐 Portable SESSION_ID Login
 
-TOHID-AGENT can generate a portable WhatsApp session from the built-in pairing webpage.
+TOHID-AGENT now uses a **GlobalTech-style session-reference flow**, but WhatsApp credentials stay private instead of being uploaded to public Pastebin/Mega.
 
-### 1. Generate a session
+### 1. Generate a SESSION_ID
 
 Open:
 
@@ -788,43 +788,50 @@ Open:
 https://YOUR-DEPLOYMENT-DOMAIN/pair
 ```
 
-Choose either **8-digit Pairing Code** or **QR Code**. After WhatsApp connects, the page generates a `SESSION_ID` that can be copied.
+Choose **8-digit Pairing Code** or **QR Code**. The pairing web starts a temporary Baileys connection. After WhatsApp connects, the **complete multi-file Baileys auth state** is compressed, encrypted with AES-256-GCM and stored in the configured MongoDB/PostgreSQL database.
 
-### 2. Deploy using the session
+The webpage receives only an opaque reference:
 
-Set these Config Vars:
+```
+SESSION_ID=TOHID-SESSION-v1....
+```
+
+Raw WhatsApp credentials are never sent to the browser.
+
+### 2. Required shared configuration
+
+The pairing-web deployment and final bot deployment must use the same database and:
 
 ```env
-SESSION_ID=TOHID-AGENT~...
+MONGO_URI=...
+MONGO_DB=tohid-agent
+SESSION_STORE_SECRET=use-a-random-secret-at-least-32-characters
+```
+
+`SESSION_STORE_SECRET` is secret key material. Do not commit it to GitHub.
+
+### 3. Deploy the bot using the SESSION_ID
+
+Set:
+
+```env
+SESSION_ID=TOHID-SESSION-v1....
+SESSION_STORE_SECRET=<same-secret-used-by-pairing-web>
 PAIRING_NUMBER=
 ```
 
-`SESSION_ID` takes priority. On startup the bot restores the Baileys auth files from the session and does **not** request an 8-digit pairing code or display a QR.
-
-### 3. Pairing/QR without SESSION_ID
-
-8-digit pairing mode:
-
-```env
-SESSION_ID=
-PAIRING_NUMBER=919XXXXXXXXX
-```
-
-Normal QR mode:
-
-```env
-SESSION_ID=
-PAIRING_NUMBER=
-```
-
-So the login selection is:
+Startup flow:
 
 ```
 SESSION_ID present
       ↓
-Restore session
+Look up opaque ID in private database
       ↓
-No QR / no pairing code
+Decrypt + restore full multi-file Baileys auth state
+      ↓
+Start WhatsApp
+      ↓
+NO QR / NO 8-digit pairing code
 
 SESSION_ID empty + PAIRING_NUMBER present
       ↓
@@ -835,7 +842,26 @@ Both empty
 Normal QR
 ```
 
-> **Security:** Treat `SESSION_ID` like a WhatsApp credential. Do not post it in GitHub, screenshots, public chats, logs, or client-side source code. If a session is exposed, unlink that WhatsApp device and generate a fresh session.
+`SESSION_ID` is reusable, so normal Heroku/Render/Railway restarts do not require pairing again.
+
+### 4. Security model
+
+- The session ID is a random, high-entropy bearer reference; keep it private.
+- Database records store a SHA-256 hash of the session ID, not the raw ID.
+- The full auth bundle is encrypted at rest with AES-256-GCM.
+- The complete multi-file auth directory is stored, not only `creds.json`; this preserves Baileys signal/app-state keys.
+- Temporary pairing auth files are removed after the session is stored.
+- Pairing-web child processes do not run normal bot onboarding or scheduled missions.
+- If a session is compromised, revoke/unlink the WhatsApp device and generate a new session.
+
+### 5. Pairing web routes
+
+- `/pair` — session generator
+- `/session` — alias for the session generator
+- `/pair/status/<id>` — temporary pairing status
+- `/pair/stop/<id>` — stop a temporary pairing process
+
+> The session generator requires MongoDB or PostgreSQL plus `SESSION_STORE_SECRET`.
 
 ## 🩺 Production Health
 
