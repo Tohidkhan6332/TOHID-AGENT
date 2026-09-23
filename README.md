@@ -640,7 +640,7 @@ TOHID-AGENT/
 
 ## 📢 TOHID TECH Promotion
 
-Bot responses include the official TOHID TECH WhatsApp Channel. Configure `CHANNEL_LINK` for the Channel and `CHANNEL_LINK_2` for the WhatsApp Group.
+Bot responses include the official TOHID TECH Channel and Group promotion. These links are hard-coded in `lib/promotion.js` and cannot be overridden through environment variables or runtime config.
 
 <a href="https://whatsapp.com/channel/0029VaGyP933bbVC7G0x0i2T"><img src="https://img.shields.io/badge/Join%20TOHID%20TECH%20WhatsApp%20Channel-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="Join TOHID TECH WhatsApp Channel"></a>
 
