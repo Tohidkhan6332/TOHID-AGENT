@@ -14,4 +14,4 @@ if(!Number.isInteger(port)||port<1||port>65535){
 process.env.PORT=String(port);
 process.env.NODE_ENV=process.env.NODE_ENV||"production";
 
-require("./MrTohid.js");
+require(process.env.PAIRING_WEB_ONLY==="true"?"./pairing-server.js":"./MrTohid.js");
