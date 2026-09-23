@@ -100,9 +100,9 @@ async function send(sock,jid,text,ctx={}){
  const visualCategories=new Set(["github","memory","vision","admin","stats","security","status","error","code","utility"]);
  const image=category&&visualCategories.has(category)?replyImages.getImage(category):null;
  if(image){
-  return sock.sendMessage(jid,{image:{url:image},caption:withPromo(localized)});
+  return sock.sendMessage(jid,{image:{url:image},caption:localized});
  }
- return sock.sendMessage(jid,{text:withPromo(localized)});
+ return sock.sendMessage(jid,{text:localized});
 }
 
 async function databaseAuth(){
