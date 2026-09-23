@@ -138,6 +138,10 @@
       "required": false,
       "description": "Optional custom local auth directory."
     },
+    "PAIRING_WEB_ONLY": {
+      "value": "false",
+      "description": "Set true on a dedicated deployment to run only the standalone SESSION_ID pairing webpage instead of the WhatsApp bot."
+    },
     "PAIRING_TIMEOUT_MS": {
       "value": "180000"
     },
