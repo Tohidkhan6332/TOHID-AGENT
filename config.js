@@ -80,7 +80,7 @@ module.exports={
   ownerNumber:String(process.env.OWNER_NUMBER||"").replace(/\D/g,""),
   delegatedOwnerNumbers:String(process.env.DELEGATED_OWNER_NUMBERS||"").split(",").map(x=>x.replace(/\D/g,"")).filter(Boolean),
   mongoUri:process.env.MONGO_URI||"",
-  postgresUrl:process.env.POSTGRES_URL||"",
+  postgresUrl:process.env.POSTGRES_URL||process.env.DATABASE_URL||"",
   postgresSsl:String(process.env.POSTGRES_SSL||"false").toLowerCase()==="true",
   postgresPoolMax:Number(process.env.POSTGRES_POOL_MAX||5),
   mongoDb:process.env.MONGO_DB||"tohid-agent",
