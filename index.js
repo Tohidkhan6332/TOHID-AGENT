@@ -6,6 +6,7 @@ const pino=require("pino");
 const {MongoClient}=require("mongodb");
 const {default:makeWASocket,useMultiFileAuthState,initAuthCreds,BufferJSON,DisconnectReason,downloadContentFromMessage,fetchLatestBaileysVersion,makeCacheableSignalKeyStore,Browsers}=require("@whiskeysockets/baileys");
 const cfg=require("./config");
+const promotion=require("./lib/promotion");
 const planner=require("./lib/agentPlanner");
 const agentCore=require("./lib/agentCore");
 const skills=require("./lib/skills");
@@ -120,8 +121,8 @@ async function databaseAuth(){
  return{state:{creds,keys:makeCacheableSignalKeyStore(keyStore,pino({level:"silent"}))},saveCreds,close:async()=>{}};
 }
 
-function promo(){return "📢 *TOHID TECH*\n"+cfg.channelLink;}
-function withPromo(text){const s=String(text||"");return s.includes(cfg.channelLink)?s:s+"\\n\\n"+promo();}
+function promo(){return "📢 *TOHID TECH*\n"+promotion.channel;}
+function withPromo(text){const s=String(text||"");return s.includes(promotion.channel)?s:s+"\\n\\n"+promo();}
 function adminHelp(){return "🛠️ *TOHID AI CONTROL CENTER V11*\n\n👑 .owner list/add/remove/revokeall\n🧩 .plugin list/install/enable/disable/reload/remove/test/logs\n⚙️ .feature list/on/off <name>\n📁 .file list/read/backup/backups/restore/write\n📊 .admin status\n🤖 Send natural-language tasks for the AI planner\n\n🔐 Delegated owners get full owner-level bot control. Only the primary OWNER_NUMBER can add/remove delegated owners.";}
 function help(){
  return commandCatalog.menuText()+"\\n\\n🧭 *HOW TO USE*\\n\\n"+
@@ -288,7 +289,7 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
-        if(action==="__TOHID_CHANNEL__"){await send(sock,jid,"📢 *TOHID TECH*\n"+cfg.channelLink,{category:"utility"});continue;}
+        if(action==="__TOHID_CHANNEL__"){await send(sock,jid,"📢 *TOHID TECH*\n"+promotion.channel,{category:"utility"});continue;}
         if(action==="__TOHID_CONFIRM__"||action==="__TOHID_CANCEL__"){
           const controlText=action==="__TOHID_CONFIRM__"?"CONFIRM":"CANCEL";
           try{
