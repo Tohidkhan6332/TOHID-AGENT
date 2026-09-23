@@ -863,6 +863,24 @@ Normal QR
 
 > The session generator requires MongoDB or PostgreSQL plus `SESSION_STORE_SECRET`.
 
+## 🌐 Standalone SESSION_ID Web
+
+If you want a separate pairing website like the reference PAIRING-WEB architecture, deploy the same repository as a **dedicated pairing service**.
+
+Set:
+
+```env
+PAIRING_WEB_ONLY=true
+MONGO_URI=<shared-database>
+SESSION_STORE_SECRET=<same-32+-character-secret>
+```
+
+The standalone service runs `pairing-server.js`, serves `/pair` and `/session`, creates the temporary WhatsApp connection, stores the encrypted full multi-file auth state, and returns only the opaque `SESSION_ID`.
+
+Then deploy TOHID-AGENT normally with the same `MONGO_URI` and `SESSION_STORE_SECRET`, and set the generated `SESSION_ID` plus an empty `PAIRING_NUMBER`.
+
+Heroku/Render/Railway web deployments should keep the service bound to the platform-provided `PORT`; the repository's `app.js` handles the runtime selection. Heroku's web process must be declared as the `web` process and listen on `$PORT`. citeturn0search0turn0search1
+
 ## 🩺 Production Health
 
 Heroku and other hosts can use:
