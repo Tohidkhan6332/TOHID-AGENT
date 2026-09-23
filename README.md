@@ -13,6 +13,12 @@
 ### Railway
 <a href="https://railway.com/new"><img src="https://railway.com/button.svg" alt="Deploy on Railway"></a>
 
+### Koyeb
+<a href="https://app.koyeb.com/deploy?type=git&builder=docker&repository=github.com/Tohidkhan6332/TOHID-AGENT&branch=main&name=tohid-agent"><img src="https://www.koyeb.com/static/images/deploy/button.svg" alt="Deploy to Koyeb"></a>
+
+### Vercel (API surface only)
+<a href="https://vercel.com/new/clone?repository-url=https://github.com/Tohidkhan6332/TOHID-AGENT"><img src="https://vercel.com/button" alt="Deploy with Vercel"></a>
+
 ### Replit
 <a href="https://replit.com/github/Tohidkhan6332/TOHID-AGENT"><img src="https://replit.com/badge/github/Tohidkhan6332/TOHID-AGENT" alt="Run on Replit"></a>
 
