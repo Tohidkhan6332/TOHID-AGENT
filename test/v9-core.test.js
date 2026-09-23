@@ -1,5 +1,7 @@
 const assert=require("assert");
 const fs=require("fs");
+assert.ok(fs.existsSync(require.resolve("../MrTohid.js")));
+assert.ok(!fs.existsSync(require.resolve("../MrTohid.js").replace(/MrTohid\.js$/,"index.js")));
 const core=require("../lib/agentCore");
 const mission=require("../lib/mission");
 const plugins=require("../lib/pluginManager");
