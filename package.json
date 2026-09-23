@@ -12,7 +12,6 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node app.js",
-    "heroku-postbuild": "node scripts/prestart.js",
     "prestart": "node scripts/prestart.js",
     "test": "node test/v9-core.test.js",
     "pretest": "node --check MrTohid.js && node --check lib/mission.js && node --check lib/scheduler.js"
