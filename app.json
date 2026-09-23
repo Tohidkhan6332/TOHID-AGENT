@@ -259,6 +259,10 @@
     },
     "DEBUG": {
       "value": "false"
+    },
+    "DATABASE_URL": {
+      "required": false,
+      "description": "Optional Heroku/managed PostgreSQL connection URL. config.js also accepts DATABASE_URL automatically."
     }
   }
 }
