@@ -10,4 +10,3 @@ tmp-*
 
 .tohid-sessions/
 .tohid-control/urls.json
-secrets.js
