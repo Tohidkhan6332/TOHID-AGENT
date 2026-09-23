@@ -167,7 +167,7 @@ async function main(){
   const restored=await sessionStore.restoreToAuthDir(cfg.sessionId,AUTH);
   console.log("🔐 SESSION_ID restored: "+restored.files+" auth files loaded.");
   auth=await useMultiFileAuthState(AUTH);
-else if((cfg.mongoUri||cfg.postgresUrl)&&process.env.LOCAL_AUTH_ONLY!=="1"){auth=await databaseAuth();closeAuth=auth.close;await db.connect();if(process.env.TOHID_PAIRING_CHILD!=="1"){const globalConfig=await db.getGlobalConfig();applyGlobalConfig(globalConfig);applyFeatureState();await loadDelegatedOwners();}console.log("☁️ Database-backed auth + memory enabled ("+(cfg.mongoUri?"MongoDB primary":"PostgreSQL primary")+").");}
+}else if((cfg.mongoUri||cfg.postgresUrl)&&process.env.LOCAL_AUTH_ONLY!=="1"){auth=await databaseAuth();closeAuth=auth.close;await db.connect();if(process.env.TOHID_PAIRING_CHILD!=="1"){const globalConfig=await db.getGlobalConfig();applyGlobalConfig(globalConfig);applyFeatureState();await loadDelegatedOwners();}console.log("☁️ Database-backed auth + memory enabled ("+(cfg.mongoUri?"MongoDB primary":"PostgreSQL primary")+").");}
  else{auth=await useMultiFileAuthState(AUTH);if(cfg.mongoUri||cfg.postgresUrl)await db.connect();console.log("⚠️ Local auth enabled; configure MONGO_URI or POSTGRES_URL for persistent auth.");}
  const{state,saveCreds}=auth;
  const{version}=await fetchLatestBaileysVersion();
