@@ -293,7 +293,7 @@ sock.ev.on("messages.upsert",async({messages,type})=>{
         if(action==="__TOHID_AI__"){await send(sock,jid,"🤖 *TOHID-AGENT AI*\n\nSend your question or command now. Text input remains fully supported.",{category:"ai"});continue;}
         if(action==="__TOHID_GITHUB__"){await send(sock,jid,"🐙 *GitHub Agent*\n\nTell me what you want to inspect or manage, for example: list my repositories or read a repository file.",{category:"github"});continue;}
         if(action==="__TOHID_HEROKU__"){await send(sock,jid,"🚀 *Heroku Agent*\n\nTell me which app you want to inspect or manage. Protected changes still require owner authorization + CONFIRM.",{category:"status"});continue;}
-        if(action==="__TOHID_CHANNEL__"){await send(sock,jid,"📢 *TOHID TECH*\n"+promotion.channel,{category:"utility"});continue;}
+        if(action==="__TOHID_CHANNEL__"){await buttons.sendChannelMenu(sock,jid);continue;}
         if(action==="__TOHID_CONFIRM__"||action==="__TOHID_CANCEL__"){
           const controlText=action==="__TOHID_CONFIRM__"?"CONFIRM":"CANCEL";
           try{
