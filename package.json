@@ -3,19 +3,19 @@
   "version": "11.2.0",
   "private": true,
   "description": "TOHID-AGENT V11 — WhatsApp AI Command Center, plugins, files, backups and autonomous agent by Tohid",
-  "main": "index.js",
+  "main": "MrTohid.js",
   "type": "commonjs",
   "engines": {
     "node": "22.x",
     "npm": "10.x"
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js",
+    "start": "node MrTohid.js",
+    "dev": "node MrTohid.js",
     "heroku-postbuild": "node scripts/prestart.js",
     "prestart": "node scripts/prestart.js",
     "test": "node test/v9-core.test.js",
-    "pretest": "node --check index.js && node --check lib/mission.js && node --check lib/scheduler.js"
+    "pretest": "node --check MrTohid.js && node --check lib/mission.js && node --check lib/scheduler.js"
   },
   "dependencies": {
     "axios": "^1.12.2",
