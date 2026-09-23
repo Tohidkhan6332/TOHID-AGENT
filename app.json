@@ -2,6 +2,8 @@
   "name": "TOHID-AGENT",
   "description": "TOHID-AGENT V11.2.0 — Portable WhatsApp AI Agent with pairing web, AI, GitHub automation and multi-platform deployment.",
   "repository": "https://github.com/Tohidkhan6332/TOHID-AGENT",
+  "website": "https://github.com/Tohidkhan6332/TOHID-AGENT",
+  "success_url": "/healthz",
   "keywords": [
     "whatsapp",
     "ai",
@@ -24,33 +26,93 @@
     }
   },
   "env": {
-    "OPENAI_API_KEY": {
-      "required": false,
-      "description": "OpenAI API key. Leave blank if you use Gemini only."
-    },
-    "GEMINI_API_KEY": {
-      "required": false,
-      "description": "Google Gemini API key. Leave blank if you use OpenAI only."
-    },
-    "AI_PROVIDER": {
-      "value": "auto",
-      "description": "AI provider mode: auto, openai, or gemini."
-    },
-    "MONGO_URI": {
-      "required": false,
-      "description": "Optional primary MongoDB connection. Use PostgreSQL if MongoDB is not available."
-    },
-    "MONGO_DB": {
-      "value": "tohid-agent",
-      "description": "MongoDB database name."
+    "NODE_ENV": {
+      "value": "production",
+      "description": "Run TOHID-AGENT in production mode."
     },
     "OWNER_NUMBER": {
       "required": true,
       "description": "Owner WhatsApp number in international format, digits only. Example: 9198XXXXXXXX."
     },
+    "MONGO_URI": {
+      "required": false,
+      "description": "Primary MongoDB connection. Required for persistent production auth/memory unless POSTGRES_URL is configured."
+    },
+    "MONGO_DB": {
+      "value": "tohid-agent",
+      "description": "MongoDB database name."
+    },
+    "POSTGRES_URL": {
+      "required": false,
+      "description": "Optional PostgreSQL connection URL. Used when MongoDB is unavailable."
+    },
+    "POSTGRES_SSL": {
+      "value": "false",
+      "description": "Set true for PostgreSQL providers that require TLS."
+    },
+    "POSTGRES_POOL_MAX": {
+      "value": "5",
+      "description": "PostgreSQL connection pool size."
+    },
+    "OPENAI_API_KEY": {
+      "required": false,
+      "description": "OpenAI API key. Provide this or GEMINI_API_KEY to enable AI."
+    },
+    "GEMINI_API_KEY": {
+      "required": false,
+      "description": "Google Gemini API key. Provide this or OPENAI_API_KEY to enable AI."
+    },
+    "AI_PROVIDER": {
+      "value": "auto",
+      "description": "AI provider mode: auto, openai, or gemini."
+    },
+    "OPENAI_MODEL": {
+      "value": "gpt-5.6-luna"
+    },
+    "GEMINI_MODEL": {
+      "value": "gemini-3.8-flash"
+    },
+    "GEMINI_IMAGE_MODEL": {
+      "value": "gemini-3.1-flash-image"
+    },
+    "GEMINI_VIDEO_MODEL": {
+      "value": "veo-3.1-generate-preview"
+    },
+    "GEMINI_TTS_MODEL": {
+      "value": "gemini-3.1-flash-tts-preview"
+    },
+    "GEMINI_TTS_VOICE": {
+      "value": "Kore"
+    },
+    "GEMINI_TRANSCRIBE_MODEL": {
+      "value": "gemini-3.5-transcribe"
+    },
+    "OPENAI_IMAGE_MODEL": {
+      "value": "gpt-image-2"
+    },
+    "OPENAI_TRANSCRIBE_MODEL": {
+      "value": "gpt-4o-transcribe"
+    },
+    "OPENAI_TTS_MODEL": {
+      "value": "gpt-4o-mini-tts"
+    },
+    "OPENAI_TTS_VOICE": {
+      "value": "cedar"
+    },
+    "OPENAI_VIDEO_MODEL": {
+      "value": "sora-2"
+    },
+    "OPENAI_VIDEO_SECONDS": {
+      "value": "8"
+    },
+    "OPENAI_VIDEO_SIZE": {
+      "value": "1280x720"
+    },
+    "AI_VIDEO_ENABLED": {
+      "value": "true"
+    },
     "GITHUB_OWNER": {
-      "value": "Tohidkhan6332",
-      "description": "GitHub account/organization owner used by the GitHub agent."
+      "value": "Tohidkhan6332"
     },
     "GITHUB_TOKEN": {
       "required": false,
@@ -64,23 +126,25 @@
       "required": false,
       "description": "WhatsApp number used to generate the pairing code, in international format, digits only."
     },
+    "AUTH_DIR": {
+      "required": false,
+      "description": "Optional custom local auth directory."
+    },
+    "PAIRING_TIMEOUT_MS": {
+      "value": "180000"
+    },
+    "MAX_PAIRING_SESSIONS": {
+      "value": "10"
+    },
+    "TELEGRAM_BOT_TOKEN": {
+      "required": false,
+      "description": "Optional Telegram bot token for WhatsApp pairing commands."
+    },
+    "TELEGRAM_PAIRING_ENABLED": {
+      "value": "true"
+    },
     "AI_AGENT_ENABLED": {
       "value": "true"
-    },
-    "AUTONOMOUS_TASKS": {
-      "value": "true"
-    },
-    "AGENT_MODE": {
-      "value": "autonomous"
-    },
-    "AGENT_PLANNER_ENABLED": {
-      "value": "true"
-    },
-    "AGENT_TASK_VERIFICATION": {
-      "value": "true"
-    },
-    "AGENT_TASK_HISTORY_LIMIT": {
-      "value": "20"
     },
     "AI_VOICE_REPLY": {
       "value": "true"
@@ -97,12 +161,50 @@
     "AI_MAX_MESSAGE_CHARS": {
       "value": "12000"
     },
+    "AI_MAX_MEMORY_MESSAGES": {
+      "value": "50"
+    },
+    "AI_TOOL_LOOP_LIMIT": {
+      "value": "8"
+    },
+    "AI_REQUEST_TIMEOUT_MS": {
+      "value": "120000"
+    },
+    "AI_MAX_OUTPUT_CHARS": {
+      "value": "12000"
+    },
+    "AGENT_MODE": {
+      "value": "autonomous"
+    },
+    "AGENT_PLANNER_ENABLED": {
+      "value": "true"
+    },
+    "AUTONOMOUS_TASKS": {
+      "value": "true"
+    },
+    "AGENT_TASK_HISTORY_LIMIT": {
+      "value": "20"
+    },
+    "AGENT_TASK_VERIFICATION": {
+      "value": "true"
+    },
     "INTERACTIVE_BUTTONS_ENABLED": {
       "value": "true"
     },
     "BOT_UI_MODE": {
-      "value": "auto",
-      "description": "Adaptive UI mode: auto, buttons, text, hybrid, or minimal."
+      "value": "auto"
+    },
+    "BAILEYS_EXTRAS_ENABLED": {
+      "value": "true"
+    },
+    "PLUGIN_SYSTEM_ENABLED": {
+      "value": "true"
+    },
+    "PLUGIN_INSTALL_LIMIT_KB": {
+      "value": "512"
+    },
+    "REMOTE_SHELL_ENABLED": {
+      "value": "false"
     },
     "GITHUB_AGENT_ENABLED": {
       "value": "true"
@@ -115,6 +217,12 @@
     },
     "PREFIX": {
       "value": "."
+    },
+    "MISSION_SCHEDULER_ENABLED": {
+      "value": "true"
+    },
+    "MISSION_POLL_INTERVAL_MS": {
+      "value": "60000"
     },
     "HEROKU_API_KEY": {
       "required": false,
@@ -136,37 +244,21 @@
       "required": false,
       "description": "Optional Koyeb API token for Koyeb management."
     },
-    "MISSION_SCHEDULER_ENABLED": {
-      "value": "true",
-      "description": "Enable the MongoDB-backed V9 mission scheduler."
+    "ADMIN_PANEL_ENABLED": {
+      "value": "false"
     },
-    "MISSION_POLL_INTERVAL_MS": {
-      "value": "60000",
-      "description": "Mission scheduler polling interval in milliseconds."
-    },
-    "POSTGRES_URL": {
+    "ADMIN_PANEL_TOKEN": {
       "required": false,
-      "description": "Optional PostgreSQL connection URL. MongoDB is primary when both are configured; PostgreSQL is used when MongoDB is unavailable."
+      "description": "Optional admin panel token."
     },
-    "POSTGRES_SSL": {
-      "value": "false",
-      "description": "Set true for PostgreSQL providers that require TLS."
+    "REPLY_IMAGES_ENABLED": {
+      "value": "true"
     },
-    "POSTGRES_POOL_MAX": {
-      "value": "5",
-      "description": "PostgreSQL connection pool size."
+    "REPLY_IMAGE_DIR": {
+      "value": "assets/reply-images"
     },
-    "MAX_PAIRING_SESSIONS": {
-      "value": "10",
-      "description": "Maximum concurrent web/WhatsApp pairing sessions."
-    },
-    "TELEGRAM_BOT_TOKEN": {
-      "required": false,
-      "description": "Optional Telegram bot token for WhatsApp pairing commands."
-    },
-    "TELEGRAM_PAIRING_ENABLED": {
-      "value": "true",
-      "description": "Enable Telegram /pair and /qr WhatsApp pairing interface."
+    "DEBUG": {
+      "value": "false"
     }
   }
 }
