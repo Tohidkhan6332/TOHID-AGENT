@@ -1,1 +1,1 @@
-web: node MrTohid.js
+web: npm start
