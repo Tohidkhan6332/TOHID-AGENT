@@ -1,4 +1,4 @@
-name: TOHID-AGENT V9 CI
+name: TOHID-AGENT V11 CI
 
 on:
   push:
@@ -14,7 +14,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
       - run: npm install --ignore-scripts
       - run: node --check app.js
       - run: node --check config.js
