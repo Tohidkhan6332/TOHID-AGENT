@@ -19,16 +19,17 @@ button{width:100%;padding:14px;border:0;border-radius:12px;background:#25d366;co
 <div class="warn">Use HTTPS in production. Never paste a secret into a public page you do not trust. Pair only a WhatsApp account you control or are authorized to connect.</div>
 </main>
 <script>
-const $=id=>document.getElementById(id);let id="";
+const $=id=>document.getElementById(id);let id="",token="";
+async function api(url,options={}){options.headers={...(options.headers||{}),"x-pairing-token":token};return fetch(url,options);}
 function show(s){$("result").classList.remove("hidden");$("result").textContent=s}
 $("start").onclick=async()=>{
  $("start").disabled=true;show("Starting…");
  let env={};try{env=$("env").value.trim()?JSON.parse($("env").value):{}}catch(e){show("Invalid ENV JSON");$("start").disabled=false;return}
  const mode=$("mode").value;const r=await fetch("/pair",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({phone:mode==="qr"?"":$("phone").value,mode,env})});
  const d=await r.json();if(!r.ok){show(d.error||"Pairing failed");$("start").disabled=false;return}
- id=d.id;show("Pairing session: "+id+"\nWaiting for WhatsApp…");poll();
+ id=d.id;token=d.accessToken||"";if(!token){show("Pairing server did not return an access token.");$("start").disabled=false;return}show("Pairing session: "+id+"\nWaiting for WhatsApp…");poll();
 };
-async function poll(){if(!id)return;const r=await fetch("/pair/status/"+id);const d=await r.json();if(d.code){$("result").innerHTML="<div>Enter this code in WhatsApp → Linked Devices → Link with phone number</div><div class='code'>"+d.code+"</div>";}
+async function poll(){if(!id)return;const r=await api("/pair/status/"+id);const d=await r.json();if(d.code){$("result").innerHTML="<div>Enter this code in WhatsApp → Linked Devices → Link with phone number</div><div class='code'>"+d.code+"</div>";}
 else if(d.qr){$("result").innerHTML="<div>WhatsApp → Linked Devices → Link a Device → scan this QR</div><img class='qr' src='data:image/png;base64,"+d.qr+"'>";}
 else show("Status: "+d.status);
 if(d.connected&&d.sessionId){
