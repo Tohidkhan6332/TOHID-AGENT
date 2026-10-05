@@ -197,7 +197,7 @@ async function main(){
       for(let attempt=1;attempt<=3&&!state.creds.registered;attempt++){
         try{
           await new Promise(r=>setTimeout(r,1000));
-          const code=await sock.requestPairingCode(number,process.env.PAIRING_CODE||undefined);
+          const code=await sock.requestPairingCode(number);
           try{if(process.send)process.send({type:"pairing-code",code:String(code)});}catch{}
           console.log("\n🔐 WHATSAPP PAIRING CODE: "+code);
           console.log("📱 WhatsApp → Settings → Linked Devices → Link a Device → Link with phone number");
@@ -254,10 +254,11 @@ async function main(){
     if(cfg.missionSchedulerEnabled)scheduler.start(cfg.missionPollIntervalMs);
   }
   if(connection==="close"){
-    try{if(process.send)process.send({type:"status",status:"closed",code:lastDisconnect?.error?.output?.statusCode||null});}catch{}
     const code=lastDisconnect?.error?.output?.statusCode;
     const message=lastDisconnect?.error?.message||"";
-    log.warn("WhatsApp connection closed",{code,message});
+    const shouldReconnect=code!==DisconnectReason.loggedOut;
+    try{if(process.send)process.send({type:"status",status:"closed",code:code||null});}catch{}
+    log.warn("WhatsApp connection closed",{code,message,shouldReconnect});
     if(code===DisconnectReason.loggedOut){
       console.error("🧹 Clearing failed pairing session for a fresh login...");
       try{
@@ -266,6 +267,9 @@ async function main(){
       await closeAuth();
       console.log("🔄 Auth reset complete. Restart the bot for a fresh pairing code.");
     }else{
+      // 515 (restartRequired) is part of the normal post-pairing lifecycle:
+      // Baileys must reconnect with the freshly persisted credentials.
+      // Treat every non-logout close as reconnectable, including 515/408/401.
       await closeAuth();
       if(!shuttingDown)setTimeout(()=>main().catch(error=>log.error(error?.message||String(error))),3000);
     }
