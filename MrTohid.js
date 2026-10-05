@@ -182,7 +182,8 @@ async function main(){
  activeCloseAuth=closeAuth;
  sock.ev.on("creds.update",saveCreds);
  let pairingRequested=false;
- sock.ev.on("connection.update",async({connection,lastDisconnect,qr})=>{
+ sock.ev.on("connection.update",async({connection,lastDisconnect,qr,pairingFailed})=>{
+  if(connection||pairingFailed)log.info("WhatsApp connection update",{connection:connection||null,pairingFailed:pairingFailed||null,code:lastDisconnect?.error?.output?.statusCode||null,message:lastDisconnect?.error?.message||null});
   if(qr&&process.send){try{process.send({type:"qr",qr:String(qr)});}catch{}}
   if(qr&&!cfg.sessionId&&cfg.loginMethod!=="pairing"){
     console.log("\n📱 Scan QR with WhatsApp → Linked Devices:\n");
